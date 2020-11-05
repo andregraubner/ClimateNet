@@ -7,7 +7,7 @@ ClimateNet is a Python library for deep learning-based Climate Science. It provi
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install ClimateNet.
 
 ```bash
-pip install ClimateNet
+pip install climatenet
 ```
 
 ## Usage
