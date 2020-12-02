@@ -1,0 +1,10 @@
+{
+    "model": {
+      "architecture": "cgnet",
+      "lr": 1e-3,
+      "fields": ["TMQ", "PRECT"]
+    },
+    "data": {
+        "path": "PATH"
+    }
+  }
