@@ -5,12 +5,12 @@ import json
 config = json.load(open('config.json'))
 
 cgnet = CGNet(config)
-train = ClimateDatasetLabeled('/home/lukasks/neurips/expert_data/', cgnet.fields)
-allhist = ClimateDataset('/home/lukasks/neurips/input_data/ALLHIST/', cgnet.fields)
+train = ClimateDatasetLabeled('/home/lukasks/neurips/expert_data/', config)
+allhist = ClimateDataset('/home/lukasks/neurips/input_data/ALLHIST/', config)
 
-#cgnet.train(dataset, loss='jaccard', epochs=15)
+cgnet.train(train, loss='jaccard', epochs=15)
 
-predictions = cgnet.predict(allhist)
+#predictions = cgnet.predict(allhist)
 
 #cgnet.evaluate()
 #cgnet.save_weights('PATH-TO-SAVE')

@@ -18,8 +18,8 @@ class CGNet():
 
     def __init__(self, config: dict):
 
-        self.fields = config['model']['fields']
-        self.lr = config['model']['lr']
+        self.fields = list(config['fields'])
+        self.lr = config['lr']
 
         self.network = cgnet_module(classes=3, channels=len(self.fields)).cuda()
         self.optimizer = Adam(self.network.parameters(), lr=1e-3)
@@ -73,10 +73,6 @@ class CGNet():
             preds.append(batch_preds)
 
         return preds
-
-
-                
-
 
     def evaluate(self, dataset: ClimateDatasetLabeled):
         pass

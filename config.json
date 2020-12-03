@@ -1,10 +1,14 @@
 {
-    "model": {
-      "architecture": "cgnet",
-      "lr": 1e-3,
-      "fields": ["TMQ", "PRECT"]
-    },
-    "data": {
-        "path": "PATH"
+    "architecture": "cgnet",
+    "lr": 1e-3,
+    "fields": {
+      "TMQ": {
+        "mean": 3.7387e-01,
+        "std": 3.0266e+02
+      },
+      "PRECT": {
+        "mean": 1.6193e+03,
+        "std": 1.1783e+06
+      }  
     }
   }
