@@ -1,14 +1,28 @@
 {
     "architecture": "cgnet",
-    "lr": 1e-3,
+    "lr": 0.001,
     "fields": {
-      "TMQ": {
-        "mean": 3.7387e-01,
-        "std": 3.0266e+02
-      },
-      "PRECT": {
-        "mean": 1.6193e+03,
-        "std": 1.1783e+06
-      }  
-    }
-  }
+        "TMQ": {
+            "mean": 0.37387,
+            "std": 302.66
+        },
+        "U850": {
+            "mean": 0.021035,
+            "std": 100.25
+        },
+        "V850": {
+            "mean": 0.0060484,
+            "std": 74.048
+        },
+        "PSL": {
+            "mean": 1619.3,
+            "std": 1178300.0
+        }
+    },
+    "labels": [
+      "Background",
+      "Tropical Cyclone",
+      "Atmospheric River"
+    ],
+    "description": "This is a simple CGNet model."
+}

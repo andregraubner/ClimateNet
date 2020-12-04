@@ -13,31 +13,73 @@ from torch.optim import Adam
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 import numpy as np
+import xarray as xr
+from climatenet.utils.utils import Config
+from os import path
 
 class CGNet():
+    '''
+    The high-level CGNet class. 
+    This allows training and running CGNet without interacting with PyTorch code.
+    If you are looking for a higher degree of control over the training and inference,
+    we suggest you directly use the CGNetModule class, which is a PyTorch nn.Module.
 
-    def __init__(self, config: dict):
+    Parameters
+    ----------
+    config : Config
+        The model configuration.
+    model_path : str
+        Path to load the model and config from.
 
-        self.fields = list(config['fields'])
-        self.lr = config['lr']
+    Attributes
+    ----------
+    config : dict
+        Stores the model config
+    network : CGNetModule
+        Stores the actual model (nn.Module)
+    optimizer : torch.optim.Optimizer
+        Stores the optimizer we use for training the model
+    '''
 
-        self.network = cgnet_module(classes=3, channels=len(self.fields)).cuda()
-        self.optimizer = Adam(self.network.parameters(), lr=1e-3)
+    def __init__(self, config: Config = None, model_path: str = None):
+    
+        if config is not None and model_path is not None:
+            raise ValueError('''Config and weight path set at the same time. 
+            Pass a config if you want to create a new model, 
+            and a weight_path if you want to load an existing model.''')
+
+        if config is not None:
+            # Create new model
+            self.config = config
+            self.network = CGNetModule(classes=len(self.config.labels), channels=len(list(self.config.fields))).cuda()
+        elif model_path is not None:
+            # Load model
+            self.config = Config(path.join(model_path, 'config.json'))
+            self.network = CGNetModule(classes=len(self.config.labels), channels=len(list(self.config.fields))).cuda()
+            self.network.load_state_dict(torch.load(path.join(model_path, 'weights.pth')))
+        else:
+            raise ValueError('''You need to specify either a config or a model path.''')
+
+        self.optimizer = Adam(self.network.parameters(), lr=self.config.lr)        
         
-    def train(self, dataset: ClimateDatasetLabeled, loss: str, epochs: int = 1):
+    def train(self, dataset: ClimateDatasetLabeled, epochs: int = 1):
+        '''Train the network on the given dataset for the given amount of epochs'''
         self.network.train()
-        loader = DataLoader(dataset, batch_size=8)
+        collate = ClimateDatasetLabeled.collate
+        loader = DataLoader(dataset, batch_size=4, collate_fn=collate, num_workers=4)
         for epoch in range(1, epochs+1):
 
             print(f'Epoch {epoch}:')
             epoch_loader = tqdm(loader)
             aggregate_cm = np.zeros((3,3))
 
-            for inputs, labels in epoch_loader:
+            for features, labels in epoch_loader:
         
                 # Push data on GPU and pass forward
-                inputs, labels = inputs.cuda(), labels.cuda()
-                outputs = torch.softmax(self.network(inputs), 1)
+                features = torch.tensor(features.values).cuda()
+                labels = torch.tensor(labels.values).cuda()
+                
+                outputs = torch.softmax(self.network(features), 1)
 
                 # Update training CM
                 predictions = torch.max(outputs, 1)[1]
@@ -55,32 +97,49 @@ class CGNet():
             ious = get_iou_perClass(aggregate_cm)
             print('IOUs: ', ious, ', mean: ', ious.mean())
 
-    def predict(self, dataset: ClimateDataset):
+    def predict(self, dataset: ClimateDataset, save_dir: str = None):
+        '''Make predictions for the given dataset and return them as xr.DataArray'''
         self.network.eval()
-        loader = DataLoader(dataset, batch_size=1)
+        collate = ClimateDataset.collate
+        loader = DataLoader(dataset, batch_size=16, collate_fn=collate)
         epoch_loader = tqdm(loader)
 
-        preds = []
-
-        for inputs in epoch_loader:
+        predictions = []
+        for batch in epoch_loader:
+            features = torch.tensor(batch.values).cuda()
         
-            # Push data on GPU and pass forward
-            inputs = inputs.cuda().squeeze()
             with torch.no_grad():
-                outputs = torch.softmax(self.network(inputs), 1)
-            batch_preds = torch.max(outputs, 1)[1]
+                outputs = torch.softmax(self.network(features), 1)
+            preds = torch.max(outputs, 1)[1].cpu().numpy()
 
-            preds.append(batch_preds)
+            coords = batch.coords
+            del coords['variable']
+            
+            predictions.append(xr.DataArray(preds, coords=coords, dims=coords, attrs=batch.attrs))
 
-        return preds
+        return xr.concat(predictions, dim='time')
 
     def evaluate(self, dataset: ClimateDatasetLabeled):
+        '''TODO: Evaluate on a dataset and return statistics'''
         pass
 
-    def save_weights(self, path: str):
-        pass
+    def save_model(self, save_path: str):
+        '''
+        Save model weights and config to a directory.
+        '''
+        self.config.save(path.join(save_path, 'config.json'))
+        torch.save(self.network.state_dict(), path.join(save_path, 'weights.pth'))
 
-class cgnet_module(nn.Module):
+    @staticmethod
+    def load_model(model_path: str):
+        '''
+        Load a model. While this can easily be done using the normal constructor, this might make the code more readable - 
+        we instantly see that we're loading a model, and don't have to look at the arguments of the constructor first.
+        '''
+        return CGNet(model_path=model_path)
+
+
+class CGNetModule(nn.Module):
     """
     This class defines the proposed Context Guided Network (CGNet) in this work.
     """

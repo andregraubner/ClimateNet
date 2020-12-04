@@ -1,0 +1,42 @@
+import json
+
+class Config():
+    '''
+    Abstracts over a model configuration.
+    While it currently does not offer any advantages over working with a simple dict,
+    it makes it possible to simply add functionality concerning configurations:
+    - Checking the validity of a configuration file
+    - Automatically loading and saving configuration files
+
+    Parameters
+    ----------
+    path : str
+        The path to the json with the config
+
+    Attributes
+    ----------
+    architecture : str
+        Stores the model architecture type. Currently ignored (only have CGNet), but can be used in the future
+    lr : dict
+        The learning rate used to train the model
+    fields : [str]
+        A dictionary mapping from variable names to normalisation statistics
+    description : str
+        Stores an uninterpreted description string for the model. Put anything you want here.
+    '''
+
+    def __init__(self, path: str):
+        self.config_dict = json.load(open('config.json'))
+
+        # TODO: Check structure
+
+        self.architecture = self.config_dict['architecture']
+        self.lr = self.config_dict['lr']
+        self.fields = self.config_dict['fields']
+        self.labels = self.config_dict['labels']
+        self.description = self.config_dict['description']
+
+    def save(self, save_path: str):
+        with open(save_path, 'w', encoding='utf-8') as f:
+            json.dump(self.config_dict, f, ensure_ascii=False, indent=4)
+        

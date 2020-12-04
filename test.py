@@ -1,16 +1,14 @@
 from climatenet.utils.data import ClimateDatasetLabeled, ClimateDataset
 from climatenet.models import CGNet
-import json
+from climatenet.utils.utils import Config
 
-config = json.load(open('config.json'))
+config = Config('config.json')
+cgnet_new = CGNet(config)
 
-cgnet = CGNet(config)
-train = ClimateDatasetLabeled('/home/lukasks/neurips/expert_data/', config)
-allhist = ClimateDataset('/home/lukasks/neurips/input_data/ALLHIST/', config)
+cgnet_loaded = CGNet.load_model(model_path='model')
 
-cgnet.train(train, loss='jaccard', epochs=15)
+train = ClimateDatasetLabeled('/cm/shared/pool/climatenet/', cgnet_loaded.config)
+allhist = ClimateDataset('/home/lukasks/neurips/input_data/ALLHIST/', cgnet_loaded.config)
 
-#predictions = cgnet.predict(allhist)
-
-#cgnet.evaluate()
-#cgnet.save_weights('PATH-TO-SAVE')
+cgnet_loaded.train(train)
+predictions = cgnet_loaded.predict(allhist)
