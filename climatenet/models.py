@@ -120,8 +120,28 @@ class CGNet():
         return xr.concat(predictions, dim='time')
 
     def evaluate(self, dataset: ClimateDatasetLabeled):
-        '''TODO: Evaluate on a dataset and return statistics'''
-        pass
+        '''Evaluate on a dataset and return statistics'''
+        self.network.eval()
+        collate = ClimateDatasetLabeled.collate
+        loader = DataLoader(dataset, batch_size=8, collate_fn=collate, num_workers=4)
+
+        epoch_loader = tqdm(loader)
+        aggregate_cm = np.zeros((3,3))
+
+        for features, labels in epoch_loader:
+        
+            features = torch.tensor(features.values).cuda()
+            labels = torch.tensor(labels.values).cuda()
+                
+            with torch.no_grad():
+                outputs = torch.softmax(self.network(features), 1)
+            predictions = torch.max(outputs, 1)[1]
+            aggregate_cm += get_cm(predictions, labels, 3)
+
+            print('Evaluation stats:')
+            print(aggregate_cm)
+            ious = get_iou_perClass(aggregate_cm)
+            print('IOUs: ', ious, ', mean: ', ious.mean())
 
     def save_model(self, save_path: str):
         '''
