@@ -28,7 +28,7 @@ predictions = model.predict(inference_set)
 ```
 
 If you are familiar with PyTorch and want a higher degree of control over training procedures, data flow or other aspects of your project, we suggest you use our lower-level modules.
-The CGNetModule and Dataset classes are conform to what you would expect from standard PyTorch, which means that you can take whatever parts you need and swap out the others for your own building blocks. A quick example of this:
+The CGNetModule and Dataset classes conform to what you would expect from standard PyTorch, which means that you can take whatever parts you need and swap out the others for your own building blocks. A quick example of this:
 
 ```python
 training_data = ... # Plug in your own Dataloader and data handling
