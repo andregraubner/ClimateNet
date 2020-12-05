@@ -138,10 +138,10 @@ class CGNet():
             predictions = torch.max(outputs, 1)[1]
             aggregate_cm += get_cm(predictions, labels, 3)
 
-            print('Evaluation stats:')
-            print(aggregate_cm)
-            ious = get_iou_perClass(aggregate_cm)
-            print('IOUs: ', ious, ', mean: ', ious.mean())
+        print('Evaluation stats:')
+        print(aggregate_cm)
+        ious = get_iou_perClass(aggregate_cm)
+        print('IOUs: ', ious, ', mean: ', ious.mean())
 
     def save_model(self, save_path: str):
         '''
