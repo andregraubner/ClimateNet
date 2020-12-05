@@ -155,6 +155,8 @@ class CGNet():
         Load a model. While this can easily be done using the normal constructor, this might make the code more readable - 
         we instantly see that we're loading a model, and don't have to look at the arguments of the constructor first.
         '''
+        self.config = Config(path.join(model_path, 'config.json'))
+        self.network = CGNetModule(classes=len(self.config.labels), channels=len(list(self.config.fields))).cuda()
         self.network.load_state_dict(torch.load(path.join(model_path, 'weights.pth')))
 
 
