@@ -150,13 +150,12 @@ class CGNet():
         self.config.save(path.join(save_path, 'config.json'))
         torch.save(self.network.state_dict(), path.join(save_path, 'weights.pth'))
 
-    @staticmethod
-    def load_model(model_path: str):
+    def load_model(self, model_path: str):
         '''
         Load a model. While this can easily be done using the normal constructor, this might make the code more readable - 
         we instantly see that we're loading a model, and don't have to look at the arguments of the constructor first.
         '''
-        return CGNet(model_path=model_path)
+        self.network.load_state_dict(torch.load(path.join(model_path, 'weights.pth')))
 
 
 class CGNetModule(nn.Module):
