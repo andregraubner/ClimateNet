@@ -1,5 +1,7 @@
 # ClimateNet
 
+Please note that this is a work-in-progress, and as such everything might be subject to change.
+
 ClimateNet is a Python library for deep learning-based Climate Science. It provides command line tools for quick detection and tracking of extreme weather events. We also expose models, data sets and metrics to jump-start your research.
 
 ## Installation
