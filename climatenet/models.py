@@ -5,8 +5,8 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from climatenet.utils.data import ClimateDataset, ClimateDatasetLabeled
 from climatenet.modules import *
+from climatenet.utils.data import ClimateDataset, ClimateDatasetLabeled
 from climatenet.utils.losses import jaccard_loss
 from climatenet.utils.metrics import get_cm, get_iou_perClass
 from torch.optim import Adam
@@ -66,7 +66,7 @@ class CGNet():
         '''Train the network on the given dataset for the given amount of epochs'''
         self.network.train()
         collate = ClimateDatasetLabeled.collate
-        loader = DataLoader(dataset, batch_size=4, collate_fn=collate, num_workers=4)
+        loader = DataLoader(dataset, batch_size=self.config.train_batch_size, collate_fn=collate, num_workers=4, shuffle=True)
         for epoch in range(1, epochs+1):
 
             print(f'Epoch {epoch}:')
@@ -101,7 +101,7 @@ class CGNet():
         '''Make predictions for the given dataset and return them as xr.DataArray'''
         self.network.eval()
         collate = ClimateDataset.collate
-        loader = DataLoader(dataset, batch_size=16, collate_fn=collate)
+        loader = DataLoader(dataset, batch_size=self.config.pred_batch_size, collate_fn=collate)
         epoch_loader = tqdm(loader)
 
         predictions = []
@@ -123,7 +123,7 @@ class CGNet():
         '''Evaluate on a dataset and return statistics'''
         self.network.eval()
         collate = ClimateDatasetLabeled.collate
-        loader = DataLoader(dataset, batch_size=8, collate_fn=collate, num_workers=4)
+        loader = DataLoader(dataset, batch_size=self.config.pred_batch_size, collate_fn=collate, num_workers=4)
 
         epoch_loader = tqdm(loader)
         aggregate_cm = np.zeros((3,3))
@@ -162,9 +162,10 @@ class CGNet():
 
 class CGNetModule(nn.Module):
     """
-    This class defines the proposed Context Guided Network (CGNet) in this work.
+    CGNet (Wu et al, 2018: https://arxiv.org/pdf/1811.08201.pdf) implementation.
+    This is taken from their implementation, we do not claim credit for this.
     """
-    def __init__(self, classes=19, channels=4, M= 3, N= 21, dropout_flag = False):
+    def __init__(self, classes=19, channels=4, M=3, N= 21, dropout_flag = False):
         """
         args:
           classes: number of classes in the dataset. Default is 19 for the cityscapes

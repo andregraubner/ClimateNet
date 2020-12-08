@@ -1,6 +1,7 @@
 ###########################################################################
 #CGNet: A Light-weight Context Guided Network for Semantic Segmentation
 #Paper-Link: https://arxiv.org/pdf/1811.08201.pdf
+#This is taken from their implementation, we do not claim credit for this.
 ###########################################################################
 import torch
 import torch.nn as nn

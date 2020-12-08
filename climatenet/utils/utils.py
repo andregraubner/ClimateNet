@@ -1,4 +1,6 @@
 import json
+import torch
+import numpy as np
 
 class Config():
     '''
@@ -32,9 +34,16 @@ class Config():
 
         self.architecture = self.config_dict['architecture']
         self.lr = self.config_dict['lr']
+        self.seed = self.config_dict['seed']
+        self.train_batch_size = self.config_dict['train_batch_size']
+        self.pred_batch_size = self.config_dict['pred_batch_size']
         self.fields = self.config_dict['fields']
         self.labels = self.config_dict['labels']
         self.description = self.config_dict['description']
+
+        # Make reproducible
+        torch.manual_seed(self.seed)
+        np.random.seed(self.seed)
 
     def save(self, save_path: str):
         with open(save_path, 'w', encoding='utf-8') as f:

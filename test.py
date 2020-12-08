@@ -13,15 +13,16 @@ test = ClimateDatasetLabeled('/cm/shared/pool/climatenet/test', cgnet.config)
 #allhist = ClimateDataset('/home/lukasks/neurips/input_data/ALLHIST/', cgnet.config)
 allhist = ClimateDataset('/home/lukasks/neurips/input_data/ALLHIST_small/', cgnet.config)
 
-#cgnet.train(train, epochs=5)
+cgnet.train(train)
+cgnet.evaluate(test)
 
 #cgnet.save_model('trained_cgnet')
-cgnet.load_model('trained_cgnet')
+#cgnet.load_model('trained_cgnet')
 
 #cgnet.evaluate(test)
 
-class_masks = cgnet.predict(allhist) # masks with 1==TC, 2==AR
-event_masks = track_events(class_masks) # masks with event IDs
+#class_masks = cgnet.predict(allhist) # masks with 1==TC, 2==AR
+#event_masks = track_events(class_masks) # masks with event IDs
 
-analyze_events(event_masks, class_masks, 'results/')
-visualize_events(event_masks, allhist, 'pngs/')
+#analyze_events(event_masks, class_masks, 'results/')
+#visualize_events(event_masks, allhist, 'pngs/')
