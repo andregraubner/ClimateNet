@@ -1,3 +1,4 @@
+import os
 import pathlib
 import math
 from multiprocessing import Pool
@@ -217,6 +218,9 @@ def analyze_events(event_masks_xarray, class_masks_xarray, results_dir):
         plt.ylabel("Count")
         plt.savefig(results_dir + f"histogram_speed_{event_class:s}")
         
+    # set cartopy background dir to include blue marble
+    os.environ['CARTOPY_USER_BACKGROUNDS'] = str(os.getcwd() + '/climatenet/bluemarble')
+
     def map_instance(title):
         """Returns a matplotlib instance with bluemarble background"""
         plt.figure(figsize=(100,20),dpi=100)

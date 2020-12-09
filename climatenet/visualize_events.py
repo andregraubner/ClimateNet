@@ -31,6 +31,7 @@ def visualize_events(event_masks_xarray, input_data : ClimateDataset, png_dir):
     lat = event_masks_xarray.lat
     lon = event_masks_xarray.lon
 
+    # set cartopy background dir to include blue marble
     os.environ['CARTOPY_USER_BACKGROUNDS'] = str(os.getcwd() + '/climatenet/bluemarble')
 
     def map_instance():
