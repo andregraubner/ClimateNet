@@ -1,3 +1,4 @@
+import os
 import pathlib
 import numpy as np
 import cartopy.crs as ccrs
@@ -29,6 +30,8 @@ def visualize_events(event_masks_xarray, input_data : ClimateDataset, png_dir):
     # latitude and longitude grid
     lat = event_masks_xarray.lat
     lon = event_masks_xarray.lon
+
+    os.environ['CARTOPY_USER_BACKGROUNDS'] = str(os.getcwd() + '/climatenet/bluemarble')
 
     def map_instance():
         """Returns a matplotlib instance with bluemarble background"""
