@@ -16,6 +16,7 @@ import numpy as np
 import xarray as xr
 from climatenet.utils.utils import Config
 from os import path
+import pathlib
 
 class CGNet():
     '''
@@ -147,6 +148,10 @@ class CGNet():
         '''
         Save model weights and config to a directory.
         '''
+        # create save_path if it doesn't exist
+        pathlib.Path(save_path).mkdir(parents=True, exist_ok=True) 
+
+        # save weights and config
         self.config.save(path.join(save_path, 'config.json'))
         torch.save(self.network.state_dict(), path.join(save_path, 'weights.pth'))
 
