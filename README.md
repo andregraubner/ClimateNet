@@ -6,6 +6,8 @@ ClimateNet is a Python library for deep learning-based Climate Science. It provi
 
 ## Usage
 
+Install the conda environment using `conda env create -f conda_env.yml`.
+
 The high-level API makes it easy to train a model from scratch or to use our models to run inference on your own climate data.
 
 ```python
