@@ -1,14 +1,15 @@
 # ClimateNet
 
-Please note that this is a work-in-progress, and as such everything might be subject to change.
-
 ClimateNet is a Python library for deep learning-based Climate Science. It provides tools for quick detection and tracking of extreme weather events. We also expose models, data sets and metrics to jump-start your research.
 
 ## Usage
 
 Install the conda environment using `conda env create -f conda_env.yml`.
 
-The high-level API makes it easy to train a model from scratch or to use our models to run inference on your own climate data.
+You can find the data and a pre-trained model at [https://portal.nersc.gov/project/ClimateNet/](https://portal.nersc.gov/project/ClimateNet/).
+Download the train and test data and the trained model, and you're good-to-go.
+
+The high-level API makes it easy to train a model from scratch or to use our models to run inference on your own climate data. Just download the model config (or write your own) and train the model using:
 
 ```python
 config = Config('PATH_TO_CONFIG')
@@ -22,6 +23,8 @@ model.save_model('PATH_TO_SAVE')
 
 predictions = model.predict(inference_set)
 ```
+
+You can find an example of how to load our trained model for inference in example.py.
 
 If you are familiar with PyTorch and want a higher degree of control over training procedures, data flow or other aspects of your project, we suggest you use our lower-level modules.
 The CGNetModule and Dataset classes conform to what you would expect from standard PyTorch, which means that you can take whatever parts you need and swap out the others for your own building blocks. A quick example of this:
