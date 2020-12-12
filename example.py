@@ -17,7 +17,7 @@ train = ClimateDatasetLabeled(path.join(train_path, 'train'), config)
 test = ClimateDatasetLabeled(path.join(train_path, 'test'), config)
 inference = ClimateDataset(inference_path, config)
 
-cgnet.train(train, epochs=5)
+cgnet.train(train)
 cgnet.evaluate(test)
 
 cgnet.save_model('trained_cgnet')
