@@ -63,12 +63,12 @@ class CGNet():
 
         self.optimizer = Adam(self.network.parameters(), lr=self.config.lr)        
         
-    def train(self, dataset: ClimateDatasetLabeled, epochs: int = 1):
+    def train(self, dataset: ClimateDatasetLabeled):
         '''Train the network on the given dataset for the given amount of epochs'''
         self.network.train()
         collate = ClimateDatasetLabeled.collate
         loader = DataLoader(dataset, batch_size=self.config.train_batch_size, collate_fn=collate, num_workers=4, shuffle=True)
-        for epoch in range(1, epochs+1):
+        for epoch in range(1, self.config.epochs+1):
 
             print(f'Epoch {epoch}:')
             epoch_loader = tqdm(loader)

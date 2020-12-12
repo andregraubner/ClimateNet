@@ -37,6 +37,7 @@ class Config():
         self.seed = self.config_dict['seed']
         self.train_batch_size = self.config_dict['train_batch_size']
         self.pred_batch_size = self.config_dict['pred_batch_size']
+        self.epochs = self.config_dict['epochs']
         self.fields = self.config_dict['fields']
         self.labels = self.config_dict['labels']
         self.description = self.config_dict['description']

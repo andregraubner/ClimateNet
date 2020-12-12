@@ -4,6 +4,7 @@
     "lr": 0.001,
     "train_batch_size": 4,
     "pred_batch_size": 8,
+    "epochs": 15,
     "fields": {
         "TMQ": {
             "mean": 0.37387,
@@ -27,5 +28,5 @@
       "Tropical Cyclone",
       "Atmospheric River"
     ],
-    "description": "This is a simple CGNet model."
+    "description": "The basic CGNet model. You can use this config to train your own model, or load it with our trained weights."
 }
