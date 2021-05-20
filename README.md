@@ -2,10 +2,6 @@
 
 ClimateNet is a Python library for deep learning-based Climate Science. It provides tools for quick detection and tracking of extreme weather events. We also expose models, data sets and metrics to jump-start your research.
 
-Please cite the relevant papers if this repository is helpful in your research.
-Dataset: https://gmd.copernicus.org/articles/14/107/2021/
-Methods: https://ai4earthscience.github.io/neurips-2020-workshop/papers/ai4earth_neurips_2020_55.pdf
-
 ## Usage
 
 Install the conda environment using `conda env create -f conda_env.yml`.
@@ -62,3 +58,8 @@ Please make sure to update tests as appropriate.
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
+
+Please cite the relevant papers if this repository is helpful in your research.
+Dataset: https://gmd.copernicus.org/articles/14/107/2021/
+
+Methods: https://ai4earthscience.github.io/neurips-2020-workshop/papers/ai4earth_neurips_2020_55.pdf
