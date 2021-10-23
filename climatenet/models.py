@@ -116,12 +116,9 @@ class CGNet():
             coords = batch.coords
             del coords['variable']
             
-            dims = [dim for dim in batch.dims if dim != "variable"] # changed here
+            dims = [dim for dim in batch.dims if dim != "variable"]
             
-            print(preds.shape)
-            print(coords)
-            
-            predictions.append(xr.DataArray(preds, coords=coords, dims=dims, attrs=batch.attrs)) # changed here
+            predictions.append(xr.DataArray(preds, coords=coords, dims=dims, attrs=batch.attrs))
 
         return xr.concat(predictions, dim='time')
 
