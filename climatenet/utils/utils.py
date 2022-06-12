@@ -28,7 +28,7 @@ class Config():
     '''
 
     def __init__(self, path: str):
-        self.config_dict = json.load(open('config.json'))
+        self.config_dict = json.load(open(path))
 
         # TODO: Check structure
 
