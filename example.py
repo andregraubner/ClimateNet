@@ -7,12 +7,16 @@ from climatenet.visualize_events import visualize_events
 
 from os import path
 
+# command to run on Euler cluster : 
+# bsub -n 40 -B -N -R "rusage[mem=4500,ngpus_excl_p=8]" -R "select[gpu_model0==GeForceGTX1080Ti]" "python example.py"
 config = Config('config.json')
 cgnet = CGNet(config)
 
-train_path = 'PATH_TO_TRAINING_SET'
-inference_path = 'PATH_TO_INFERENCE_SET'
+train_path = '../data/climatenet_new/'
+inference_path = '../data/climatenet_new/'
 
+print("Train path : ", path.join(train_path, 'train'))
+print("Test path  : ", path.join(train_path, 'test' ))
 train = ClimateDatasetLabeled(path.join(train_path, 'train'), config)
 test = ClimateDatasetLabeled(path.join(train_path, 'test'), config)
 inference = ClimateDataset(inference_path, config)
