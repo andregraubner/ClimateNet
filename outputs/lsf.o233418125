@@ -1,0 +1,20 @@
+0it [00:00, ?it/s]0it [00:00, ?it/s]
+Train path :  ../data/climatenet_new/train
+Test path  :  ../data/climatenet_new/test
+Traceback (most recent call last):
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/site-packages/xarray/core/concat.py", line 172, in concat
+    first_obj, objs = utils.peek_at(objs)
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/site-packages/xarray/core/utils.py", line 183, in peek_at
+    peek = next(gen)
+StopIteration
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "example.py", line 34, in <module>
+    class_masks = cgnet.predict(inference) # masks with 1==TC, 2==AR
+  File "/cluster/work/igp_psr/ai4good/group-1b/ClimateNet_AI4Good/climatenet/models.py", line 123, in predict
+    return xr.concat(predictions, dim='time')
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/site-packages/xarray/core/concat.py", line 174, in concat
+    raise ValueError("must supply at least one object to concatenate")
+ValueError: must supply at least one object to concatenate
