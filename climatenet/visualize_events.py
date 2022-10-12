@@ -96,4 +96,4 @@ def visualize_events(event_masks_xarray, input_data : ClimateDataset, png_dir):
                     event_masks[i])
 
     pool = Pool(psutil.cpu_count(logical=False))
-    pool.map(spawn, range(len(event_masks)))
+    pool.map(spawn, range(len(event_masks))) # this line is crashing
