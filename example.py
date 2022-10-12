@@ -7,41 +7,33 @@ from climatenet.visualize_events import visualize_events
 
 from os import path
 
-# command to run on Euler cluster : 
-# This command took ages
-# bsub -n 40 -B -N -R "rusage[mem=4500,ngpus_excl_p=8]" -R "select[gpu_model0==GeForceGTX1080Ti]" "python example.py"
-# This one is working straight away 
-# bsub -n 40 -B -N -R "rusage[mem=4500,ngpus_excl_p=8]" "python example.py"
-# To put the output direct in outputs folder
-# bsub -n 40 -oo "outputs/output" -B -N -R "rusage[mem=4500,ngpus_excl_p=8]" "python example.py"
+def run(checkpoint_path=None,data_dir=None):
+    config = Config('config.json')
+    cgnet = CGNet(config)
+    train_path = data_dir + '/train'
+    inference_path = data_dir + '/test' # I don't get what is the inference dataset
 
-config = Config('config.json')
-cgnet = CGNet(config)
+    print("Train path : ", path.join(train_path, 'train'))
+    print("Test path  : ", path.join(train_path, 'test' ))
+    train = ClimateDatasetLabeled(path.join(train_path, 'train'), config)
+    test = ClimateDatasetLabeled(path.join(train_path, 'test'), config)
+    inference = ClimateDataset(inference_path, config)
 
-train_path = '../data/climatenet_new/'
-inference_path = '../data/climatenet_new/train/' # I don't get what is the inference dataset
+    # cgnet.train(train)
+    # cgnet.evaluate(test)
+    # cgnet.save_model('trained_cgnet_2')
+    # use a saved model with
+    cgnet.load_model('trained_cgnet')
 
-print("Train path : ", path.join(train_path, 'train'))
-print("Test path  : ", path.join(train_path, 'test' ))
-train = ClimateDatasetLabeled(path.join(train_path, 'train'), config)
-test = ClimateDatasetLabeled(path.join(train_path, 'test'), config)
-inference = ClimateDataset(inference_path, config)
+    class_masks = cgnet.predict(inference) # masks with 1==TC, 2==AR
+    event_masks = track_events(class_masks) # masks with event IDs
 
-# cgnet.train(train)
-# cgnet.evaluate(test)
-# cgnet.save_model('trained_cgnet_2')
-# use a saved model with
-cgnet.load_model('trained_cgnet')
+    try :
+        analyze_events(event_masks, class_masks, 'results/')
+    except Exception as e:
+        print("Error when analyzing events : ", e)
 
-class_masks = cgnet.predict(inference) # masks with 1==TC, 2==AR
-event_masks = track_events(class_masks) # masks with event IDs
-
-try :
-    analyze_events(event_masks, class_masks, 'results/')
-except Exception as e:
-    print("Error when analyzing events : ", e)
-
-try : 
-    visualize_events(event_masks, inference, 'pngs/')
-except Exception as e:
-    print("Error when visualizing events : ", e)
+    try : 
+        visualize_events(event_masks, inference, 'pngs/')
+    except Exception as e:
+        print("Error when visualizing events : ", e)
