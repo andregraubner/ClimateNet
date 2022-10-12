@@ -11,4 +11,8 @@ TAG=$(git rev-parse --short HEAD)
 # To put the output direct in outputs folder
 # bsub -n 40 -oo "outputs/output" -B -N -R "rusage[mem=4500,ngpus_excl_p=8]" "python example.py"
 
-bsub -n 1 -W 12:00 -J $TAG -B -N -R "rusage[mem=4096,ngpus_excl_p=8]" -R "select[gpu_mtotal0>=8192]" <~/ClimateNet_AI4Good/run.sh
+# This one lead to out of memory error
+# bsub -n 1 -W 12:00 -J $TAG -B -N -R "rusage[mem=4096,ngpus_excl_p=8]" -R "select[gpu_mtotal0>=8192]" <~/ClimateNet_AI4Good/run.sh
+
+# Trying with twice more memory
+bsub -n 2 -W 12:00 -J $TAG -B -N -R "rusage[mem=4096,ngpus_excl_p=8]" -R "select[gpu_mtotal0>=8192]" <~/ClimateNet_AI4Good/run.sh

@@ -11,9 +11,9 @@ def run(checkpoint_path=None, data_dir=None):
     config = Config('config.json')
     cgnet = CGNet(config)
 
-    train_path = data_dir + '/train'
-    val_path = data_dir + '/val'
-    inference_path = data_dir + '/test' 
+    train_path = data_dir + 'train/'
+    val_path = data_dir + 'val/'
+    inference_path = data_dir + 'test/' 
 
     print('train_path : ', train_path)
     print('val_path : ', val_path)
@@ -29,7 +29,8 @@ def run(checkpoint_path=None, data_dir=None):
     cgnet.save_model('trained_cgnet_2')
 
     # use a saved model with
-    # cgnet.load_model('trained_cgnet')    cgnet.train(train)
+    # cgnet.load_model('trained_cgnet')   
+    # cgnet.train(train)
     cgnet.evaluate(val)
     cgnet.save_model('trained_cgnet_2')
 
