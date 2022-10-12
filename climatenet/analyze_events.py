@@ -30,7 +30,6 @@ def analyze_events(event_masks_xarray, class_masks_xarray, results_dir):
 
     def pixel_to_degree(pos):
         """Returns the (lat,long) position of a pixel coordinate"""
-        print('computing pixel to degree')
         return(pos[0] * 180.0 / event_masks.shape[1] - 90,
             pos[1] * 360 / event_masks.shape[2] + 180)
 
@@ -39,7 +38,6 @@ def analyze_events(event_masks_xarray, class_masks_xarray, results_dir):
 
         Based on https://stackoverflow.com/questions/37885798/how-to-calculate-the-midpoint-of-several-geolocations-in-python
         """
-        print('computing average location')
         coordinates_degree = [pixel_to_degree(cord) for cord in coordinates_pixel]    
         
         x = 0.0
@@ -72,7 +70,6 @@ def analyze_events(event_masks_xarray, class_masks_xarray, results_dir):
     global centroids # make function visible to pool
     def centroids(event_mask):
         """Returns a dict mapping from the IDs in event_mask to their centroids"""
-        print('computing centroids')
         coordinates_per_id = {}
         
         for row in range(np.shape(event_mask)[0]):
