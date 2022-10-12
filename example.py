@@ -7,23 +7,31 @@ from climatenet.visualize_events import visualize_events
 
 from os import path
 
-def run(checkpoint_path=None,data_dir=None):
+def run(checkpoint_path=None, data_dir=None):
     config = Config('config.json')
     cgnet = CGNet(config)
-    train_path = data_dir + '/train'
-    inference_path = data_dir + '/test' # I don't get what is the inference dataset
 
-    print("Train path : ", path.join(train_path, 'train'))
-    print("Test path  : ", path.join(train_path, 'test' ))
-    train = ClimateDatasetLabeled(path.join(train_path, 'train'), config)
-    test = ClimateDatasetLabeled(path.join(train_path, 'test'), config)
+    train_path = data_dir + '/train'
+    val_path = data_dir + '/val'
+    inference_path = data_dir + '/test' 
+
+    print('train_path : ', train_path)
+    print('val_path : ', val_path)
+    print('inference_path : ', inference_path)
+
+    print('Loading data...')
+    train = ClimateDatasetLabeled(train_path, config)
+    val = ClimateDatasetLabeled(val_path, config)
     inference = ClimateDataset(inference_path, config)
 
-    # cgnet.train(train)
-    # cgnet.evaluate(test)
-    # cgnet.save_model('trained_cgnet_2')
+    cgnet.train(train)
+    cgnet.evaluate(val)
+    cgnet.save_model('trained_cgnet_2')
+
     # use a saved model with
-    cgnet.load_model('trained_cgnet')
+    # cgnet.load_model('trained_cgnet')    cgnet.train(train)
+    cgnet.evaluate(val)
+    cgnet.save_model('trained_cgnet_2')
 
     class_masks = cgnet.predict(inference) # masks with 1==TC, 2==AR
     event_masks = track_events(class_masks) # masks with event IDs
