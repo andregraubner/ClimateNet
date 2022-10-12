@@ -4,7 +4,7 @@ from os.path import isfile, join
 import numpy as np
 import shutil
 
-DATASET_PATH = '/cluser/work/igp_psr/ai4good/group-1b/data/'
+DATASET_PATH = '/cluster/work/igp_psr/ai4good/group-1b/data/'
 paths = np.array([f for f in listdir(DATASET_PATH + 'train/') if isfile(join(DATASET_PATH + 'train/', f))])
 idx = np.arange(len(paths))
 np.random.shuffle(idx)
