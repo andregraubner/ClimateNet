@@ -1,0 +1,170 @@
+  0%|          | 0/8 [00:00<?, ?it/s] 12%|█▎        | 1/8 [00:07<00:49,  7.10s/it] 25%|██▌       | 2/8 [00:10<00:35,  5.92s/it] 38%|███▊      | 3/8 [00:13<00:25,  5.06s/it] 50%|█████     | 4/8 [00:16<00:17,  4.46s/it] 62%|██████▎   | 5/8 [00:19<00:12,  4.03s/it] 75%|███████▌  | 6/8 [00:22<00:07,  3.74s/it] 88%|████████▊ | 7/8 [00:25<00:03,  3.51s/it]100%|██████████| 8/8 [00:27<00:00,  3.04s/it]100%|██████████| 8/8 [00:27<00:00,  3.42s/it]{'model': 'example', 'data_dir': '/cluster/work/igp_psr/ai4good/group-1b/data/', 'checkpoint_path': '/cluster/scratch/atabin/checkpoints/example/'}
+Running baseline example...
+train_path :  /cluster/work/igp_psr/ai4good/group-1b/data/train/
+val_path :  /cluster/work/igp_psr/ai4good/group-1b/data/val/
+inference_path :  /cluster/work/igp_psr/ai4good/group-1b/data/test/
+Loading data...
+identifying connected components..
+
+tracking components across time..
+  0%|          | 0/61 [00:00<?, ?it/s]  2%|▏         | 1/61 [00:01<01:49,  1.83s/it]  3%|▎         | 2/61 [00:03<01:37,  1.66s/it]  5%|▍         | 3/61 [00:04<01:26,  1.49s/it]  7%|▋         | 4/61 [00:05<01:18,  1.38s/it]  8%|▊         | 5/61 [00:06<01:17,  1.38s/it] 10%|▉         | 6/61 [00:07<01:13,  1.34s/it] 11%|█▏        | 7/61 [00:09<01:08,  1.27s/it] 13%|█▎        | 8/61 [00:10<01:05,  1.23s/it] 15%|█▍        | 9/61 [00:11<00:59,  1.15s/it] 16%|█▋        | 10/61 [00:12<01:04,  1.26s/it] 18%|█▊        | 11/61 [00:13<01:00,  1.21s/it] 20%|█▉        | 12/61 [00:15<01:00,  1.24s/it] 21%|██▏       | 13/61 [00:16<00:58,  1.23s/it] 23%|██▎       | 14/61 [00:17<00:57,  1.22s/it] 25%|██▍       | 15/61 [00:18<00:52,  1.14s/it] 26%|██▌       | 16/61 [00:19<00:54,  1.22s/it] 28%|██▊       | 17/61 [00:21<00:55,  1.25s/it] 30%|██▉       | 18/61 [00:22<00:53,  1.25s/it] 31%|███       | 19/61 [00:23<00:52,  1.24s/it] 33%|███▎      | 20/61 [00:24<00:47,  1.16s/it] 34%|███▍      | 21/61 [00:25<00:48,  1.21s/it] 36%|███▌      | 22/61 [00:27<00:45,  1.18s/it] 38%|███▊      | 23/61 [00:28<00:47,  1.24s/it] 39%|███▉      | 24/61 [00:29<00:43,  1.17s/it] 41%|████      | 25/61 [00:30<00:43,  1.22s/it] 43%|████▎     | 26/61 [00:31<00:42,  1.20s/it] 44%|████▍     | 27/61 [00:33<00:40,  1.20s/it] 46%|████▌     | 28/61 [00:34<00:37,  1.15s/it] 48%|████▊     | 29/61 [00:35<00:35,  1.12s/it] 49%|████▉     | 30/61 [00:36<00:39,  1.26s/it] 51%|█████     | 31/61 [00:38<00:37,  1.26s/it] 52%|█████▏    | 32/61 [00:38<00:34,  1.17s/it] 54%|█████▍    | 33/61 [00:40<00:31,  1.13s/it] 56%|█████▌    | 34/61 [00:41<00:33,  1.24s/it] 57%|█████▋    | 35/61 [00:42<00:32,  1.24s/it] 59%|█████▉    | 36/61 [00:43<00:29,  1.20s/it] 61%|██████    | 37/61 [00:45<00:28,  1.21s/it] 62%|██████▏   | 38/61 [00:46<00:28,  1.24s/it] 64%|██████▍   | 39/61 [00:47<00:26,  1.21s/it] 66%|██████▌   | 40/61 [00:48<00:26,  1.25s/it] 67%|██████▋   | 41/61 [00:49<00:24,  1.20s/it] 69%|██████▉   | 42/61 [00:51<00:22,  1.17s/it] 70%|███████   | 43/61 [00:52<00:20,  1.12s/it] 72%|███████▏  | 44/61 [00:53<00:20,  1.20s/it] 74%|███████▍  | 45/61 [00:54<00:19,  1.21s/it] 75%|███████▌  | 46/61 [00:55<00:18,  1.24s/it] 77%|███████▋  | 47/61 [00:57<00:17,  1.26s/it] 79%|███████▊  | 48/61 [00:58<00:15,  1.22s/it] 80%|████████  | 49/61 [00:59<00:14,  1.25s/it] 82%|████████▏ | 50/61 [01:00<00:13,  1.20s/it] 84%|████████▎ | 51/61 [01:02<00:12,  1.22s/it] 85%|████████▌ | 52/61 [01:03<00:10,  1.19s/it] 87%|████████▋ | 53/61 [01:04<00:09,  1.18s/it] 89%|████████▊ | 54/61 [01:05<00:08,  1.23s/it] 90%|█████████ | 55/61 [01:07<00:07,  1.27s/it] 92%|█████████▏| 56/61 [01:08<00:06,  1.27s/it] 93%|█████████▎| 57/61 [01:09<00:05,  1.33s/it] 95%|█████████▌| 58/61 [01:10<00:03,  1.26s/it] 97%|█████████▋| 59/61 [01:12<00:02,  1.27s/it] 98%|█████████▊| 60/61 [01:13<00:01,  1.22s/it]100%|██████████| 61/61 [01:14<00:00,  1.07s/it]100%|██████████| 61/61 [01:14<00:00,  1.21s/it]num TCs: 6
+num ARs: 16
+calculating centroids..
+
+extracting event types..
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+calculating genesis and termination frequencies..
+generating histograms..
+generating frequency maps..
+visualizing frequency map : Genesis frequency map of TCs
+initializing.. Genesis frequency map of TCs
+drawing frequencies.. Genesis frequency map of TCs
+drawing colorbar.. Genesis frequency map of TCs
+drawing legend.. Genesis frequency map of TCs
+saving.. Genesis frequency map of TCs
+Error when analyzing events :  <urlopen error [Errno 111] Connection refused>
+Visualizing events...
+generating images..
+/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/site-packages/cartopy/io/__init__.py:260: DownloadWarning: Downloading: https://naciscdn.org/naturalearth/110m/physical/ne_110m_coastline.zip
+  warnings.warn('Downloading: {}'.format(url), DownloadWarning)
+Error when visualizing events :  index 2 is out of bounds for axis 0 with size 1
+
+
+
+
+traceback :  multiprocessing.pool.RemoteTraceback: 
+"""
+Traceback (most recent call last):
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/multiprocessing/pool.py", line 125, in worker
+    result = (True, func(*args, **kwds))
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/multiprocessing/pool.py", line 48, in mapstar
+    return list(map(*args))
+  File "/cluster/home/atabin/ClimateNet_AI4Good/climatenet/visualize_events.py", line 95, in spawn
+    generatePNG(filename, input_data[int(i/8)].sel(variable="TMQ")[i%8],
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/site-packages/xarray/core/dataarray.py", line 701, in __getitem__
+    return self.isel(indexers=self._item_key_to_dict(key))
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/site-packages/xarray/core/dataarray.py", line 1106, in isel
+    variable = self._variable.isel(indexers, missing_dims=missing_dims)
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/site-packages/xarray/core/variable.py", line 1120, in isel
+    return self[key]
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/site-packages/xarray/core/variable.py", line 769, in __getitem__
+    data = as_indexable(self._data)[indexer]
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/site-packages/xarray/core/indexing.py", line 1302, in __getitem__
+    return array[key]
+IndexError: index 2 is out of bounds for axis 0 with size 1
+"""
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/cluster/home/atabin/ClimateNet_AI4Good/example.py", line 46, in run
+    visualize_events(event_masks, inference, 'pngs/')
+  File "/cluster/home/atabin/ClimateNet_AI4Good/climatenet/visualize_events.py", line 99, in visualize_events
+    pool.map(spawn, range(len(event_masks)))
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/multiprocessing/pool.py", line 364, in map
+    return self._map_async(func, iterable, mapstar, chunksize).get()
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/multiprocessing/pool.py", line 771, in get
+    raise self._value
+IndexError: index 2 is out of bounds for axis 0 with size 1
+
+Generating PNG for  pngs/0000.png
+Contouring...
+Contouring events...
+Adding colorbar and legend...
+Saving figure...
+Generating PNG for  pngs/0032.png
+Contouring...
+Contouring events...
+Adding colorbar and legend...
+Saving figure...
+Generating PNG for  pngs/0056.png
+Contouring...
+Contouring events...
+Adding colorbar and legend...
+Saving figure...
+Generating PNG for  pngs/0048.png
+Contouring...
+Contouring events...
+Adding colorbar and legend...
+Saving figure...
+Generating PNG for  pngs/0024.png
+Contouring...
+Contouring events...
+Adding colorbar and legend...
+Saving figure...
+Generating PNG for  pngs/0040.png
+Contouring...
+Contouring events...
+Adding colorbar and legend...
+Saving figure...
+Generating PNG for  pngs/0016.png
+Contouring...
+Contouring events...
+Adding colorbar and legend...
+Saving figure...
+Generating PNG for  pngs/0008.png
+Contouring...
+Contouring events...
+Adding colorbar and legend...
+Saving figure...
+Done!
