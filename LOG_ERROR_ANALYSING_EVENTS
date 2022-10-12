@@ -1,0 +1,186 @@
+  0%|          | 0/8 [00:00<?, ?it/s] 12%|█▎        | 1/8 [00:11<01:18, 11.22s/it] 25%|██▌       | 2/8 [00:15<00:55,  9.19s/it] 38%|███▊      | 3/8 [00:19<00:38,  7.68s/it] 50%|█████     | 4/8 [00:23<00:26,  6.54s/it] 62%|██████▎   | 5/8 [00:27<00:17,  5.76s/it] 75%|███████▌  | 6/8 [00:31<00:10,  5.18s/it] 88%|████████▊ | 7/8 [00:35<00:04,  4.78s/it]100%|██████████| 8/8 [00:37<00:00,  4.08s/it]100%|██████████| 8/8 [00:37<00:00,  4.72s/it]{'model': 'example', 'data_dir': '/cluster/work/igp_psr/ai4good/group-1b/data/', 'checkpoint_path': '/cluster/scratch/atabin/checkpoints/example/'}
+Running baseline example...
+train_path :  /cluster/work/igp_psr/ai4good/group-1b/data/train/
+val_path :  /cluster/work/igp_psr/ai4good/group-1b/data/val/
+inference_path :  /cluster/work/igp_psr/ai4good/group-1b/data/test/
+Loading data...
+identifying connected components..
+
+tracking components across time..
+  0%|          | 0/61 [00:00<?, ?it/s]  2%|▏         | 1/61 [00:01<01:52,  1.87s/it]  3%|▎         | 2/61 [00:03<01:39,  1.69s/it]  5%|▍         | 3/61 [00:04<01:28,  1.53s/it]  7%|▋         | 4/61 [00:05<01:20,  1.41s/it]  8%|▊         | 5/61 [00:06<01:18,  1.41s/it] 10%|▉         | 6/61 [00:08<01:14,  1.36s/it] 11%|█▏        | 7/61 [00:09<01:09,  1.29s/it] 13%|█▎        | 8/61 [00:10<01:06,  1.25s/it] 15%|█▍        | 9/61 [00:11<01:00,  1.17s/it] 16%|█▋        | 10/61 [00:12<01:06,  1.30s/it] 18%|█▊        | 11/61 [00:14<01:01,  1.24s/it] 20%|█▉        | 12/61 [00:15<01:01,  1.26s/it] 21%|██▏       | 13/61 [00:16<01:00,  1.26s/it] 23%|██▎       | 14/61 [00:17<00:58,  1.24s/it] 25%|██▍       | 15/61 [00:18<00:53,  1.16s/it] 26%|██▌       | 16/61 [00:20<00:55,  1.24s/it] 28%|██▊       | 17/61 [00:21<00:55,  1.27s/it] 30%|██▉       | 18/61 [00:22<00:54,  1.26s/it] 31%|███       | 19/61 [00:24<00:52,  1.26s/it] 33%|███▎      | 20/61 [00:25<00:48,  1.18s/it] 34%|███▍      | 21/61 [00:26<00:49,  1.23s/it] 36%|███▌      | 22/61 [00:27<00:45,  1.17s/it] 38%|███▊      | 23/61 [00:28<00:46,  1.24s/it] 39%|███▉      | 24/61 [00:29<00:43,  1.17s/it] 41%|████      | 25/61 [00:31<00:44,  1.23s/it] 43%|████▎     | 26/61 [00:32<00:42,  1.22s/it] 44%|████▍     | 27/61 [00:33<00:40,  1.20s/it] 46%|████▌     | 28/61 [00:34<00:38,  1.15s/it] 48%|████▊     | 29/61 [00:35<00:35,  1.12s/it] 49%|████▉     | 30/61 [00:37<00:39,  1.26s/it] 51%|█████     | 31/61 [00:38<00:38,  1.27s/it] 52%|█████▏    | 32/61 [00:39<00:34,  1.18s/it] 54%|█████▍    | 33/61 [00:40<00:32,  1.14s/it] 56%|█████▌    | 34/61 [00:42<00:33,  1.26s/it] 57%|█████▋    | 35/61 [00:43<00:32,  1.25s/it] 59%|█████▉    | 36/61 [00:44<00:30,  1.21s/it] 61%|██████    | 37/61 [00:45<00:29,  1.22s/it] 62%|██████▏   | 38/61 [00:46<00:28,  1.24s/it] 64%|██████▍   | 39/61 [00:48<00:26,  1.21s/it] 66%|██████▌   | 40/61 [00:49<00:25,  1.23s/it] 67%|██████▋   | 41/61 [00:50<00:24,  1.20s/it] 69%|██████▉   | 42/61 [00:51<00:22,  1.17s/it] 70%|███████   | 43/61 [00:52<00:20,  1.12s/it] 72%|███████▏  | 44/61 [00:53<00:20,  1.20s/it] 74%|███████▍  | 45/61 [00:55<00:19,  1.21s/it] 75%|███████▌  | 46/61 [00:56<00:18,  1.23s/it] 77%|███████▋  | 47/61 [00:57<00:17,  1.24s/it] 79%|███████▊  | 48/61 [00:58<00:15,  1.22s/it] 80%|████████  | 49/61 [01:00<00:15,  1.25s/it] 82%|████████▏ | 50/61 [01:01<00:13,  1.21s/it] 84%|████████▎ | 51/61 [01:02<00:12,  1.21s/it] 85%|████████▌ | 52/61 [01:03<00:10,  1.20s/it] 87%|████████▋ | 53/61 [01:04<00:09,  1.19s/it] 89%|████████▊ | 54/61 [01:06<00:08,  1.22s/it] 90%|█████████ | 55/61 [01:07<00:07,  1.28s/it] 92%|█████████▏| 56/61 [01:08<00:06,  1.27s/it] 93%|█████████▎| 57/61 [01:10<00:05,  1.33s/it] 95%|█████████▌| 58/61 [01:11<00:03,  1.26s/it] 97%|█████████▋| 59/61 [01:12<00:02,  1.28s/it] 98%|█████████▊| 60/61 [01:13<00:01,  1.22s/it]100%|██████████| 61/61 [01:14<00:00,  1.08s/it]100%|██████████| 61/61 [01:14<00:00,  1.22s/it]num TCs: 6
+num ARs: 16
+calculating centroids..
+
+extracting event types..
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+computing event types
+calculating genesis and termination frequencies..
+generating histograms..
+generating frequency maps..
+visualizing frequency map : Genesis frequency map of TCs
+initializing.. Genesis frequency map of TCs
+drawing frequencies.. Genesis frequency map of TCs
+drawing colorbar.. Genesis frequency map of TCs
+drawing legend.. Genesis frequency map of TCs
+saving.. Genesis frequency map of TCs
+/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/site-packages/cartopy/io/__init__.py:260: DownloadWarning: Downloading: https://naciscdn.org/naturalearth/110m/physical/ne_110m_coastline.zip
+  warnings.warn('Downloading: {}'.format(url), DownloadWarning)
+Error when analyzing events :  <urlopen error [Errno 111] Connection refused>
+
+
+
+
+Traceback (most recent call last):
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/urllib/request.py", line 1350, in do_open
+    h.request(req.get_method(), req.selector, req.data, headers,
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/http/client.py", line 1255, in request
+    self._send_request(method, url, body, headers, encode_chunked)
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/http/client.py", line 1301, in _send_request
+    self.endheaders(body, encode_chunked=encode_chunked)
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/http/client.py", line 1250, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/http/client.py", line 1010, in _send_output
+    self.send(msg)
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/http/client.py", line 950, in send
+    self.connect()
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/http/client.py", line 1417, in connect
+    super().connect()
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/http/client.py", line 921, in connect
+    self.sock = self._create_connection(
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/socket.py", line 808, in create_connection
+    raise err
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/socket.py", line 796, in create_connection
+    sock.connect(sa)
+ConnectionRefusedError: [Errno 111] Connection refused
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/cluster/home/atabin/ClimateNet_AI4Good/example.py", line 37, in run
+    analyze_events(event_masks, class_masks, 'results/')
+  File "/cluster/home/atabin/ClimateNet_AI4Good/climatenet/analyze_events.py", line 270, in analyze_events
+    visualize_frequency_map(genesis_frequency_tc, "Genesis frequency map of TCs",
+  File "/cluster/home/atabin/ClimateNet_AI4Good/climatenet/analyze_events.py", line 266, in visualize_frequency_map
+    mymap.get_figure().savefig(filepath, bbox_inches="tight", facecolor='w')
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/site-packages/matplotlib/figure.py", line 2311, in savefig
+    self.canvas.print_figure(fname, **kwargs)
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/site-packages/matplotlib/backend_bases.py", line 2193, in print_figure
+    self.figure.draw(renderer)
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/site-packages/matplotlib/artist.py", line 41, in draw_wrapper
+    return draw(artist, renderer, *args, **kwargs)
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/site-packages/matplotlib/figure.py", line 1863, in draw
+    mimage._draw_list_compositing_images(
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/site-packages/matplotlib/image.py", line 131, in _draw_list_compositing_images
+    a.draw(renderer)
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/site-packages/matplotlib/artist.py", line 41, in draw_wrapper
+    return draw(artist, renderer, *args, **kwargs)
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/site-packages/cartopy/mpl/geoaxes.py", line 479, in draw
+    return matplotlib.axes.Axes.draw(self, renderer=renderer, **kwargs)
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/site-packages/matplotlib/artist.py", line 41, in draw_wrapper
+    return draw(artist, renderer, *args, **kwargs)
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/site-packages/matplotlib/cbook/deprecation.py", line 411, in wrapper
+    return func(*inner_args, **inner_kwargs)
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/site-packages/matplotlib/axes/_base.py", line 2747, in draw
+    mimage._draw_list_compositing_images(renderer, self, artists)
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/site-packages/matplotlib/image.py", line 131, in _draw_list_compositing_images
+    a.draw(renderer)
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/site-packages/matplotlib/artist.py", line 41, in draw_wrapper
+    return draw(artist, renderer, *args, **kwargs)
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/site-packages/cartopy/mpl/feature_artist.py", line 155, in draw
+    geoms = self._feature.intersecting_geometries(extent)
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/site-packages/cartopy/feature/__init__.py", line 302, in intersecting_geometries
+    return super(NaturalEarthFeature, self).intersecting_geometries(extent)
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/site-packages/cartopy/feature/__init__.py", line 110, in intersecting_geometries
+    return (geom for geom in self.geometries() if
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/site-packages/cartopy/feature/__init__.py", line 284, in geometries
+    path = shapereader.natural_earth(resolution=self.scale,
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/site-packages/cartopy/io/shapereader.py", line 295, in natural_earth
+    return ne_downloader.path(format_dict)
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/site-packages/cartopy/io/__init__.py", line 222, in path
+    result_path = self.acquire_resource(target_path, format_dict)
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/site-packages/cartopy/io/shapereader.py", line 350, in acquire_resource
+    shapefile_online = self._urlopen(url)
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/site-packages/cartopy/io/__init__.py", line 261, in _urlopen
+    return urlopen(url)
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/urllib/request.py", line 222, in urlopen
+    return opener.open(url, data, timeout)
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/urllib/request.py", line 525, in open
+    response = self._open(req, data)
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/urllib/request.py", line 542, in _open
+    result = self._call_chain(self.handle_open, protocol, protocol +
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/urllib/request.py", line 502, in _call_chain
+    result = func(*args)
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/urllib/request.py", line 1393, in https_open
+    return self.do_open(http.client.HTTPSConnection, req,
+  File "/cluster/home/atabin/miniconda3/envs/climatenet/lib/python3.8/urllib/request.py", line 1353, in do_open
+    raise URLError(err)
+urllib.error.URLError: <urlopen error [Errno 111] Connection refused>
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/cluster/home/atabin/ClimateNet_AI4Good/run.py", line 30, in <module>
+    example.run(
+  File "/cluster/home/atabin/ClimateNet_AI4Good/example.py", line 41, in run
+    print('traceback : ', traceback.format_exc())
+NameError: name 'traceback' is not defined
+Done!
