@@ -10,10 +10,12 @@ idx = np.arange(len(paths))
 np.random.shuffle(idx)
 split = round(0.8*len(idx))
 
-train_paths = [DATASET_PATH + '/train/train/' + file for file in paths[idx[:split]]]
-val_paths = [DATASET_PATH + '/train/test/' + file for file in paths[idx[split:]]]
+train_paths = [DATASET_PATH + 'train/train/' + file for file in paths[idx[:split]]]
+val_paths = [DATASET_PATH + 'train/test/' + file for file in paths[idx[split:]]]
 
 dst_path = np.concatenate((train_paths, val_paths))
 
 for i, file in enumerate(paths):
-    shutil.move(DATASET_PATH + '/train/'+file, dst_path[i])
+    shutil.move(DATASET_PATH + 'train/'+file, dst_path[i])
+
+print('Done')
