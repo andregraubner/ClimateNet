@@ -5,6 +5,7 @@ from climatenet.track_events import track_events
 from climatenet.analyze_events import analyze_events
 from climatenet.visualize_events import visualize_events
 
+import traceback
 from os import path
 
 def run(checkpoint_path=None, data_dir=None):
@@ -37,8 +38,9 @@ def run(checkpoint_path=None, data_dir=None):
         analyze_events(event_masks, class_masks, 'results/')
     except Exception as e:
         print("Error when analyzing events : ", e)
-        print('\n'*3)
-        print('traceback : ', traceback.format_exc())
+        # Uncomment if you want to see the traceback of the error
+        # print('\n'*3)
+        # print('traceback : ', traceback.format_exc())
 
     try : 
         visualize_events(event_masks, inference, 'pngs/')
