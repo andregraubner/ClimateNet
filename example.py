@@ -24,15 +24,11 @@ def run(checkpoint_path=None, data_dir=None):
     val = ClimateDatasetLabeled(val_path, config)
     inference = ClimateDataset(inference_path, config)
 
-    cgnet.train(train)
-    cgnet.evaluate(val)
-    cgnet.save_model('trained_cgnet_2')
-
-    # use a saved model with
-    # cgnet.load_model('trained_cgnet')   
     # cgnet.train(train)
-    cgnet.evaluate(val)
-    cgnet.save_model('trained_cgnet_2')
+    # cgnet.evaluate(val)
+    # cgnet.save_model('trained_cgnet_2')
+    cgnet.load_model('trained_cgnet')   
+
 
     class_masks = cgnet.predict(inference) # masks with 1==TC, 2==AR
     event_masks = track_events(class_masks) # masks with event IDs

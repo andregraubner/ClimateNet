@@ -21,7 +21,7 @@ def visualize_events(event_masks_xarray, input_data : ClimateDataset, png_dir):
     event_masks_xarray -- the event masks as xarray with IDs as elements 
     png_dir -- the directory where the PNGs get saved to
     """
-
+    print("Visualizing events...")
     # create png_dir if it doesn't exist
     pathlib.Path(png_dir).mkdir(parents=True, exist_ok=True) 
 
@@ -52,7 +52,7 @@ def visualize_events(event_masks_xarray, input_data : ClimateDataset, png_dir):
 
     def generatePNG(filepath, tmq_data, event_mask):
         """Save a PNG of tmq_data and event_mask filepath"""
-
+        print("Generating PNG for ", filepath)
         mymap = map_instance()
 
         # contour data

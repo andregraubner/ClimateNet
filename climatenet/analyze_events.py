@@ -30,6 +30,7 @@ def analyze_events(event_masks_xarray, class_masks_xarray, results_dir):
 
     def pixel_to_degree(pos):
         """Returns the (lat,long) position of a pixel coordinate"""
+        print('computing pixel to degree')
         return(pos[0] * 180.0 / event_masks.shape[1] - 90,
             pos[1] * 360 / event_masks.shape[2] + 180)
 
@@ -38,7 +39,7 @@ def analyze_events(event_masks_xarray, class_masks_xarray, results_dir):
 
         Based on https://stackoverflow.com/questions/37885798/how-to-calculate-the-midpoint-of-several-geolocations-in-python
         """
-        
+        print('computing average location')
         coordinates_degree = [pixel_to_degree(cord) for cord in coordinates_pixel]    
         
         x = 0.0
@@ -71,6 +72,7 @@ def analyze_events(event_masks_xarray, class_masks_xarray, results_dir):
     global centroids # make function visible to pool
     def centroids(event_mask):
         """Returns a dict mapping from the IDs in event_mask to their centroids"""
+        print('computing centroids')
         coordinates_per_id = {}
         
         for row in range(np.shape(event_mask)[0]):
@@ -97,6 +99,7 @@ def analyze_events(event_masks_xarray, class_masks_xarray, results_dir):
     global event_type_of_mask # make function visible to pool
     def event_type_of_mask(event_mask, class_mask):
         """Returns a dict mapping from the IDs in event_mask to their type ('tc' or 'ar")"""
+        print('computing event types')
         event_type = {} # event type as tring 'ar' or 'tc' per event ID
         for row in range(np.shape(event_mask)[0]):
             for col in range(np.shape(event_mask)[1]):
@@ -238,6 +241,7 @@ def analyze_events(event_masks_xarray, class_masks_xarray, results_dir):
 
     def visualize_frequency_map(frequency_map, title, colorbar_text, filepath):
         """Save a PNG of frequency_map with title and colorbar_text at filepath"""
+        print('visualizing frequency map :', title)
         
         # initialize
         mymap = map_instance(title)
