@@ -37,8 +37,12 @@ def run(checkpoint_path=None, data_dir=None):
         analyze_events(event_masks, class_masks, 'results/')
     except Exception as e:
         print("Error when analyzing events : ", e)
+        print('\n'*3)
+        print('traceback : ', traceback.format_exc())
 
     try : 
         visualize_events(event_masks, inference, 'pngs/')
     except Exception as e:
         print("Error when visualizing events : ", e)
+        print('\n'*3)
+        print('traceback : ', traceback.format_exc())
