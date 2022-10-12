@@ -236,22 +236,26 @@ def analyze_events(event_masks_xarray, class_masks_xarray, results_dir):
         plt.title(title, fontdict={'fontsize': 44})
         return mymap
 
-    def visualize_frequency_map(frequency_map, title, colorbar_text, filepath):
+    # Sth in this function fails with <urlopen error [Errno 111] Connection refused>
+    def visualize_frequency_map(frequency_map, title, colorbar_text, filepath): 
         """Save a PNG of frequency_map with title and colorbar_text at filepath"""
         print('visualizing frequency map :', title)
         
         # initialize
+        print('initializing..', title, flush=True)
         mymap = map_instance(title)
         lon = np.linspace(0,360,frequency_map.shape[1])
         lat = np.linspace(-90,90,frequency_map.shape[0])
         
         # draw frequencies
+        print('drawing frequencies..', title, flush=True)
         contourf = mymap.contourf(lon, lat, 
                                 np.ma.masked_array(frequency_map, mask=(frequency_map==0)), 
                                 levels=np.linspace(0.0, frequency_map.max(), 11),
                                 alpha=0.7)
 
         #colorbar and legend
+        print('drawing colorbar..', title, flush=True)
         cbar = mymap.get_figure().colorbar(contourf,orientation='vertical',
                                         ticks=np.linspace(0,frequency_map.max(),3))
         cbar.ax.set_ylabel(colorbar_text,size=32)

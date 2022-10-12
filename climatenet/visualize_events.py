@@ -56,6 +56,7 @@ def visualize_events(event_masks_xarray, input_data : ClimateDataset, png_dir):
         mymap = map_instance()
 
         # contour data
+        print("Contouring...")
         colors_1 = [(252-32*i,252-32*i,252-32*i,i*1/16) for i in np.linspace(0, 1, 32)]
         colors_2 = [(220-60*i,220-60*i,220,i*1/16+1/16) for i in np.linspace(0, 1, 32)]
         colors_3 = [(160-20*i,160+30*i,220,i*3/8+1/8) for i in np.linspace(0, 1, 96)]
@@ -68,6 +69,7 @@ def visualize_events(event_masks_xarray, input_data : ClimateDataset, png_dir):
                                       levels=np.arange(0,89,2),transform=ccrs.PlateCarree())
         
         # contour events   
+        print("Contouring events...")
         ls = np.linspace(0,1,2000)
         np.random.shuffle(ls)
         event_cmap = ListedColormap([1,1,1,0.3] * np.concatenate((np.zeros((1,4)), plt.cm.hsv(ls))))
@@ -77,10 +79,12 @@ def visualize_events(event_masks_xarray, input_data : ClimateDataset, png_dir):
         event_contour = mymap.contour(lon,lat,event_mask,colors=['#000000ff'])
         
         #colorbar and legend
+        print("Adding colorbar and legend...")
         cbar = mymap.get_figure().colorbar(data_contour,ticks=np.arange(0,89,11),orientation='vertical')
         cbar.ax.set_ylabel('Integrated Water Vapor kg $m^{-2}$',size=32)
 
         #savefig
+        print("Saving figure...")
         mymap.get_figure().savefig(filepath,bbox_inches="tight",facecolor='w')
 
     print('generating images..', flush=True)
