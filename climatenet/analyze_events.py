@@ -263,7 +263,7 @@ def analyze_events(event_masks_xarray, class_masks_xarray, results_dir):
         
         #save
         print('saving..', title, flush=True)
-        mymap.get_figure().savefig(filepath, bbox_inches="tight", facecolor='w')
+        mymap.get_figure().savefig(filepath, bbox_inches="tight", facecolor='w') # raises an error 
 
 
     print('generating frequency maps..', flush=True)
