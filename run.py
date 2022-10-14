@@ -30,7 +30,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     print(vars(args))
 
-    if args.model == "example":
+    if args.model == "trained_cgnet":
         print("Running baseline example...")
         trained_cgnet.run(
             checkpoint_path=args.checkpoint_path,
