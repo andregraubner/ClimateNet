@@ -7,6 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import haversine as hs
+import cartopy
 
 def analyze_events(event_masks_xarray, class_masks_xarray, results_dir):
     """Analzse event masks of ARs and TCs
@@ -23,6 +24,7 @@ def analyze_events(event_masks_xarray, class_masks_xarray, results_dir):
     # create results_dir if it doesn't exist
     pathlib.Path(results_dir).mkdir(parents=True, exist_ok=True) 
 
+    cartopy.config['pre_existing_data_dir'] = '/cluster/work/igp_psr/ai4good/group-1b/data/cartopy-data/'
     class_masks = class_masks_xarray.values
     event_masks = event_masks_xarray.values
 
