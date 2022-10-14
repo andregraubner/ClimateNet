@@ -8,7 +8,7 @@ from climatenet.visualize_events import visualize_events
 import traceback
 from os import path
 
-def run(checkpoint_path=None, data_dir=None):
+def run(checkpoint_path='', data_dir='', save_dir=''):
     config = Config('config.json')
     cgnet = CGNet(config)
 
@@ -35,7 +35,7 @@ def run(checkpoint_path=None, data_dir=None):
     event_masks = track_events(class_masks) # masks with event IDs
 
     try :
-        analyze_events(event_masks, class_masks, 'results/')
+        analyze_events(event_masks, class_masks, save_dir + 'results/')
     except Exception as e:
         print("Error when analyzing events : ", e)
         # Uncomment if you want to see the traceback of the error
@@ -43,7 +43,7 @@ def run(checkpoint_path=None, data_dir=None):
         # print('traceback : ', traceback.format_exc())
 
     try : 
-        visualize_events(event_masks, inference, 'pngs/')
+        visualize_events(event_masks, inference, save_dir + 'pngs/')
     except Exception as e:
         print("Error when visualizing events : ", e)
         print('\n'*3)

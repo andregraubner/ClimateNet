@@ -1,5 +1,5 @@
 import argparse
-import example as example
+import trained_cgnet as trained_cgnet
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -21,15 +21,21 @@ if __name__ == "__main__":
         type=str,
         help="Path of a model checkpoint to load",
     )
+    parser.add_argument(
+        "--save_dir",
+        type=str,
+        help="Path of the folder where the generated data will be saved"
+    )
 
     args = parser.parse_args()
     print(vars(args))
 
     if args.model == "example":
         print("Running baseline example...")
-        example.run(
+        trained_cgnet.run(
             checkpoint_path=args.checkpoint_path,
-            data_dir=args.data_dir
+            data_dir=args.data_dir,
+            save_dir=args.save_dir
         )
     else:
         raise NotImplementedError("Not implemented yet")
