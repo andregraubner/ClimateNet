@@ -27,9 +27,8 @@ def run(checkpoint_path='', data_dir='', save_dir=''):
 
     # cgnet.train(train)
     # cgnet.evaluate(val)
-    # cgnet.save_model('trained_cgnet_2')
-    cgnet.load_model('trained_cgnet')   
-
+    # cgnet.save_model(checkpoint_path + 'trained_cgnet')
+    cgnet.load_model(checkpoint_path + 'trained_cgnet')   
 
     class_masks = cgnet.predict(inference) # masks with 1==TC, 2==AR
     event_masks = track_events(class_masks) # masks with event IDs

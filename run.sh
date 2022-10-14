@@ -4,7 +4,7 @@ conda activate climatenet
 user="atabin"
 model="trained_cgnet"
 
-scratch_folder="/cluster/scratch/$user/"
+scratch_folder="/cluster/scratch/$user"
 
 save_dir="$scratch_folder/data/$model/"
 checkpoint_path="$scratch_folder/checkpoints/$model/"
