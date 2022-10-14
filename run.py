@@ -8,7 +8,7 @@ if __name__ == "__main__":
         type=str,
         help="Model to use for training.",
         choices=[
-            "example"
+            "trained_cgnet"
         ],
     )
     parser.add_argument(
