@@ -50,7 +50,7 @@ conf = configparser.ConfigParser()
 conf.read(args.conf)
 
 var_list = conf["experiment"]["var_list"].split(',')
-
+print(var_list)
 # collect data and create dataset
 class ImageDataset(Dataset):
     def __init__(self, setname, transform=None, target_transform=None):
