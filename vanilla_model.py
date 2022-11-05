@@ -24,7 +24,7 @@ from torchgeo.trainers import SemanticSegmentationTask
 import xarray as xr
 
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
-wandb_logger = WandbLogger(log_model="all", project="ai4good/vanilla_model")
+wandb_logger = WandbLogger(log_model="all", project="segment_from_scratch")
 
 
 DATA_DIR = config("DATA_DIR_A4G")
