@@ -72,8 +72,9 @@ class ImageDataset(Dataset):
         img_name = self.file_names[idx]
 
         
-        image = xr.load_dataset(f'{self.data_dir}{self.setname}/{img_name}')
-        image = np.concatenate([np.array(image[idx][var]) for var in self.var_list])
+        data = xr.load_dataset(f'{self.data_dir}{self.setname}/{img_name}')
+        image = np.concatenate([np.array(data[idx][var]) for var in self.var_list])
+        print('image extracted')
         mask = np.array(image[idx]['LABELS'])
 
     
