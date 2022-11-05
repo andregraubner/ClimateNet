@@ -1,3 +1,6 @@
+
+
+
 import argparse
 import configparser
 import json
@@ -8,8 +11,11 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
+import os
+os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 import torch
 import torchgeo
+
 import yaml
 from decouple import config
 from PIL import Image
@@ -23,7 +29,6 @@ from torchgeo.trainers import SemanticSegmentationTask
 
 import xarray as xr
 
-os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 wandb_logger = WandbLogger(entity="ai4good", log_model="all", project="segment_from_scratch")
 
 
