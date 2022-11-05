@@ -66,13 +66,12 @@ class ImageDataset(Dataset):
     def __getitem__(self, idx):
         img_name = self.file_names[idx]
 
-        try:
-            image = xr.load_dataset(f'{DATA_DIR}{setname}/{img_name}')
-            image = np.concatenate([np.array(image[idx][var]) for var in var_list])
-            mask = np.array(image[idx]['LABELS'])
+        
+        image = xr.load_dataset(f'{DATA_DIR}{setname}/{img_name}')
+        image = np.concatenate([np.array(image[idx][var]) for var in var_list])
+        mask = np.array(image[idx]['LABELS'])
 
-        except:
-            return None
+    
 
         if self.transform:
             image = self.transform(image)
