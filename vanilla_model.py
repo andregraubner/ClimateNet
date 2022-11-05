@@ -20,7 +20,6 @@ from pytorch_lightning.loggers import CSVLogger, WandbLogger
 from torch.utils.data import DataLoader, Dataset
 from torchgeo.trainers import SemanticSegmentationTask
 
-from utils import downsample
 
 import xarray as xr
 
