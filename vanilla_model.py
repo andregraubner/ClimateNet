@@ -58,9 +58,9 @@ class ImageDataset(Dataset):
         # Define the  mask file and the json file for retrieving images
         self.data_dir = DATA_DIR
         self.setname = setname
-        assert setname in ["train", "test", "val"]
+        assert self.setname in ["train", "test", "val"]
 
-        self.file_names = os.listdir(f'{DATA_DIR}{setname}/')
+        self.file_names = os.listdir(f'{self.data_dir}{self.setname}/')
 
         self.transform = transform
         self.target_transform = target_transform
@@ -72,7 +72,7 @@ class ImageDataset(Dataset):
         img_name = self.file_names[idx]
 
         
-        image = xr.load_dataset(f'{DATA_DIR}{setname}/{img_name}')
+        image = xr.load_dataset(f'{self.data_dir}{self.setname}/{img_name}')
         image = np.concatenate([np.array(image[idx][var]) for var in var_list])
         mask = np.array(image[idx]['LABELS'])
 
