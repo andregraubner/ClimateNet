@@ -50,13 +50,13 @@ conf = configparser.ConfigParser()
 conf.read(args.conf)
 
 var_list = conf["experiment"]["var_list"].split(',')
-print(var_list)
 # collect data and create dataset
 class ImageDataset(Dataset):
     def __init__(self, setname, transform=None, target_transform=None):
 
         # Define the  mask file and the json file for retrieving images
         self.data_dir = DATA_DIR
+        self.var_list = var_list
         self.setname = setname
         assert self.setname in ["train", "test", "val"]
 
@@ -71,12 +71,10 @@ class ImageDataset(Dataset):
     def __getitem__(self, idx):
         img_name = self.file_names[idx]
 
-        try:
-            image = xr.load_dataset(f'{self.data_dir}{self.setname}/{img_name}')
-            image = np.concatenate([np.array(image[idx][var]) for var in var_list])
-            mask = np.array(image[idx]['LABELS'])
-        except:
-            return None
+        
+        image = xr.load_dataset(f'{self.data_dir}{self.setname}/{img_name}')
+        image = np.concatenate([np.array(image[idx][var]) for var in self.var_list])
+        mask = np.array(image[idx]['LABELS'])
 
     
 
