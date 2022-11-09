@@ -97,6 +97,10 @@ class CGNet():
             print(aggregate_cm)
             ious = get_iou_perClass(aggregate_cm)
             print('IOUs: ', ious, ', mean: ', ious.mean())
+            dices = get_dice_perClass(aggregate_cm)
+            print('DICE: ', dices, ', mean: ', dices.mean())
+            
+         
 
     def predict(self, dataset: ClimateDataset, save_dir: str = None):
         '''Make predictions for the given dataset and return them as xr.DataArray'''
