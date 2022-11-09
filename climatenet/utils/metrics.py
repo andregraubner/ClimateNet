@@ -1,6 +1,19 @@
 import numpy as np
 import torch
 
+def get_dice_perClass(confM):
+    """
+    Takes a confusion matrix confM and returns the dice per class
+    """
+    unionPerClass = confM.sum(axis=0) + confM.sum(axis=1) - confM.diagonal()
+    dicePerClass = np.zeros(3)
+    for i in range(0,3):
+      if dicePerClass[i] == 0:
+            dicePerClass[i] = 1
+      else:
+          dicePerClass[i] = (2* confM.diagonal()[i]) / (unionPerClass[i] + confM.diagonal())
+    return dicePerClass
+
 def get_iou_perClass(confM):
     """
     Takes a confusion matrix confM and returns the IoU per class
