@@ -7,8 +7,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 from climatenet.modules import *
 from climatenet.utils.data import ClimateDataset, ClimateDatasetLabeled
-from climatenet.utils.losses import jaccard_loss
-from climatenet.utils.metrics import get_cm, get_iou_perClass
+from climatenet.utils.losses import jaccard_loss, dice_coefficient
+from climatenet.utils.metrics import get_cm, get_iou_perClass, get_dice_perClass
 from torch.optim import Adam
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -48,15 +48,14 @@ class CGNet():
             raise ValueError('''Config and weight path set at the same time. 
             Pass a config if you want to create a new model, 
             and a weight_path if you want to load an existing model.''')
-
         if config is not None:
             # Create new model
             self.config = config
-            self.network = CGNetModule(classes=len(self.config.labels), channels=len(list(self.config.fields))).cuda()
+            self.network = CGNetModule(classes=len(self.config.labels), channels=len(list(self.config.fields)), loss="dice")
         elif model_path is not None:
             # Load model
             self.config = Config(path.join(model_path, 'config.json'))
-            self.network = CGNetModule(classes=len(self.config.labels), channels=len(list(self.config.fields))).cuda()
+            self.network = CGNetModule(classes=len(self.config.labels), channels=len(list(self.config.fields)), loss="dice")
             self.network.load_state_dict(torch.load(path.join(model_path, 'weights.pth')))
         else:
             raise ValueError('''You need to specify either a config or a model path.''')
@@ -65,9 +64,10 @@ class CGNet():
         
     def train(self, dataset: ClimateDatasetLabeled):
         '''Train the network on the given dataset for the given amount of epochs'''
+        print(self.network.loss)
         self.network.train()
         collate = ClimateDatasetLabeled.collate
-        loader = DataLoader(dataset, batch_size=self.config.train_batch_size, collate_fn=collate, num_workers=4, shuffle=True)
+        loader = DataLoader(dataset, batch_size=self.config.train_batch_size, collate_fn=collate, num_workers=0, shuffle=True)
         for epoch in range(1, self.config.epochs+1):
 
             print(f'Epoch {epoch}:')
@@ -77,8 +77,8 @@ class CGNet():
             for features, labels in epoch_loader:
         
                 # Push data on GPU and pass forward
-                features = torch.tensor(features.values).cuda()
-                labels = torch.tensor(labels.values).cuda()
+                features = torch.tensor(features.values)
+                labels = torch.tensor(labels.values)
                 
                 outputs = torch.softmax(self.network(features), 1)
 
@@ -87,7 +87,12 @@ class CGNet():
                 aggregate_cm += get_cm(predictions, labels, 3)
 
                 # Pass backward
-                loss = jaccard_loss(outputs, labels)
+                if self.network.loss == "jaccard":
+                    loss = jaccard_loss(outputs, labels)
+
+                elif self.network.loss == "dice":
+                    loss = dice_coefficient(outputs, labels)
+
                 epoch_loader.set_description(f'Loss: {loss.item()}')
                 loss.backward()
                 self.optimizer.step()
@@ -111,7 +116,7 @@ class CGNet():
 
         predictions = []
         for batch in epoch_loader:
-            features = torch.tensor(batch.values).cuda()
+            features = torch.tensor(batch.values)
         
             with torch.no_grad():
                 outputs = torch.softmax(self.network(features), 1)
@@ -123,22 +128,23 @@ class CGNet():
             dims = [dim for dim in batch.dims if dim != "variable"]
             
             predictions.append(xr.DataArray(preds, coords=coords, dims=dims, attrs=batch.attrs))
-
+    
+        print(predictions)
         return xr.concat(predictions, dim='time')
 
     def evaluate(self, dataset: ClimateDatasetLabeled):
         '''Evaluate on a dataset and return statistics'''
         self.network.eval()
         collate = ClimateDatasetLabeled.collate
-        loader = DataLoader(dataset, batch_size=self.config.pred_batch_size, collate_fn=collate, num_workers=4)
+        loader = DataLoader(dataset, batch_size=self.config.pred_batch_size, collate_fn=collate, num_workers=0)
 
         epoch_loader = tqdm(loader)
         aggregate_cm = np.zeros((3,3))
 
         for features, labels in epoch_loader:
         
-            features = torch.tensor(features.values).cuda()
-            labels = torch.tensor(labels.values).cuda()
+            features = torch.tensor(features.values)
+            labels = torch.tensor(labels.values)
                 
             with torch.no_grad():
                 outputs = torch.softmax(self.network(features), 1)
@@ -167,7 +173,7 @@ class CGNet():
         we instantly see that we're loading a model, and don't have to look at the arguments of the constructor first.
         '''
         self.config = Config(path.join(model_path, 'config.json'))
-        self.network = CGNetModule(classes=len(self.config.labels), channels=len(list(self.config.fields))).cuda()
+        self.network = CGNetModule(classes=len(self.config.labels), channels=len(list(self.config.fields)))
         self.network.load_state_dict(torch.load(path.join(model_path, 'weights.pth')))
 
 
@@ -176,7 +182,7 @@ class CGNetModule(nn.Module):
     CGNet (Wu et al, 2018: https://arxiv.org/pdf/1811.08201.pdf) implementation.
     This is taken from their implementation, we do not claim credit for this.
     """
-    def __init__(self, classes=19, channels=4, M=3, N= 21, dropout_flag = False):
+    def __init__(self, classes=19, channels=4, M=3, N= 21, dropout_flag = False, loss="jaccard"):
         """
         args:
           classes: number of classes in the dataset. Default is 19 for the cityscapes
@@ -184,6 +190,8 @@ class CGNetModule(nn.Module):
           N: the number of blocks in stage 3
         """
         super().__init__()
+        self.loss = loss
+
         self.level1_0 = ConvBNPReLU(channels, 32, 3, 2)      # feature map size divided 2, 1/2
         self.level1_1 = ConvBNPReLU(32, 32, 3, 1)                          
         self.level1_2 = ConvBNPReLU(32, 32, 3, 1)      
