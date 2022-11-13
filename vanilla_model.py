@@ -41,7 +41,7 @@ from torchvision.utils import draw_segmentation_masks
 
 
 DATA_DIR = config("DATA_DIR_A4G")
-LOG_DIR = config("LOG_DIR")
+LOG_DIR = config("LOG_DIR_A4G")
 REPO_DIR = config("REPO_DIR_A4G")
 
 parser = argparse.ArgumentParser()
