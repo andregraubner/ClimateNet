@@ -85,9 +85,9 @@ class ImageDataset(Dataset):
         image = np.concatenate([np.array(data[var]) for var in self.var_list]).astype(np.uint8)
         image = Image.fromarray(image, "RGB")
         image = torch.Tensor(np.array(Image.open(image)))
-        image = torch.permute(image, (2, 0, 1))
+        #image = torch.permute(image, (2, 0, 1))
 
-        mask = np.array(data['LABELS'])
+        mask = torch.Tensor(np.array(data['LABELS']))
 
     
 
