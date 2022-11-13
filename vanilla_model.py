@@ -82,7 +82,8 @@ class ImageDataset(Dataset):
 
         
         data = xr.load_dataset(f'{self.data_dir}{self.setname}/{img_name}')
-        image = np.concatenate([np.array(data[var]) for var in self.var_list])
+        image = np.concatenate([np.array(data[var]) for var in self.var_list]).astype(np.uint8)
+        image = Image.fromarray(image, "RGB")
         mask = np.array(data['LABELS'])
 
     
