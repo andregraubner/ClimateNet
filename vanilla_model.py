@@ -84,7 +84,7 @@ class ImageDataset(Dataset):
         data = xr.load_dataset(f'{self.data_dir}{self.setname}/{img_name}')
         image = np.concatenate([np.array(data[var]) for var in self.var_list]).astype(np.uint8)
         image = Image.fromarray(image, "RGB")
-        image = torch.Tensor(np.array(Image.open(image)))
+        image = torch.Tensor(np.array(image))
         #image = torch.permute(image, (2, 0, 1))
 
         mask = torch.Tensor(np.array(data['LABELS']))
