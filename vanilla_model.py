@@ -365,7 +365,7 @@ def get_dataloaders(conf, *datasets, data_frac=1.0):
 if __name__ == "__main__":
 
 
-    wandb.init(config=conf, entity="ai4good", log_model=True, project="segment_from_scratch")
+    wandb.init(config=conf, entity="ai4good", project="segment_from_scratch")
     data_module = DataModule(conf)
 
     # checkpoints and loggers
