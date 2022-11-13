@@ -82,11 +82,8 @@ class ImageDataset(Dataset):
 
         
         data = xr.load_dataset(f'{self.data_dir}{self.setname}/{img_name}')
-        image = np.concatenate([np.array(data[var]) for var in self.var_list]).astype(np.uint8)
-        image = Image.fromarray(image, "RGB")
-        image = torch.Tensor(np.array(image))
-        print(image.shape)
-        #image = torch.permute(image, (2, 0, 1))
+        image = np.concatenate([np.array(data[var]) for var in self.var_list])
+     
 
         mask = torch.Tensor(np.array(data['LABELS']))
 
@@ -199,15 +196,9 @@ class SemanticSegmentationTask_metrics(SemanticSegmentationTask):
                 for key in ["image", "mask", "prediction"]:
                     batch[key] = batch[key].cpu()
                 images = {
-                    "image": batch["image"][0],
-                    "masked": draw_segmentation_masks(
-                        batch["image"][0].type(torch.uint8),
-                        batch["mask"][0].type(torch.bool),
-                        alpha=0.5,
-                        colors="red",
-                    ),
+                    "mask": batch["mask"][0],
                     "prediction": draw_segmentation_masks(
-                        batch["image"][0].type(torch.uint8),
+                        batch["mask"][0].type(torch.uint8),
                         batch["prediction"][0].type(torch.bool),
                         alpha=0.5,
                         colors="red",
@@ -263,19 +254,13 @@ class SemanticSegmentationTask_metrics(SemanticSegmentationTask):
             for key in ["image", "mask", "prediction"]:
                 batch[key] = batch[key].cpu()
             images = {
-                "image": batch["image"][0],
-                "masked": draw_segmentation_masks(
-                    batch["image"][0].type(torch.uint8),
-                    batch["mask"][0].type(torch.bool),
-                    alpha=0.5,
-                    colors="red",
-                ),
-                "prediction": draw_segmentation_masks(
-                    batch["image"][0].type(torch.uint8),
-                    batch["prediction"][0].type(torch.bool),
-                    alpha=0.5,
-                    colors="red",
-                ),
+                "mask": batch["mask"][0],
+                    "prediction": draw_segmentation_masks(
+                        batch["mask"][0].type(torch.uint8),
+                        batch["prediction"][0].type(torch.bool),
+                        alpha=0.5,
+                        colors="red",
+                    ),
             }
             resize = torchvision.transforms.Resize(512)
             image_grid = torchvision.utils.make_grid(
