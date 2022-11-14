@@ -26,6 +26,8 @@ from pytorch_lightning.loggers import CSVLogger, WandbLogger
 from torch.utils.data import DataLoader, Dataset
 from torchgeo.trainers import SemanticSegmentationTask
 import wandb
+import plotly.express as px
+
 from torchmetrics import (
     Accuracy,
     ConfusionMatrix,
