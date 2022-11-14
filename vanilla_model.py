@@ -44,6 +44,8 @@ DATA_DIR = config("DATA_DIR_A4G")
 LOG_DIR = config("LOG_DIR_A4G")
 REPO_DIR = config("REPO_DIR_A4G")
 
+background_im = Image.open(f'{REPO_DIR}climatenet/bluemarble/MB.jpeg').resize((768,1152))
+
 parser = argparse.ArgumentParser()
 parser.add_argument(
     "--conf",
@@ -196,9 +198,15 @@ class SemanticSegmentationTask_metrics(SemanticSegmentationTask):
                 for key in ["image", "mask", "prediction"]:
                     batch[key] = batch[key].cpu()
                 images = {
-                    "mask": batch["mask"][0],
+                    "image": background_im,
+                    "masked": draw_segmentation_masks(
+                        background_im.type(torch.uint8),
+                        batch["mask"][0].type(torch.bool),
+                        alpha=0.5,
+                        colors="red",
+                    ),
                     "prediction": draw_segmentation_masks(
-                        batch["mask"][0].type(torch.uint8),
+                        background_im.type(torch.uint8),
                         batch["prediction"][0].type(torch.bool),
                         alpha=0.5,
                         colors="red",
@@ -254,9 +262,15 @@ class SemanticSegmentationTask_metrics(SemanticSegmentationTask):
             for key in ["image", "mask", "prediction"]:
                 batch[key] = batch[key].cpu()
             images = {
-                "mask": batch["mask"][0],
+                    "image": background_im,
+                    "masked": draw_segmentation_masks(
+                        background_im.type(torch.uint8),
+                        batch["mask"][0].type(torch.bool),
+                        alpha=0.5,
+                        colors="red",
+                    ),
                     "prediction": draw_segmentation_masks(
-                        batch["mask"][0].type(torch.uint8),
+                        background_im.type(torch.uint8),
                         batch["prediction"][0].type(torch.bool),
                         alpha=0.5,
                         colors="red",
