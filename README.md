@@ -4,7 +4,7 @@ Tropical cyclones (TCs), also known as hurricanes, typhoons or tropical storms, 
 
 In this project, we apply the light-weight CGNet context guided computer vision architecture to semantic segmentation for the identification of tropical cyclones in climate data.
 
-![](<data/climatenet_channels.png>)
+![](<image_climatenet.png>)
 
 
 ## Directory structure
