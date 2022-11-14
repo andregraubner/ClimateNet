@@ -1,13 +1,15 @@
 # CS230 Semantic Segmentation of Extreme Climate Events
 
-
 Tropical cyclones (TCs), also known as hurricanes, typhoons or tropical storms, are the most destructive type of extreme weather events and have caused $1.1 trillion in damage and 6,697 deaths since 1980 in the US alone. 
 
 In this project, we apply the light-weight CGNet context guided computer vision architecture to semantic segmentation for the identification of tropical cyclones in climate data.
 
+![](<data/climatenet_channels.png>)
 
-## Directory structure:
 
+## Directory structure
+
+```
 baseline
     baseline.ipynb –- Notebook to evaluation the baseline implementation on train and test sets
     config.json -- Configuation for baseline implementation
@@ -23,15 +25,13 @@ data
     download_climatenet.ipynb -- Script to download the ClimateNet dataset
 
 README.MD
-
+```
 
 ## Data
 
 ClimateNet is an open, community-sourced, human expert-labeled data set, mapping the outputs of Community Atmospheric Model (CAM5.1) climate simulation runs, for 459 time steps from 1996 to 2013. 
 
 Each example is a netCDF file containing an array (1152, 768) for one time step, with each pixel mapping to a (latitude, longitude) point, with 16 channels for key atmospheric variables and one class label.
-
-![](data/climatenet_channels.png.png)
  
 
 | Channel | Description                                               | Units  | 
@@ -57,10 +57,7 @@ Each example is a netCDF file containing an array (1152, 768) for one time step,
 
 The data set is split in a \textbf{training set} of 398 (map, labels) pairs spanning years 1996 to 2010 in the CAM5.1 climate simulation, and a \textbf{test set} of 61 (map, labels) pairs spanning 2011 to 2013.
 
-You can find the data at [https://portal.nersc.gov/project/ClimateNet/](https://portal.nersc.gov/project/ClimateNet/) and we provide a notebook to download the data automatically.
-
-
-
+You can find the data at [https://portal.nersc.gov/project/ClimateNet/](https://portal.nersc.gov/project/ClimateNet/) and we provide a notebook to download the data automatically in the data/ folder.
 
 
 ## ClimateNet library
@@ -69,14 +66,16 @@ ClimateNet is a Python library for deep learning-based Climate Science. It provi
 
 References: 
 
-Lukas Kapp-Schwoerer, Andre Graubner, Sol Kim, and Karthik Kashinath. Spatio-temporal segmentation and tracking of weather patterns with light-weight neural networks. AI for Earth Sciences Workshop at NeurIPS 2020. [https://ai4earthscience.github.io/neurips-2020-workshop/papers/ai4earth_neurips_2020_55.pdf](https://ai4earthscience.github.io/neurips-2020-workshop/papers/ai4earth_neurips_2020_55.pdf).
+_Lukas Kapp-Schwoerer, Andre Graubner, Sol Kim, and Karthik Kashinath. Spatio-temporal segmentation and tracking of weather patterns with light-weight neural networks. AI for Earth Sciences Workshop at NeurIPS 2020. [https://ai4earthscience.github.io/neurips-2020-workshop/papers/ai4earth_neurips_2020_55.pdf](https://ai4earthscience.github.io/neurips-2020-workshop/papers/ai4earth_neurips_2020_55.pdf)._
 
 ClimateNet library repository: [https://github.com/andregraubner/ClimateNet](https://github.com/andregraubner/ClimateNet).
 
 
 ## Baseline
 
-We use the library and the published implementation of the CGNet network as our baseline, and assess baseline performance on the latest published weights trained over the ClimateNet training set for 15 epochs with the Jaccard loss (weights available at [https://portal.nersc.gov/project/ClimateNet/climatenet_new/model/](https://portal.nersc.gov/project/ClimateNet/climatenet_new/model/).)
+We use the library and the published implementation of the CGNet network as our baseline, and assess baseline performance on the latest published weights trained over the ClimateNet training set for 15 epochs with the Jaccard loss.
+
+Pre-trained weights available at [https://portal.nersc.gov/project/ClimateNet/climatenet_new/model/](https://portal.nersc.gov/project/ClimateNet/climatenet_new/model/).
 
 
 ## References
