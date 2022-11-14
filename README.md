@@ -1,65 +1,85 @@
-# ClimateNet
+# CS230 Semantic Segmentation of Extreme Climate Events
 
-ClimateNet is a Python library for deep learning-based Climate Science. It provides tools for quick detection and tracking of extreme weather events. We also expose models, data sets and metrics to jump-start your research.
 
-## Usage
+Tropical cyclones (TCs), also known as hurricanes, typhoons or tropical storms, are the most destructive type of extreme weather events and have caused $1.1 trillion in damage and 6,697 deaths since 1980 in the US alone. 
 
-Install the conda environment using `conda env create -f conda_env.yml`.
+In this project, we apply the light-weight CGNet context guided computer vision architecture to semantic segmentation for the identification of tropical cyclones in climate data.
 
-You can find the data and a pre-trained model at [https://portal.nersc.gov/project/ClimateNet/](https://portal.nersc.gov/project/ClimateNet/).
-Download the train and test data and the trained model, and you're good-to-go.
 
-The high-level API makes it easy to train a model from scratch or to use our models to run inference on your own climate data. Just download the model config (or write your own) and train the model using:
+## Directory structure:
 
-```python
-config = Config('PATH_TO_CONFIG')
-model = CGNet(config)
+baseline
+    baseline.ipynb –- Notebook to evaluation the baseline implementation on train and test sets
+    config.json -- Configuation for baseline implementation
+    weights.pth -- Pre-trained weights for baseline implementation
 
-training_set = ClimateDatasetLabeled('PATH_TO_TRAINING_SET', model.config)
-inference_set = ClimateDataset('PATH_TO_INFERENCE_SET', model.config)
+climatenet -- ClimateNet library for baseline implementation
+    climatenet
+    example.py
+    README.MD
 
-model.train(training_set)
-model.save_model('PATH_TO_SAVE')
+data
+    data_exploration_climatenet.ipynb -- Notebook to analyze and visualize the ClimateNet dataset
+    download_climatenet.ipynb -- Script to download the ClimateNet dataset
 
-predictions = model.predict(inference_set)
-```
+README.MD
 
-You can find an example of how to load our trained model for inference in example.py.
-
-If you are familiar with PyTorch and want a higher degree of control over training procedures, data flow or other aspects of your project, we suggest you use our lower-level modules.
-The CGNetModule and Dataset classes conform to what you would expect from standard PyTorch, which means that you can take whatever parts you need and swap out the others for your own building blocks. A quick example of this:
-
-```python
-training_data = ... # Plug in your own Dataloader and data handling
-cgnet = CGNetModule(classes=3, channels=4)
-optimizer = Adam(cgnet.parameters(), ...)      
-for features, labels in epoch_loader:
-    outputs = softmax(cgnet(features), 1)
-
-    loss = jaccard_loss(outputs, labels) # Or plug in your own loss...
-    loss.backward()
-    optimizer.step()
-    optimizer.zero_grad() 
-```
 
 ## Data
 
-Climate data can be complex. In order to avoid hard-to-debug issues when reading and interpreting the data, we require the data to adhere to a strict interface when using the high-level abstractions. We're working on conforming to the NetCDF Climate and Forecast Metadata Conventions in order to provide maximal flexibility while still making sure that your data gets interpreted the right way by the models.
+ClimateNet is an open, community-sourced, human expert-labeled data set, mapping the outputs of Community Atmospheric Model (CAM5.1) climate simulation runs, for 459 time steps from 1996 to 2013. 
 
-## Configurations
+Each example is a netCDF file containing an array (1152, 768) for one time step, with each pixel mapping to a (latitude, longitude) point, with 16 channels for key atmospheric variables and one class label.
 
-When creating a (high-level) model, you need to specify a configuration - on one hand this encourages reproducibility and makes it easy to track and share experiments, on the other hand it helps you avoid issues like running a model that was trained on one variable on an unrelated variable or using the wrong normalisation statistics.
-See config.json for an example configuration file.
+![](data/climatenet_channels.png.png)
+ 
 
-## Contributing
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+| Channel | Description                                               | Units  | 
+|---------|-----------------------------------------------------------|--------|
+| TMQ     | Total (vertically integrated) precipitable water          | kg/m^2 | 
+| U850    | Zonal wind at 850 mbar pressure surface                   | m/s    | 
+| V850    | Meridional wind at 850 mbar pressure surface              | m/s    | 
+| UBOT    | Lowest level zonal wind                                   | m/s    | 
+| VBOT    | Lowest model level meridional wind                        | m/s    | 
+| QREFHT  | Reference height humidity                                 | kg/kg  | 
+| PS      | Surface pressure                                          | Pa     | 
+| PSL     | Sea level pressure                                        | Pa     |  
+| T200    | Temperature at 200 mbar pressure surface                  | K      | 
+| T500    | Temperature at 500 mbar pressure surface                  | K      | 
+| PRECT   | Total (convective and large-scale) precipitation rate     | m/s    |  
+| TS      | Surface temperature (radiative)                           | K      | 
+| TREFHT  | Reference height temperature                              | K      | 
+| Z1000   | Geopotential Z at 1000 mbar pressure surface              | m      | 
+| Z200    | Geopotential Z at 200 mbar pressure surface               | m      | 
+| ZBOT    | Lowest modal level height                                 | m      | 
+| LABELS  | 0: Background, 1: Tropical Cyclone, 2: Atmospheric river  | -      |  
 
-Please make sure to update tests as appropriate.
 
-## License
-[MIT](https://choosealicense.com/licenses/mit/)
+The data set is split in a \textbf{training set} of 398 (map, labels) pairs spanning years 1996 to 2010 in the CAM5.1 climate simulation, and a \textbf{test set} of 61 (map, labels) pairs spanning 2011 to 2013.
 
-Please cite the relevant papers if this repository is helpful in your research.
+You can find the data at [https://portal.nersc.gov/project/ClimateNet/](https://portal.nersc.gov/project/ClimateNet/) and we provide a notebook to download the data automatically.
+
+
+
+
+
+## ClimateNet library
+
+ClimateNet is a Python library for deep learning-based Climate Science. It provides tools for quick detection and tracking of extreme weather events, and is used as the implementation of our baseline model.
+
+References: 
+
+Lukas Kapp-Schwoerer, Andre Graubner, Sol Kim, and Karthik Kashinath. Spatio-temporal segmentation and tracking of weather patterns with light-weight neural networks. AI for Earth Sciences Workshop at NeurIPS 2020. [https://ai4earthscience.github.io/neurips-2020-workshop/papers/ai4earth_neurips_2020_55.pdf](https://ai4earthscience.github.io/neurips-2020-workshop/papers/ai4earth_neurips_2020_55.pdf).
+
+ClimateNet library repository: [https://github.com/andregraubner/ClimateNet](https://github.com/andregraubner/ClimateNet).
+
+
+## Baseline
+
+We use the library and the published implementation of the CGNet network as our baseline, and assess baseline performance on the latest published weights trained over the ClimateNet training set for 15 epochs with the Jaccard loss (weights available at [https://portal.nersc.gov/project/ClimateNet/climatenet_new/model/](https://portal.nersc.gov/project/ClimateNet/climatenet_new/model/).)
+
+
+## References
 
 Dataset: https://gmd.copernicus.org/articles/14/107/2021/
 
