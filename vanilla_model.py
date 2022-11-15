@@ -203,12 +203,12 @@ class SemanticSegmentationTask_metrics(SemanticSegmentationTask):
                     "image": background_im,
                     "masked": draw_segmentation_masks(
                         background_im.type(torch.uint8),
-                        batch["mask"][0].type(torch.bool),
+                        batch["mask"][0],
                         alpha=0.5,
                     ),
                     "prediction": draw_segmentation_masks(
                         background_im.type(torch.uint8),
-                        batch["prediction"][0].type(torch.bool),
+                        batch["prediction"][0],
                         alpha=0.5,
                     ),
                 }
@@ -265,12 +265,12 @@ class SemanticSegmentationTask_metrics(SemanticSegmentationTask):
                     "image": background_im,
                     "masked": draw_segmentation_masks(
                         background_im.type(torch.uint8),
-                        batch["mask"][0].type(torch.bool),
+                        batch["mask"][0],
                         alpha=0.5,
                     ),
                     "prediction": draw_segmentation_masks(
                         background_im.type(torch.uint8),
-                        batch["prediction"][0].type(torch.bool),
+                        batch["prediction"][0],
                         alpha=0.5,
                     ),
             }
