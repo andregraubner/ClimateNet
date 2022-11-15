@@ -184,11 +184,11 @@ class SemanticSegmentationTask_metrics(SemanticSegmentationTask):
         batch = args[0]
         batch_idx = args[1]
         x = batch["image"]
-        y = batch["mask"].int()
+        y = batch["mask"].astype(np.longlong)
         y_hat = self.forward(x)
         y_hat_hard = y_hat.argmax(dim=1)
 
-        loss = self.loss(y_hat, y)
+        loss = self.loss(y_hat, y.int())
 
         self.log("val_loss", loss, on_step=False, on_epoch=True)
         self.val_metrics(y_hat_hard, y)
@@ -196,7 +196,7 @@ class SemanticSegmentationTask_metrics(SemanticSegmentationTask):
         if batch_idx < 10:
             try:
                 datamodule = self.trainer.datamodule
-                batch["prediction"] = y_hat_hard.int()
+                batch["prediction"] = y_hat_hard
                 for key in ["image", "mask", "prediction"]:
                     batch[key] = batch[key].cpu()
                 images = {
