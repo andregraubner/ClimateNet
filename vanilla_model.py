@@ -185,6 +185,7 @@ class SemanticSegmentationTask_metrics(SemanticSegmentationTask):
         batch_idx = args[1]
         x = batch["image"]
         y = batch["mask"].long()
+        print(y)
         y_hat = self.forward(x)
         y_hat_hard = y_hat.argmax(dim=1)
 
