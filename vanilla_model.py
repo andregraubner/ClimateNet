@@ -185,7 +185,6 @@ class SemanticSegmentationTask_metrics(SemanticSegmentationTask):
         batch_idx = args[1]
         x = batch["image"]
         y = batch["mask"]
-        print(torch.unique(y))
         y_hat = self.forward(x)
         y_hat_hard = y_hat.argmax(dim=1)
 
@@ -206,13 +205,11 @@ class SemanticSegmentationTask_metrics(SemanticSegmentationTask):
                         background_im.type(torch.uint8),
                         batch["mask"][0].type(torch.bool),
                         alpha=0.5,
-                        colors="red",
                     ),
                     "prediction": draw_segmentation_masks(
                         background_im.type(torch.uint8),
                         batch["prediction"][0].type(torch.bool),
                         alpha=0.5,
-                        colors="red",
                     ),
                 }
                 resize = torchvision.transforms.Resize(512)
@@ -270,13 +267,11 @@ class SemanticSegmentationTask_metrics(SemanticSegmentationTask):
                         background_im.type(torch.uint8),
                         batch["mask"][0].type(torch.bool),
                         alpha=0.5,
-                        colors="red",
                     ),
                     "prediction": draw_segmentation_masks(
                         background_im.type(torch.uint8),
                         batch["prediction"][0].type(torch.bool),
                         alpha=0.5,
-                        colors="red",
                     ),
             }
             resize = torchvision.transforms.Resize(512)
