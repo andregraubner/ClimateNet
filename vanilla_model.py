@@ -89,7 +89,7 @@ class ImageDataset(Dataset):
         image = np.concatenate([np.array(data[var]) for var in self.var_list])
      
 
-        mask = torch.Tensor(np.array(data['LABELS']).astype(np.uint8))
+        mask = torch.Tensor(np.array(data['LABELS']).astype(np.longlong))
 
     
 
