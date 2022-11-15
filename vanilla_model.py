@@ -196,7 +196,7 @@ class SemanticSegmentationTask_metrics(SemanticSegmentationTask):
         if batch_idx < 10:
             try:
                 datamodule = self.trainer.datamodule
-                batch["prediction"] = y_hat_hard
+                batch["prediction"] = y_hat_hard.int()
                 for key in ["image", "mask", "prediction"]:
                     batch[key] = batch[key].cpu()
                 images = {
