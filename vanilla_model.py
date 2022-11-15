@@ -188,7 +188,7 @@ class SemanticSegmentationTask_metrics(SemanticSegmentationTask):
         y_hat = self.forward(x)
         y_hat_hard = y_hat.argmax(dim=1)
 
-        loss = self.loss(y_hat, y.int())
+        loss = self.loss(y_hat, y)
 
         self.log("val_loss", loss, on_step=False, on_epoch=True)
         self.val_metrics(y_hat_hard, y)
