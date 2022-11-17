@@ -94,6 +94,10 @@ def collate_fn(batch):
     return torch.utils.data.dataloader.default_collate(batch)
 
 
+def log_image(image, key, caption=""):
+    images = wandb.Image(image, caption)
+    wandb.log({key: images})
+
 def validation_step(self, batch, batch_idx):
     x, y = batch['image'], batch['mask']
     y_hat = self.forward(x)
@@ -102,9 +106,7 @@ def validation_step(self, batch, batch_idx):
 
     self.log("val_loss", loss, on_step=False, on_epoch=True)
 
-    
-    wandb_logger.log(
-    {"my_image_key" : wandb.Image(bg_im, masks={
+    image = wandb.Image(bg_im, masks={
     "predictions" : {
         "mask_data" : y_hat.argmax(dim=1),
         "class_labels" : class_labels
@@ -113,7 +115,10 @@ def validation_step(self, batch, batch_idx):
         "mask_data" : y,
         "class_labels" : class_labels
     }
-    })})
+    })
+
+    log_image(image, 'validation results', 'plot mask from validation')
+
 
 
 
