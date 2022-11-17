@@ -107,7 +107,6 @@ def validation_step(self, batch, batch_idx):
     self.log("val_loss", loss, on_step=False, on_epoch=True)
 
 
-    table = wandb.Table(columns=['Image'])        
     for y_hat_i, y_i in zip(y_hat,y):
 
         image = wandb.Image(bg_im, masks={
@@ -120,8 +119,7 @@ def validation_step(self, batch, batch_idx):
             "class_labels" : class_labels
         }
         })
-        table.add_data(image)
-
+        trainer.logger.experiment.log({'examples': image})
         #log_image(image, 'validation results', 'plot mask from validation')
 
 
