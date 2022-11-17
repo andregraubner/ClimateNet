@@ -27,7 +27,6 @@ import wandb
 
 import xarray as xr
 
-wandb_logger = WandbLogger(entity="ai4good", log_model=True, project="segment_from_scratch")
 
 
 DATA_DIR = config("DATA_DIR_A4G")
@@ -36,6 +35,8 @@ REPO_DIR = config("REPO_DIR_A4G")
 
 bg_im = Image.open(f'{REPO_DIR}climatenet/bluemarble/BM.jpeg').resize((768,1152))
 class_labels = {0: "BG", 1: "TC",  2: "AR"} 
+
+wandb_logger = WandbLogger(entity="ai4good", log_model=True, project="segment_from_scratch", save_dir = LOG_DIR)
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -95,6 +96,8 @@ def collate_fn(batch):
 def validation_step(self, batch, batch_idx):
     x, y = batch['image'], batch['mask']
     y_hat = self.forward(x)
+
+    print(y.shape, print(y_hat.shape))
     loss = self.loss(y_hat, y) 
 
     self.log("val_loss", loss, on_step=False, on_epoch=True)
