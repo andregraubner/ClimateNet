@@ -97,22 +97,24 @@ def validation_step(self, batch, batch_idx):
     x, y = batch['image'], batch['mask']
     y_hat = self.forward(x)
 
-    print(y.shape, print(y_hat.shape))
     loss = self.loss(y_hat, y) 
 
     self.log("val_loss", loss, on_step=False, on_epoch=True)
 
-    wandb.log(
-    {"my_image_key" : wandb.Image(bg_im, masks={
-    "predictions" : {
-        "mask_data" : y_hat.argmax(dim=1),
-        "class_labels" : class_labels
-    },
-    "ground_truth" : {
-        "mask_data" : y,
-        "class_labels" : class_labels
-    }
-    })})
+    try:
+        wandb.log(
+        {"my_image_key" : wandb.Image(bg_im, masks={
+        "predictions" : {
+            "mask_data" : y_hat.argmax(dim=1),
+            "class_labels" : class_labels
+        },
+        "ground_truth" : {
+            "mask_data" : y,
+            "class_labels" : class_labels
+        }
+        })})
+    except:
+        pass
 
   
 
