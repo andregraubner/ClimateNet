@@ -93,6 +93,7 @@ def collate_fn(batch):
     batch = list(filter(lambda x: x is not None, batch))
     return torch.utils.data.dataloader.default_collate(batch)
 
+'''
 def validation_step(self, batch, batch_idx):
     x, y = batch['image'], batch['mask']
     y_hat = self.forward(x)
@@ -116,7 +117,7 @@ def validation_step(self, batch, batch_idx):
     except:
         pass
 
-  
+'''  
 
 if __name__ == "__main__":
 
