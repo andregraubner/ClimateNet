@@ -103,7 +103,7 @@ def validation_step(self, batch, batch_idx):
     self.log("val_loss", loss, on_step=False, on_epoch=True)
 
     
-    wandb.log(
+    wandb_logger.log(
     {"my_image_key" : wandb.Image(bg_im, masks={
     "predictions" : {
         "mask_data" : y_hat.argmax(dim=1),
