@@ -30,11 +30,11 @@ import xarray as xr
 
 
 DATA_DIR = config("DATA_DIR_A4G")
-#LOG_DIR = config("LOG_DIR_A4G")
+LOG_DIR = config("LOG_DIR_A4G")
 REPO_DIR = config("REPO_DIR_A4G")
 
-#bg_im = Image.open(f'{REPO_DIR}climatenet/bluemarble/BM.jpeg').resize((768,1152))
-#class_labels = {0: "BG", 1: "TC",  2: "AR"} 
+bg_im = Image.open(f'{REPO_DIR}climatenet/bluemarble/BM.jpeg').resize((768,1152))
+class_labels = {0: "BG", 1: "TC",  2: "AR"} 
 
 wandb_logger = WandbLogger(entity="ai4good", log_model='all', project="segment_from_scratch")
 
@@ -93,7 +93,7 @@ def collate_fn(batch):
     batch = list(filter(lambda x: x is not None, batch))
     return torch.utils.data.dataloader.default_collate(batch)
 
-'''
+
 def validation_step(self, batch, batch_idx):
     x, y = batch['image'], batch['mask']
     y_hat = self.forward(x)
@@ -117,7 +117,7 @@ def validation_step(self, batch, batch_idx):
     except:
         pass
 
-''' 
+
 
 if __name__ == "__main__":
 
