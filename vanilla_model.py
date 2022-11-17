@@ -94,7 +94,7 @@ def collate_fn(batch):
 
 def validation_step(self, batch, batch_idx):
     x, y = batch['image'], batch['mask']
-    y_hat = self.forward(x).argmax(dim=1)
+    y_hat = self.forward(x)
     loss = self.loss(y_hat, y) 
 
     self.log("val_loss", loss, on_step=False, on_epoch=True)
@@ -102,7 +102,7 @@ def validation_step(self, batch, batch_idx):
     wandb.log(
     {"my_image_key" : wandb.Image(bg_im, masks={
     "predictions" : {
-        "mask_data" : y_hat,
+        "mask_data" : y_hat.argmax(dim=1),
         "class_labels" : class_labels
     },
     "ground_truth" : {
