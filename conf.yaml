@@ -22,5 +22,5 @@ num_classes: 3
 max_time: 00:23:50:00
 
 [datamodule]
-batch_size: 2
-num_workers: 2
+batch_size: 64
+num_workers: 128
