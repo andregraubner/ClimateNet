@@ -132,7 +132,9 @@ class Scheduler(pl.Callback):
         self._prepare_epoch(trainer, model, trainer.current_epoch + 1)
 
 class Data(LightningDataModule):
-    super().__init__()
+    def __init__(self):
+        super().__init__()
+      
     def set_phase(self, phase: dict):
         self.path = phase.get("phase", self.path)
         
