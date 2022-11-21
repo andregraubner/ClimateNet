@@ -137,7 +137,6 @@ class Data(LightningDataModule):
       
     def set_phase(self, phase: dict):
         self.path = phase.get("phase", self.path)
-        
        
     def train_dataloader(self):
 
@@ -181,9 +180,15 @@ class Data(LightningDataModule):
         return test_dataloader
 
 
+class model(SemanticSegmentationTask):
+    def __init__(self, path):
+        super().__init__()
+    
+ 
 
 if __name__ == "__main__":
     
+
 
 
     wandb.init(entity="ai4good", project="segment_from_scratch")
@@ -204,7 +209,7 @@ if __name__ == "__main__":
     wandb_logger = WandbLogger(entity="ai4good", log_model=True, project="segment_from_scratch")
 
     # set up task
-    task = SemanticSegmentationTask(
+    task = model(
         segmentation_model=conf["model"]["segmentation_model"],
         encoder_name=conf["model"]["backbone"],
         encoder_weights="imagenet" if conf["model"]["pretrained"] == "True" else "None",
