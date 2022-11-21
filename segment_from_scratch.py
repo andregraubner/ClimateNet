@@ -23,6 +23,7 @@ from pytorch_lightning.cli import LightningCLI
 from pytorch_lightning.loggers import CSVLogger, WandbLogger
 from torch.utils.data import DataLoader, Dataset
 from torchgeo.trainers import SemanticSegmentationTask
+import pytorch_lightning as pl
 import wandb
 
 
@@ -37,7 +38,7 @@ REPO_DIR = config("REPO_DIR_A4G")
 bg_im = Image.open(f'{REPO_DIR}climatenet/bluemarble/BM.jpeg').resize((768,1152))
 class_labels = {0: "BG", 1: "TC",  2: "AR"} 
 
-
+phase_length = 10
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -56,10 +57,10 @@ conf.read(args.conf)
 var_list = conf["experiment"]["var_list"].split(',')
 # collect data and create dataset
 class ImageDataset(Dataset):
-    def __init__(self, setname, transform=None, target_transform=None):
+    def __init__(self, setname, path, transform=None, target_transform=None):
 
         # Define the  mask file and the json file for retrieving images
-        self.data_dir = DATA_DIR
+        self.data_dir = path
         self.var_list = var_list
         self.setname = setname
         assert self.setname in ["train", "test", "val"]
@@ -123,38 +124,63 @@ def validation_step(self, batch, batch_idx):
         #trainer.logger.experiment.log({'examples': image})
         #log_image(image, 'validation results', 'plot mask from validation')
 
+class Scheduler(pl.Callback):
+    def _prepare_epoch(self, trainer, model, epoch):
+        phase = epoch//phase_length
+        trainer.datamodule.set_phase(phase)
+
+    def on_epoch_end(self, trainer, model):
+        self._prepare_epoch(trainer, model, trainer.current_epoch + 1)
+
+class Data(pl.LightningDataModule):
+    def set_phase(self, phase: dict):
+        self.path = phase.get("path", self.path)
+        
+       
+    def train_dataloader(self):
+
+        setname = "train"
+        train_data = ImageDataset(setname, self.path)
+
+        train_dataloader = DataLoader(
+            train_data,
+            batch_size=int(conf["datamodule"]["batch_size"]),
+            shuffle=True,
+            num_workers=int(conf["datamodule"]["num_workers"]),
+            collate_fn=collate_fn,
+        )
+        return train_dataloader
+    
+    def val_dataloader(self):    
+
+        setname = "val"
+        val_data = ImageDataset(setname,self.path)
+        val_dataloader = DataLoader(
+            val_data,
+            batch_size=int(conf["datamodule"]["batch_size"]),
+            shuffle=False,
+            num_workers=int(conf["datamodule"]["num_workers"]),
+            collate_fn=collate_fn,
+        )
+        return val_dataloader
+
+    def test_dataloader(self):
+
+        setname = "test"
+        test_data = ImageDataset(setname,self.path)
+        
+        test_dataloader = DataLoader(
+            test_data,
+            batch_size=int(conf["datamodule"]["batch_size"]),
+            shuffle=False,
+            num_workers=int(conf["datamodule"]["num_workers"]),
+            collate_fn=collate_fn,
+        )
+        return test_dataloader
+
 
 if __name__ == "__main__":
-    # create datasets
-    setname = "train"
-    train_data = ImageDataset(setname)
-    setname = "val"
-    val_data = ImageDataset(setname)
-    setname = "test"
-    test_data = ImageDataset(setname)
-
-    # DataLoader
-    train_dataloader = DataLoader(
-        train_data,
-        batch_size=int(conf["datamodule"]["batch_size"]),
-        shuffle=True,
-        num_workers=int(conf["datamodule"]["num_workers"]),
-        collate_fn=collate_fn,
-    )
-    val_dataloader = DataLoader(
-        val_data,
-        batch_size=int(conf["datamodule"]["batch_size"]),
-        shuffle=False,
-        num_workers=int(conf["datamodule"]["num_workers"]),
-        collate_fn=collate_fn,
-    )
-    test_dataloader = DataLoader(
-        test_data,
-        batch_size=int(conf["datamodule"]["batch_size"]),
-        shuffle=False,
-        num_workers=int(conf["datamodule"]["num_workers"]),
-        collate_fn=collate_fn,
-    )
+    
 
 
     wandb.init(entity="ai4good", project="segment_from_scratch")
@@ -200,7 +226,6 @@ if __name__ == "__main__":
     )
 
 
-    trainer.fit(task, train_dataloader, val_dataloader)
-    trainer.fit(task, train_dataloader, val_dataloader)
+    trainer.fit(task, datamodule=Data, reload_dataloaders_every_epoch=True)
 
-    trainer.test(model=task, dataloaders=test_dataloader)
+    trainer.test(model=task, datamodule = Data)
