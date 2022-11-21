@@ -172,8 +172,8 @@ class Model_Task(SemanticSegmentationTask):
         loss = self.loss(y_hat, y) 
         self.log("val_loss", loss, on_step=False, on_epoch=True)
 
-        y_numpy = y.cpu().numpy()
-        y_hat_int_numpy = y_hat_int.cpu().numpy()
+        y_numpy = y.gpu().numpy()
+        y_hat_int_numpy = y_hat_int.gpu().numpy()
 
 
         for y_hat_i, y_i in zip(y_hat_int_numpy,y_numpy):
