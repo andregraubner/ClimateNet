@@ -39,7 +39,6 @@ bg_im = Image.open(f'{REPO_DIR}climatenet/bluemarble/BM.jpeg').resize((768,1152)
 class_labels = {0: "BG", 1: "TC",  2: "AR"} 
 
 phase_length = 5
-phase = {''}
 parser = argparse.ArgumentParser()
 parser.add_argument(
     "--conf",
@@ -226,6 +225,6 @@ if __name__ == "__main__":
     )
 
 
-    trainer.fit(task, datamodule=Data, reload_dataloaders_every_epoch=True)
+    trainer.fit(task, datamodule=Data, reload_dataloaders_every_n_epochs=phase_length)
 
     trainer.test(model=task, datamodule = Data)
