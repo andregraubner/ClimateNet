@@ -132,8 +132,9 @@ class Scheduler(pl.Callback):
         self._prepare_epoch(trainer, model, trainer.current_epoch + 1)
 
 class Data(LightningDataModule):
-    def __init__(self):
+    def __init__(self, conf):
         super().__init__()
+        self.conf = conf
       
     def set_phase(self, phase: dict):
         self.path = phase.get("phase", self.path)
@@ -141,43 +142,21 @@ class Data(LightningDataModule):
     def train_dataloader(self):
 
         setname = "train"
-        train_data = ImageDataset(setname, self.path)
-
-        train_dataloader = DataLoader(
-            train_data,
-            batch_size=int(conf["datamodule"]["batch_size"]),
-            shuffle=True,
-            num_workers=int(conf["datamodule"]["num_workers"]),
-            collate_fn=collate_fn,
-        )
-        return train_dataloader
+        data = ImageDataset(setname, self.path)
+        return get_dataloader(self.conf, data)
     
-    def val_dataloader(self):    
+    def val_dataloader(self):
 
         setname = "val"
-        val_data = ImageDataset(setname,self.path)
-        val_dataloader = DataLoader(
-            val_data,
-            batch_size=int(conf["datamodule"]["batch_size"]),
-            shuffle=False,
-            num_workers=int(conf["datamodule"]["num_workers"]),
-            collate_fn=collate_fn,
-        )
-        return val_dataloader
-
-    def test_dataloader(self):
+        data = ImageDataset(setname, self.path)
+        return get_dataloader(self.conf, data)
+        
+    def train_dataloader(self):
 
         setname = "test"
-        test_data = ImageDataset(setname,self.path)
-        
-        test_dataloader = DataLoader(
-            test_data,
-            batch_size=int(conf["datamodule"]["batch_size"]),
-            shuffle=False,
-            num_workers=int(conf["datamodule"]["num_workers"]),
-            collate_fn=collate_fn,
-        )
-        return test_dataloader
+        data = ImageDataset(setname, self.path)
+        return get_dataloader(self.conf, data)
+
 
 
 class Model_Task(SemanticSegmentationTask):
@@ -185,7 +164,12 @@ class Model_Task(SemanticSegmentationTask):
         super().__init__(*args, **kwargs)
 
     
- 
+def get_dataloader(conf, dataset):
+    loader = DataLoader(dataset,batch_size=int(conf["datamodule"]["batch_size"]),
+            shuffle=True,num_workers=int(conf["datamodule"]["num_workers"]),
+            collate_fn=collate_fn,)
+    return loader
+
 
 if __name__ == "__main__":
     
@@ -236,6 +220,6 @@ if __name__ == "__main__":
     )
 
 
-    trainer.fit(task, datamodule=Data)
+    trainer.fit(task, datamodule=Data(conf))
 
-    trainer.test(model=task, datamodule = Data)
+    trainer.test(model=task, datamodule = Data(conf))
