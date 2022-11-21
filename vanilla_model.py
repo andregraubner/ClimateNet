@@ -193,7 +193,6 @@ trainer = Trainer(
     accelerator="gpu",
     max_epochs=5,
     max_time=conf["trainer"]["max_time"],
-    logger=wandb_logger,
     auto_lr_find=conf["trainer"]["auto_lr_find"] == "True",
     auto_scale_batch_size=conf["trainer"]["auto_scale_batch_size"] == "True",
 )
