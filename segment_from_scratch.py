@@ -39,6 +39,7 @@ bg_im = Image.open(f'{REPO_DIR}climatenet/bluemarble/BM.jpeg').resize((768,1152)
 class_labels = {0: "BG", 1: "TC",  2: "AR"} 
 
 phase_length = 5
+nr_phases = 3
 parser = argparse.ArgumentParser()
 parser.add_argument(
     "--conf",
@@ -94,38 +95,10 @@ def collate_fn(batch):
     batch = list(filter(lambda x: x is not None, batch))
     return torch.utils.data.dataloader.default_collate(batch)
 
-def log_image(image, key, caption=""):
-    images = wandb.Image(image, caption)
-    wandb.log({key: images})
-
-def validation_step(self, batch, batch_idx):
-    x, y = batch['image'], batch['mask']
-    y_hat = self.forward(x)
-
-    loss = self.loss(y_hat, y) 
-
-    self.log("val_loss", loss, on_step=False, on_epoch=True)
-
-
-    for y_hat_i, y_i in zip(y_hat,y):
-
-        image = wandb.Image(bg_im, masks={
-        "predictions" : {
-            "mask_data" : y_hat_i.argmax(dim=1),
-            "class_labels" : class_labels
-        },
-        "ground_truth" : {
-            "mask_data" : y_i,
-            "class_labels" : class_labels
-        }
-        })
-        wandb.log({"predictions" : image})
-        #trainer.logger.experiment.log({'examples': image})
-        #log_image(image, 'validation results', 'plot mask from validation')
 
 class Scheduler(pl.Callback):
     def _prepare_epoch(self, trainer, model, epoch):
-        phase = {'phase': DATA_DIR}
+        phase = {'phase': DATA_DIR} #TODO --> change dir based on phase by including current epoch
         trainer.datamodule.set_phase(phase)
 
     def on_epoch_end(self, trainer, model):
@@ -185,7 +158,34 @@ class Model_Task(SemanticSegmentationTask):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+    def log_image(image, key, caption=""):
+        images = wandb.Image(image, caption)
+        wandb.log({key: images})
 
+    def validation_step(self, batch, batch_idx):
+        x, y = batch['image'], batch['mask']
+        y_hat = self.forward(x)
+
+        loss = self.loss(y_hat, y) 
+
+        self.log("val_loss", loss, on_step=False, on_epoch=True)
+
+
+        for y_hat_i, y_i in zip(y_hat,y):
+
+            image = wandb.Image(bg_im, masks={
+            "predictions" : {
+                "mask_data" : y_hat_i.argmax(dim=1),
+                "class_labels" : class_labels
+            },
+            "ground_truth" : {
+                "mask_data" : y_i,
+                "class_labels" : class_labels
+            }
+            })
+            wandb.log({"predictions" : image})
+            #trainer.logger.experiment.log({'examples': image})
+            #log_image(image, 'validation results', 'plot mask from validation')
 
 if __name__ == "__main__":
     
@@ -228,7 +228,7 @@ if __name__ == "__main__":
         callbacks=[checkpoint_callback, early_stopping_callback],
         logger=[csv_logger, wandb_logger],
         accelerator="gpu",
-        max_epochs=5,
+        max_epochs=nr_phases*phase_length,
         max_time=conf["trainer"]["max_time"],
         auto_lr_find=conf["trainer"]["auto_lr_find"] == "True",
         auto_scale_batch_size=conf["trainer"]["auto_scale_batch_size"] == "True",
