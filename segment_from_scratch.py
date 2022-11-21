@@ -37,7 +37,6 @@ REPO_DIR = config("REPO_DIR_A4G")
 
 bg_im = torch.tensor(np.array(Image.open(f'{REPO_DIR}climatenet/bluemarble/BM.jpeg').resize((768,1152))))
 
-print(bg_im)
 class_labels = {0: "BG", 1: "TC",  2: "AR"} 
 
 phase_length = 5
@@ -180,7 +179,7 @@ class Model_Task(SemanticSegmentationTask):
 
             image = wandb.Image(bg_im, masks={
             "predictions" : {
-                "mask_data" : y_hat_i.argmax(dim=1).astype(np.uint8),
+                "mask_data" : y_hat_i.astype(np.uint8),
                 "class_labels" : class_labels
             },
             "ground_truth" : {
