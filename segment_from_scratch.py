@@ -38,8 +38,8 @@ REPO_DIR = config("REPO_DIR_A4G")
 bg_im = Image.open(f'{REPO_DIR}climatenet/bluemarble/BM.jpeg').resize((768,1152))
 class_labels = {0: "BG", 1: "TC",  2: "AR"} 
 
-phase_length = 10
-
+phase_length = 5
+phase = {''}
 parser = argparse.ArgumentParser()
 parser.add_argument(
     "--conf",
@@ -126,7 +126,7 @@ def validation_step(self, batch, batch_idx):
 
 class Scheduler(pl.Callback):
     def _prepare_epoch(self, trainer, model, epoch):
-        phase = epoch//phase_length
+        phase = {'phase': DATA_DIR}
         trainer.datamodule.set_phase(phase)
 
     def on_epoch_end(self, trainer, model):
@@ -134,7 +134,7 @@ class Scheduler(pl.Callback):
 
 class Data(pl.LightningDataModule):
     def set_phase(self, phase: dict):
-        self.path = phase.get("path", self.path)
+        self.path = phase.get("phase", self.path)
         
        
     def train_dataloader(self):
