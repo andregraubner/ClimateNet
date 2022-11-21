@@ -134,6 +134,7 @@ class Scheduler(pl.Callback):
 class Data(LightningDataModule):
     def __init__(self):
         super().__init__()
+        self.path = DATA_DIR
       
     def set_phase(self, phase: dict):
         self.path = phase.get("phase", self.path)
@@ -184,13 +185,7 @@ class Model_Task(SemanticSegmentationTask):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-'''    
-def get_dataloader(conf, dataset):
-    loader = DataLoader(dataset,batch_size=int(conf["datamodule"]["batch_size"]),
-            shuffle=True,num_workers=int(conf["datamodule"]["num_workers"]),
-            collate_fn=collate_fn,)
-    return loader
-'''
+
 
 if __name__ == "__main__":
     
