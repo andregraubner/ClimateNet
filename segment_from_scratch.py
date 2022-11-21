@@ -17,7 +17,7 @@ import torchgeo
 import yaml
 from decouple import config
 from PIL import Image
-from pytorch_lightning import Trainer
+from pytorch_lightning import Trainer,LightningDataModule
 from pytorch_lightning.callbacks import EarlyStopping, ModelCheckpoint
 from pytorch_lightning.cli import LightningCLI
 from pytorch_lightning.loggers import CSVLogger, WandbLogger
@@ -131,7 +131,8 @@ class Scheduler(pl.Callback):
     def on_epoch_end(self, trainer, model):
         self._prepare_epoch(trainer, model, trainer.current_epoch + 1)
 
-class Data(pl.LightningDataModule):
+class Data(LightningDataModule):
+    super().__init__()
     def set_phase(self, phase: dict):
         self.path = phase.get("phase", self.path)
         
@@ -176,6 +177,7 @@ class Data(pl.LightningDataModule):
             collate_fn=collate_fn,
         )
         return test_dataloader
+
 
 
 if __name__ == "__main__":
