@@ -35,7 +35,7 @@ DATA_DIR = config("DATA_DIR_A4G")
 LOG_DIR = config("LOG_DIR_A4G")
 REPO_DIR = config("REPO_DIR_A4G")
 
-bg_im = torch.tensor(np.array(Image.open(f'{REPO_DIR}climatenet/bluemarble/BM.jpeg').resize((768,1152))))
+bg_im = np.array(Image.open(f'{REPO_DIR}climatenet/bluemarble/BM.jpeg').resize((768,1152)))
 
 class_labels = {0: "BG", 1: "TC",  2: "AR"} 
 
@@ -177,7 +177,7 @@ class Model_Task(SemanticSegmentationTask):
 
         for y_hat_i, y_i in zip(y_hat_int_numpy,y_numpy):
 
-            image = wandb.Image(bg_im, masks={
+            image = wandb.Image(bg_im.astype(np.uint8), masks={
             "predictions" : {
                 "mask_data" : y_hat_i.astype(np.uint8),
                 "class_labels" : class_labels
