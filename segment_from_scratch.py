@@ -25,7 +25,15 @@ from torch.utils.data import DataLoader, Dataset
 from torchgeo.trainers import SemanticSegmentationTask
 import pytorch_lightning as pl
 import wandb
-
+from torchmetrics import (
+    Accuracy,
+    ConfusionMatrix,
+    F1Score,
+    JaccardIndex,
+    MetricCollection,
+    Precision,
+    Recall,
+)
 
 import xarray as xr
 
@@ -158,6 +166,22 @@ class Data(LightningDataModule):
 class Model_Task(SemanticSegmentationTask):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.train_metrics = MetricCollection(
+            [
+                Accuracy(
+                    num_classes=self.hyperparams["num_classes"],
+                    ignore_index=self.ignore_index,
+                    mdmc_average="global",
+                ),
+                JaccardIndex(
+                    num_classes=self.hyperparams["num_classes"],
+                    ignore_index=self.ignore_index,
+                ),
+                ],
+            prefix="train_",
+        )
+        self.val_metrics = self.train_metrics.clone(prefix="val_")
+        self.test_metrics = self.train_metrics.clone(prefix="test_")
 
     def log_image(image, key, caption=""):
         images = wandb.Image(image, caption)
@@ -192,6 +216,32 @@ class Model_Task(SemanticSegmentationTask):
             wandb.log({"predictions" : image})
             #trainer.logger.experiment.log({'examples': image})
             #log_image(image, 'validation results', 'plot mask from validation')
+
+    def training_epoch_end(self, outputs):
+        """Logs epoch level training metrics.
+
+        Args:
+            outputs: list of items returned by training_step
+        """
+        computed = self.train_metrics.compute()
+        new_metrics = {
+            k: computed[k] for k in set(list(computed))
+        }
+        self.log_dict(new_metrics)
+        self.train_metrics.reset()
+
+    def validation_epoch_end(self, outputs):
+        """Logs epoch level validation metrics.
+
+        Args:
+            outputs: list of items returned by validation_step
+        """
+        computed = self.val_metrics.compute()
+        new_metrics = {
+            k: computed[k] for k in set(list(computed))}
+        
+        self.log_dict(new_metrics)
+        self.val_metrics.reset()
 
 if __name__ == "__main__":
     
