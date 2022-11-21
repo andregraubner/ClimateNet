@@ -167,12 +167,13 @@ class Model_Task(SemanticSegmentationTask):
         x, y = batch['image'], batch['mask']
         y_hat = self.forward(x)
         y_hat_int = y_hat.argmax(dim=1)
-        y_numpy = y.clone().detach().cpu().numpy()
-        y_hat_int_numpy = y_hat_int.clone().detach().cpu().numpy()
+        
 
         loss = self.loss(y_hat, y) 
-
         self.log("val_loss", loss, on_step=False, on_epoch=True)
+
+        y_numpy = y.cpu().numpy()
+        y_hat_int_numpy = y_hat_int.cpu().numpy()
 
 
         for y_hat_i, y_i in zip(y_hat_int_numpy,y_numpy):
