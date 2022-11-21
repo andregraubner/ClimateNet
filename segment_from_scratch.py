@@ -222,9 +222,10 @@ if __name__ == "__main__":
         max_time=conf["trainer"]["max_time"],
         auto_lr_find=conf["trainer"]["auto_lr_find"] == "True",
         auto_scale_batch_size=conf["trainer"]["auto_scale_batch_size"] == "True",
+        reload_dataloaders_every_n_epochs=phase_length,
     )
 
 
-    trainer.fit(task, datamodule=Data, reload_dataloaders_every_n_epochs=phase_length)
+    trainer.fit(task, datamodule=Data)
 
     trainer.test(model=task, datamodule = Data)
