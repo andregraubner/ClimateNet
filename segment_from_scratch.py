@@ -207,18 +207,18 @@ class Model_Task(SemanticSegmentationTask):
                 for key in ["image", "mask", "prediction"]:
                     batch[key] = batch[key].cpu()
                 images = {
-                    "image": batch["image"][0],
+                    "image": bg_im,
                     "masked": draw_segmentation_masks(
-                        batch["image"][0].type(torch.uint8),
-                        batch["mask"][0].type(torch.bool),
+                        bg_im.type(torch.uint8),
+                        batch["mask"][0].type(torch.uint8),
                         alpha=0.5,
-                        colors="red",
+                        colors=["red", 'yellow', 'blue'],
                     ),
                     "prediction": draw_segmentation_masks(
-                        batch["image"][0].type(torch.uint8),
-                        batch["prediction"][0].type(torch.bool),
+                        bg_im.type(torch.uint8),
+                        batch["prediction"][0].type(torch.uint8),
                         alpha=0.5,
-                        colors="red",
+                        colors=["red", 'yellow', 'blue'],
                     ),
                 }
                 resize = torchvision.transforms.Resize(512)
