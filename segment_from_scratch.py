@@ -201,51 +201,50 @@ class Model_Task(SemanticSegmentationTask):
         self.val_metrics(y_hat_hard, y)
 
         if batch_idx < 10:
-            try:
-                datamodule = self.trainer.datamodule
-                batch["prediction"] = y_hat_hard
-                for key in ["image", "mask", "prediction"]:
-                    batch[key] = batch[key].cpu()
-                images = {
-                    "image": bg_im,
-                    "masked": draw_segmentation_masks(
-                        bg_im.type(torch.uint8),
-                        batch["mask"][0].type(torch.uint8),
-                        alpha=0.5,
-                        colors=["red", 'yellow', 'blue'],
-                    ),
-                    "prediction": draw_segmentation_masks(
-                        bg_im.type(torch.uint8),
-                        batch["prediction"][0].type(torch.uint8),
-                        alpha=0.5,
-                        colors=["red", 'yellow', 'blue'],
-                    ),
+            
+            datamodule = self.trainer.datamodule
+            batch["prediction"] = y_hat_hard
+            for key in ["image", "mask", "prediction"]:
+                batch[key] = batch[key].cpu()
+            images = {
+                "image": bg_im,
+                "masked": draw_segmentation_masks(
+                    bg_im.type(torch.uint8),
+                    batch["mask"][0].type(torch.uint8),
+                    alpha=0.5,
+                    colors=["red", 'yellow', 'blue'],
+                ),
+                "prediction": draw_segmentation_masks(
+                    bg_im.type(torch.uint8),
+                    batch["prediction"][0].type(torch.uint8),
+                    alpha=0.5,
+                    colors=["red", 'yellow', 'blue'],
+                ),
+            }
+            resize = torchvision.transforms.Resize(512)
+            image_grid = torchvision.utils.make_grid(
+                [resize(value.float()) for key, value in images.items()],
+                value_range=(0, 255),
+                normalize=True,
+            )
+            self.log_image(
+                image_grid,
+                key="val_examples (original/groud truth/prediction)",
+                caption="Sample validation images",
+            )
+            wandb.log(
+                {
+                    "pr": wandb.plot.pr_curve(
+                        torch.reshape(batch["mask"][0], (-1,)),
+                        torch.reshape(
+                            y_hat[0].cpu(), (-1, self.hyperparams["num_classes"])
+                        ),
+                        labels=None,
+                        classes_to_plot=None,
+                    )
                 }
-                resize = torchvision.transforms.Resize(512)
-                image_grid = torchvision.utils.make_grid(
-                    [resize(value.float()) for key, value in images.items()],
-                    value_range=(0, 255),
-                    normalize=True,
-                )
-                self.log_image(
-                    image_grid,
-                    key="val_examples (original/groud truth/prediction)",
-                    caption="Sample validation images",
-                )
-                wandb.log(
-                    {
-                        "pr": wandb.plot.pr_curve(
-                            torch.reshape(batch["mask"][0], (-1,)),
-                            torch.reshape(
-                                y_hat[0].cpu(), (-1, self.hyperparams["num_classes"])
-                            ),
-                            labels=None,
-                            classes_to_plot=None,
-                        )
-                    }
-                )
-            except AttributeError:
-                pass
+            )
+          
         '''
         y_hat = self.forward(x)
         y_hat_int = y_hat.argmax(dim=1)
