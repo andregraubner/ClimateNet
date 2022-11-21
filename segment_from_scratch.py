@@ -175,11 +175,11 @@ class Model_Task(SemanticSegmentationTask):
 
             image = wandb.Image(bg_im, masks={
             "predictions" : {
-                "mask_data" : np.array(y_hat_i.argmax(dim=1)),
+                "mask_data" : y_hat_i.argmax(dim=1).type(torch.uint8),
                 "class_labels" : class_labels
             },
             "ground_truth" : {
-                "mask_data" :np.array(y_i),
+                "mask_data" :np.array(y_i).type(torch.uint8),
                 "class_labels" : class_labels
             }
             })
