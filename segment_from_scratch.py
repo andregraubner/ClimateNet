@@ -135,6 +135,7 @@ class Data(LightningDataModule):
     def __init__(self, conf):
         super().__init__()
         self.conf = conf
+        self.path = DATA_DIR
       
     def set_phase(self, phase: dict):
         self.path = phase.get("phase", self.path)
