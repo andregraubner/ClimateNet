@@ -34,6 +34,7 @@ from torchmetrics import (
     Precision,
     Recall,
 )
+from torchvision.utils import draw_segmentation_masks
 
 import xarray as xr
 
@@ -187,8 +188,65 @@ class Model_Task(SemanticSegmentationTask):
         images = wandb.Image(image, caption)
         wandb.log({key: images})
 
+
     def validation_step(self, batch, batch_idx):
         x, y = batch['image'], batch['mask']
+        
+        y_hat = self.forward(x)
+        y_hat_hard = y_hat.argmax(dim=1)
+
+        loss = self.loss(y_hat, y)
+
+        self.log("val_loss", loss, on_step=False, on_epoch=True)
+        self.val_metrics(y_hat_hard, y)
+
+        if batch_idx < 10:
+            try:
+                datamodule = self.trainer.datamodule
+                batch["prediction"] = y_hat_hard
+                for key in ["image", "mask", "prediction"]:
+                    batch[key] = batch[key].cpu()
+                images = {
+                    "image": batch["image"][0],
+                    "masked": draw_segmentation_masks(
+                        batch["image"][0].type(torch.uint8),
+                        batch["mask"][0].type(torch.bool),
+                        alpha=0.5,
+                        colors="red",
+                    ),
+                    "prediction": draw_segmentation_masks(
+                        batch["image"][0].type(torch.uint8),
+                        batch["prediction"][0].type(torch.bool),
+                        alpha=0.5,
+                        colors="red",
+                    ),
+                }
+                resize = torchvision.transforms.Resize(512)
+                image_grid = torchvision.utils.make_grid(
+                    [resize(value.float()) for key, value in images.items()],
+                    value_range=(0, 255),
+                    normalize=True,
+                )
+                self.log_image(
+                    image_grid,
+                    key="val_examples (original/groud truth/prediction)",
+                    caption="Sample validation images",
+                )
+                wandb.log(
+                    {
+                        "pr": wandb.plot.pr_curve(
+                            torch.reshape(batch["mask"][0], (-1,)),
+                            torch.reshape(
+                                y_hat[0].cpu(), (-1, self.hyperparams["num_classes"])
+                            ),
+                            labels=None,
+                            classes_to_plot=None,
+                        )
+                    }
+                )
+            except AttributeError:
+                pass
+        '''
         y_hat = self.forward(x)
         y_hat_int = y_hat.argmax(dim=1)
         
@@ -216,7 +274,7 @@ class Model_Task(SemanticSegmentationTask):
             wandb.log({"predictions" : image})
             #trainer.logger.experiment.log({'examples': image})
             #log_image(image, 'validation results', 'plot mask from validation')
-
+    '''
     def training_epoch_end(self, outputs):
         """Logs epoch level training metrics.
 
@@ -294,4 +352,5 @@ if __name__ == "__main__":
 
     trainer.fit(task, datamodule=Data())
 
-    trainer.test(model=task, datamodule = Data())
+    wandb.finish()
+    #trainer.test(model=task, datamodule = Data())
