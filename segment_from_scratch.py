@@ -180,7 +180,7 @@ class Model_Task(SemanticSegmentationTask):
                 "class_labels" : class_labels
             },
             "ground_truth" : {
-                "mask_data" :np.array(y_i).type(torch.uint8),
+                "mask_data" :y_i.type(torch.uint8),
                 "class_labels" : class_labels
             }
             })
