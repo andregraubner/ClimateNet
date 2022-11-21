@@ -180,7 +180,7 @@ class Data(LightningDataModule):
         return test_dataloader
 
 
-class model(SemanticSegmentationTask):
+class Model(SemanticSegmentationTask):
     def __init__(self, path):
         super().__init__()
     
@@ -209,7 +209,7 @@ if __name__ == "__main__":
     wandb_logger = WandbLogger(entity="ai4good", log_model=True, project="segment_from_scratch")
 
     # set up task
-    task = model(
+    task = Model(
         segmentation_model=conf["model"]["segmentation_model"],
         encoder_name=conf["model"]["backbone"],
         encoder_weights="imagenet" if conf["model"]["pretrained"] == "True" else "None",
