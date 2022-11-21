@@ -5,6 +5,7 @@ import os
 import sys
 from ctypes import cast
 from pathlib import Path
+import time
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -36,7 +37,7 @@ REPO_DIR = config("REPO_DIR_A4G")
 bg_im = Image.open(f'{REPO_DIR}climatenet/bluemarble/BM.jpeg').resize((768,1152))
 class_labels = {0: "BG", 1: "TC",  2: "AR"} 
 
-wandb_logger = WandbLogger(entity="ai4good", log_model='all', project="segment_from_scratch")
+
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -74,12 +75,12 @@ class ImageDataset(Dataset):
     def __getitem__(self, idx):
         img_name = self.file_names[idx]
 
-        
+            
         data = xr.load_dataset(f'{self.data_dir}{self.setname}/{img_name}')
         image = np.concatenate([np.array(data[var]) for var in self.var_list])
         mask = np.array(data['LABELS'])
 
-    
+        
 
         if self.transform:
             image = self.transform(image)
@@ -92,7 +93,6 @@ class ImageDataset(Dataset):
 def collate_fn(batch):
     batch = list(filter(lambda x: x is not None, batch))
     return torch.utils.data.dataloader.default_collate(batch)
-
 
 def log_image(image, key, caption=""):
     images = wandb.Image(image, caption)
@@ -119,70 +119,87 @@ def validation_step(self, batch, batch_idx):
             "class_labels" : class_labels
         }
         })
-        trainer.logger.experiment.log({'examples': image})
+        wandb.log({"predictions" : image})
+        #trainer.logger.experiment.log({'examples': image})
         #log_image(image, 'validation results', 'plot mask from validation')
 
+# create datasets
+setname = "train"
+train_data = ImageDataset(setname)
+setname = "val"
+val_data = ImageDataset(setname)
+setname = "test"
+test_data = ImageDataset(setname)
+
+# DataLoader
+train_dataloader = DataLoader(
+    train_data,
+    batch_size=int(conf["datamodule"]["batch_size"]),
+    shuffle=True,
+    num_workers=int(conf["datamodule"]["num_workers"]),
+    collate_fn=collate_fn,
+)
+val_dataloader = DataLoader(
+    val_data,
+    batch_size=int(conf["datamodule"]["batch_size"]),
+    shuffle=False,
+    num_workers=int(conf["datamodule"]["num_workers"]),
+    collate_fn=collate_fn,
+)
+test_dataloader = DataLoader(
+    test_data,
+    batch_size=int(conf["datamodule"]["batch_size"]),
+    shuffle=False,
+    num_workers=int(conf["datamodule"]["num_workers"]),
+    collate_fn=collate_fn,
+)
 
 
+wandb.init(entity="ai4good", project="segment_from_scratch")
+log_dir = LOG_DIR + time.strftime("%Y%m%d-%H%M%S")
+
+# checkpoints and loggers
+checkpoint_callback = ModelCheckpoint(
+        monitor="val_loss",
+        dirpath=log_dir + "/checkpoints",
+        save_top_k=1,
+        save_last=True,
+)
+early_stopping_callback = EarlyStopping(
+        monitor="val_loss", min_delta=0.00, patience=10
+)
+csv_logger = CSVLogger(save_dir=log_dir, name="logs")
+wandb_logger = WandbLogger(entity="ai4good", log_model=True, project="segment_from_scratch")
+
+# set up task
+task = SemanticSegmentationTask(
+    logger=wandb_logger,
+    segmentation_model=conf["model"]["segmentation_model"],
+    encoder_name=conf["model"]["backbone"],
+    encoder_weights="imagenet" if conf["model"]["pretrained"] == "True" else "None",
+    in_channels=len(var_list),
+    num_classes=int(conf["model"]["num_classes"]),
+    loss=conf["model"]["loss"],
+    ignore_index=None,
+    learning_rate=float(conf["model"]["learning_rate"]),
+    learning_rate_schedule_patience=int(
+        conf["model"]["learning_rate_schedule_patience"]
+    ),
+)
+
+trainer = Trainer(
+    callbacks=[checkpoint_callback, early_stopping_callback],
+    logger=[csv_logger, wandb_logger],
+    accelerator="gpu",
+    max_epochs=5,
+    max_time=conf["trainer"]["max_time"],
+    logger=wandb_logger,
+    auto_lr_find=conf["trainer"]["auto_lr_find"] == "True",
+    auto_scale_batch_size=conf["trainer"]["auto_scale_batch_size"] == "True",
+)
 
 
-if __name__ == "__main__":
+trainer.fit(task, train_dataloader, val_dataloader)
+trainer.fit(task, train_dataloader, val_dataloader)
 
-    # create datasets
-    setname = "train"
-    train_data = ImageDataset(setname)
-    setname = "val"
-    val_data = ImageDataset(setname)
-    setname = "test"
-    test_data = ImageDataset(setname)
-
-    # DataLoader
-    train_dataloader = DataLoader(
-        train_data,
-        batch_size=int(conf["datamodule"]["batch_size"]),
-        shuffle=True,
-        num_workers=int(conf["datamodule"]["num_workers"]),
-        collate_fn=collate_fn,
-    )
-    val_dataloader = DataLoader(
-        val_data,
-        batch_size=int(conf["datamodule"]["batch_size"]),
-        shuffle=False,
-        num_workers=int(conf["datamodule"]["num_workers"]),
-        collate_fn=collate_fn,
-    )
-    test_dataloader = DataLoader(
-        test_data,
-        batch_size=int(conf["datamodule"]["batch_size"]),
-        shuffle=False,
-        num_workers=int(conf["datamodule"]["num_workers"]),
-        collate_fn=collate_fn,
-    )
-
-    # set up task
-    task = SemanticSegmentationTask(
-        logger=wandb_logger,
-        segmentation_model=conf["model"]["segmentation_model"],
-        encoder_name=conf["model"]["backbone"],
-        encoder_weights="imagenet" if conf["model"]["pretrained"] == "True" else "None",
-        in_channels=len(var_list),
-        num_classes=int(conf["model"]["num_classes"]),
-        loss=conf["model"]["loss"],
-        ignore_index=None,
-        learning_rate=float(conf["model"]["learning_rate"]),
-        learning_rate_schedule_patience=int(
-            conf["model"]["learning_rate_schedule_patience"]
-        ),
-    )
-
-    trainer = Trainer(
-        accelerator="gpu",
-        max_epochs=int(conf["trainer"]["max_epochs"]),
-        max_time=conf["trainer"]["max_time"],
-        logger=wandb_logger,
-        auto_lr_find=conf["trainer"]["auto_lr_find"] == "True",
-        auto_scale_batch_size=conf["trainer"]["auto_scale_batch_size"] == "True",
-    )
-    trainer.fit(task, train_dataloader, val_dataloader)
-
-    trainer.test(model=task, dataloaders=test_dataloader, verbose=True)
+trainer.test(model=task, dataloaders=test_dataloader, verbose=True)
