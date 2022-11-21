@@ -209,13 +209,13 @@ class Model_Task(SemanticSegmentationTask):
             images = {
                 "image": bg_im,
                 "masked": draw_segmentation_masks(
-                    bg_im.type(torch.uint8),
+                    bg_im.astype(np.uint8),
                     batch["mask"][0].type(torch.uint8),
                     alpha=0.5,
                     colors=["red", 'yellow', 'blue'],
                 ),
                 "prediction": draw_segmentation_masks(
-                    bg_im.type(torch.uint8),
+                    bg_im.astype(np.uint8),
                     batch["prediction"][0].type(torch.uint8),
                     alpha=0.5,
                     colors=["red", 'yellow', 'blue'],
