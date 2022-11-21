@@ -35,7 +35,7 @@ DATA_DIR = config("DATA_DIR_A4G")
 LOG_DIR = config("LOG_DIR_A4G")
 REPO_DIR = config("REPO_DIR_A4G")
 
-bg_im = Image.open(f'{REPO_DIR}climatenet/bluemarble/BM.jpeg').resize((768,1152))
+bg_im = torch.tensor(Image.open(f'{REPO_DIR}climatenet/bluemarble/BM.jpeg').resize((768,1152)))
 class_labels = {0: "BG", 1: "TC",  2: "AR"} 
 
 phase_length = 5
@@ -165,6 +165,7 @@ class Model_Task(SemanticSegmentationTask):
     def validation_step(self, batch, batch_idx):
         x, y = batch['image'], batch['mask']
         y_hat = self.forward(x)
+        #y_hat_numpy = 
 
         loss = self.loss(y_hat, y) 
 
@@ -179,7 +180,7 @@ class Model_Task(SemanticSegmentationTask):
                 "class_labels" : class_labels
             },
             "ground_truth" : {
-                "mask_data" :y_i.type(torch.uint8),
+                "mask_data" :np.array(y_i).type(torch.uint8),
                 "class_labels" : class_labels
             }
             })
