@@ -167,15 +167,16 @@ class Model_Task(SemanticSegmentationTask):
     def validation_step(self, batch, batch_idx):
         x, y = batch['image'], batch['mask']
         y_hat = self.forward(x)
-        y_numpy = y.clone().detach()
-        y_hat_numpy = y_hat.clone().detach()
+        y_hat_int = y_hat.argmax(dim=1)
+        y_numpy = y.clone().detach().numpy()
+        y_hat_int_numpy = y_hat_int.clone().detach().numpy()
 
         loss = self.loss(y_hat, y) 
 
         self.log("val_loss", loss, on_step=False, on_epoch=True)
 
 
-        for y_hat_i, y_i in zip(y_hat_numpy,y):
+        for y_hat_i, y_i in zip(y_hat_int_numpy,y_numpy):
 
             image = wandb.Image(bg_im, masks={
             "predictions" : {
