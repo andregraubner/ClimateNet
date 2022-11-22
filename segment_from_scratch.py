@@ -215,7 +215,7 @@ class Model_Task(SemanticSegmentationTask):
                 "class_labels" : class_labels
             }
             })
-            wandb.log({"predictions" : image})
+            wandb.log({"img_with_masks" : image})
             #trainer.logger.experiment.log({'examples': image})
             #log_image(image, 'validation results', 'plot mask from validation')
             
