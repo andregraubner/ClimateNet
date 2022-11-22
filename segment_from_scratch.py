@@ -44,7 +44,7 @@ DATA_DIR = config("DATA_DIR_A4G")
 LOG_DIR = config("LOG_DIR_A4G")
 REPO_DIR = config("REPO_DIR_A4G")
 
-bg_im = np.array(Image.open(f'{REPO_DIR}climatenet/bluemarble/BM.jpeg').resize((768,1152)))
+bg_im = np.array(Image.open(f'{REPO_DIR}climatenet/bluemarble/BM.jpeg').resize((1152,768)))
 #bg_im = np.transpose(bg_im, (2, 0, 1))
 #print(bg_im.shape)
 class_labels = {0: "BG", 1: "TC",  2: "AR"} 
