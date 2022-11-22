@@ -203,20 +203,22 @@ class Model_Task(SemanticSegmentationTask):
 
         if batch_idx < 10:
       
-
-            image = wandb.Image(bg_im.astype(np.uint8), masks={
-            "predictions" : {
-                "mask_data" : y_hat_int_numpy.astype(np.uint8)[0],
-                "class_labels" : class_labels
-            },
-            "ground_truth" : {
-                "mask_data" :y_numpy.astype(np.uint8)[0],
-                "class_labels" : class_labels
-            }
-            })
-            wandb.log({"predictions" : image})
-            #trainer.logger.experiment.log({'examples': image})
-            #log_image(image, 'validation results', 'plot mask from validation')
+            try:
+                image = wandb.Image(bg_im.astype(np.uint8), masks={
+                "predictions" : {
+                    "mask_data" : y_hat_int_numpy.astype(np.uint8)[0],
+                    "class_labels" : class_labels
+                },
+                "ground_truth" : {
+                    "mask_data" :y_numpy.astype(np.uint8)[0],
+                    "class_labels" : class_labels
+                }
+                })
+                wandb.log({"predictions" : image})
+                #trainer.logger.experiment.log({'examples': image})
+                #log_image(image, 'validation results', 'plot mask from validation')
+            except:
+                pass
 
     def training_epoch_end(self, outputs):
         """Logs epoch level training metrics.
