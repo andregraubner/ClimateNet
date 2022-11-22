@@ -250,6 +250,8 @@ if __name__ == "__main__":
 
 
     wandb.init(entity="ai4good", project="segment_from_scratch")
+    data_module = Data()
+
     log_dir = LOG_DIR + time.strftime("%Y%m%d-%H%M%S")
 
     # checkpoints and loggers
@@ -293,7 +295,7 @@ if __name__ == "__main__":
     )
 
 
-    trainer.fit(task, datamodule=Data())
+    trainer.fit(task, datamodule=data_module)
 
     wandb.finish()
     #trainer.test(model=task, datamodule = Data())
