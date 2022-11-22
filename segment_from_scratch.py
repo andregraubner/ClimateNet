@@ -180,7 +180,7 @@ class Model_Task(SemanticSegmentationTask):
                     ignore_index=self.ignore_index,
                 ),
                 ],
-            prefix="train_",
+            prefix="train_",compute_groups=True
         )
         self.val_metrics = self.train_metrics.clone(prefix="val_")
         self.test_metrics = self.train_metrics.clone(prefix="test_")
