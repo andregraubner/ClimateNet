@@ -147,6 +147,7 @@ class Data(LightningDataModule):
             shuffle=True,
             num_workers=int(conf["datamodule"]["num_workers"]),
             collate_fn=collate_fn,
+            drop_last=True
         )
         return train_dataloader
     
@@ -160,6 +161,7 @@ class Data(LightningDataModule):
             shuffle=False,
             num_workers=int(conf["datamodule"]["num_workers"]),
             collate_fn=collate_fn,
+            drop_last=True
         )
         return val_dataloader
 
@@ -174,6 +176,7 @@ class Data(LightningDataModule):
             shuffle=False,
             num_workers=int(conf["datamodule"]["num_workers"]),
             collate_fn=collate_fn,
+            drop_last=True
         )
         return test_dataloader
 
