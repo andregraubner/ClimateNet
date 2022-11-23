@@ -101,7 +101,7 @@ class ImageDataset(Dataset):
 
             
         data = xr.load_dataset(f'{self.data_dir}{self.setname}/{img_name}')
-        image = np.concatenate([np.array(data[var]) for var in self.var_list])
+        image = np.concatenate([np.array(data[var]) for var in self.var_list]).astype(np.float32)
         mask = np.array(data['LABELS']).astype(np.uint8)
 
         
@@ -200,7 +200,7 @@ class Model_Task(SemanticSegmentationTask):
 
     def validation_step(self, batch, batch_idx):
         x, y = batch['image'], batch['mask']
-        x.type(torch.float32)
+        x = x.type(torch.float32)
         y_hat = self.forward(x)
         y_hat_int = y_hat.argmax(dim=1)
         
