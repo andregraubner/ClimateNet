@@ -64,7 +64,6 @@ def save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_ex
     else:
         paths = [os.path.join(DATA_DIR,'cl/',f'{set}/', folder_name+'/') for folder_name in folder_names]
     
-    print(paths)
     for path in paths:
         if not os.path.exists(path):
             os.makedirs(path)
