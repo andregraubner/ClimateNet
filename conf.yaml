@@ -24,7 +24,7 @@ batch_size: 2
 num_workers: 2
 
 [cl]
-extract: True
+extract: False
 max_nr_patches: 5
 var_list: TMQ,U850,V850,PRECT
 events: random
