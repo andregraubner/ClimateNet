@@ -151,7 +151,7 @@ def save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_ex
             data_vars["LABELS"] = (['lat', 'lon'], save_patch[0,:,:].astype(np.int64))
 
             xr_patch = xr.Dataset(data_vars=data_vars, coords=coords)
-            xr_patch.to_netcdf(os.path.join(path+folder_names[i]+"_"+file_name+"_p"+str(n)+".nc"))
+            xr_patch.to_netcdf(os.path.join(path+file_name+"_p"+str(n)+".nc"))
             xr_patch.close()
     
 
@@ -173,14 +173,13 @@ def process_all_images(patch_size, stride, vars, max_exp_patches,folder_names):
 
         data_dir = f'{DATA_DIR}{set}/'
         single_file_paths = [data_dir+f for f in listdir(data_dir) if isfile(join(data_dir, f))]
+        file_names = [f[:-3] for f in listdir(data_dir) if isfile(join(data_dir, f))]
         print('Load all images')
         data = [xr.load_dataset(p) for p in tqdm(single_file_paths[:100])]
-        file_names = [p[-1:] for p in single_file_paths]
 
         print('process images')
         for i, image in enumerate(tqdm(data)):
-            file_name = file_names[i][:-3]
-            process_single_image(set, file_name, image, patch_size, stride, vars, max_exp_patches,folder_names)
+            process_single_image(set, file_names[i], image, patch_size, stride, vars, max_exp_patches,folder_names)
 
 if __name__ == "__main__":
     #TODO: Iterate over all subfolders
