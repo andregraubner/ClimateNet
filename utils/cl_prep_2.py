@@ -9,7 +9,6 @@ from collections import Counter
 from decouple import config
 
 DATA_DIR = config("DATA_DIR_A4G")
-DATA_DIR_ORIG = f"{DATA_DIR}original/"
 
 def patch_image(image, patch_size, stride, vars):
     """
@@ -171,7 +170,7 @@ def process_all_images(patch_size, stride, vars, max_exp_patches,folder_names):
 
     for set in ['train', 'val', 'test']:
 
-        data_dir = f'{DATA_DIR_ORIG}{set}/'
+        data_dir = f'{DATA_DIR}{set}/'
         single_file_paths = [data_dir+f for f in listdir(data_dir) if isfile(join(data_dir, f))]
         data = [xr.load_dataset(p) for p in tqdm(single_file_paths[:1])]
         file_names = [p[-1:] for p in tqdm(single_file_paths)]

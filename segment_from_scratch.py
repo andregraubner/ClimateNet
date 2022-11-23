@@ -41,7 +41,6 @@ import xarray as xr
 
 
 DATA_DIR = config("DATA_DIR_A4G")
-DATA_DIR_ORIG = f'{DATA_DIR}original/'
 DATA_DIR_RAND = f'{DATA_DIR}random/'
 
 
