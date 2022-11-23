@@ -200,9 +200,8 @@ class Model_Task(SemanticSegmentationTask):
 
     def validation_step(self, batch, batch_idx):
         x, y = batch['image'], batch['mask']
-        x = x.type(torch.float)
-        y = y.type(torch.int)
-        print(x.dtype)
+        print(x.shape)
+        print(y.shape)
         y_hat = self.forward(x)
         y_hat_int = y_hat.argmax(dim=1)
         
