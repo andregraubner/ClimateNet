@@ -26,7 +26,7 @@ num_workers: 2
 [cl]
 extract: False
 max_nr_patches: 10
-var_list: TMQ,U850,V850,PRECT,UBOT,PS,Z1000,TS
+var_list: TMQ,U850,V850,PRECT
 events: random
 patch_size: 200
 stride: 20
