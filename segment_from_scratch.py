@@ -298,7 +298,7 @@ if __name__ == "__main__":
     trainer = Trainer(
         callbacks=[checkpoint_callback, early_stopping_callback],
         logger=[csv_logger, wandb_logger],
-        accelerator="cpu",
+        accelerator="gpu",
         max_epochs=nr_phases*phase_length,
         max_time=conf["trainer"]["max_time"],
         auto_lr_find=conf["trainer"]["auto_lr_find"] == "True",
