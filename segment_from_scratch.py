@@ -65,7 +65,14 @@ args = parser.parse_args()
 conf = configparser.ConfigParser()
 conf.read(args.conf)
 
-var_list = conf["experiment"]["var_list"].split(',')
+var_list = conf["cl"]["var_list"].split(',')
+event_list = conf['cl']['events'].split('.')
+
+if conf['cl']['extract'] == 'True':
+    from utils import cl_prep_2
+    cl_prep_2.process_all_images(data_path=DATA_DIR, patch_size= int(conf['cl']['patch_size']), 
+                                 stride = int(conf['cl']['stride']), vars = var_list, max_exp_patches = conf['cl']['max_nr_patches'],
+                                 events = event_list)
 # collect data and create dataset
 class ImageDataset(Dataset):
     def __init__(self, setname, path, transform=None, target_transform=None):
@@ -200,8 +207,6 @@ class Model_Task(SemanticSegmentationTask):
         y_numpy = y.cpu().numpy()
         y_hat_int_numpy = y_hat_int.cpu().numpy()
 
-        #datamodule = self.trainer.datamodule
-
         if batch_idx < 10:
       
             
@@ -216,8 +221,7 @@ class Model_Task(SemanticSegmentationTask):
             }
             })
             wandb.log({"img_with_masks" : image})
-            #trainer.logger.experiment.log({'examples': image})
-            #log_image(image, 'validation results', 'plot mask from validation')
+            
             
 
     def training_epoch_end(self, outputs):
