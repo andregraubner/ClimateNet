@@ -102,7 +102,6 @@ class ImageDataset(Dataset):
             
         data = xr.load_dataset(f'{self.data_dir}{self.setname}/{img_name}')
         image = np.concatenate([np.array(data[var]) for var in self.var_list]).astype(np.float32)
-        print('dataloader', image.shape)
         mask = np.array(data['LABELS']).astype(np.uint8)
 
         
@@ -176,7 +175,7 @@ class Data(LightningDataModule):
             shuffle=False,
             num_workers=int(conf["datamodule"]["num_workers"]),
             collate_fn=collate_fn,
-            drop_last=True
+            drop_last=Trueprint
         )
         return test_dataloader
 
@@ -205,7 +204,6 @@ class Model_Task(SemanticSegmentationTask):
     def validation_step(self, batch, batch_idx):
         x, y = batch['image'], batch['mask']
         x = x.type(torch.float32)
-        print(x.shape)
         y_hat = self.forward(x)
         y_hat_int = y_hat.argmax(dim=1)
         

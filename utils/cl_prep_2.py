@@ -175,7 +175,7 @@ def process_all_images(patch_size, stride, vars, max_exp_patches,folder_names):
         data_dir = f'{DATA_DIR}{set}/'
         single_file_paths = [data_dir+f for f in listdir(data_dir) if isfile(join(data_dir, f))]
         print('Load all images')
-        data = [xr.load_dataset(p) for p in tqdm(single_file_paths[:1])]
+        data = [xr.load_dataset(p) for p in tqdm(single_file_paths[:100])]
         file_names = [p[-1:] for p in single_file_paths]
 
         print('process images')
