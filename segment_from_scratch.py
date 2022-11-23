@@ -41,6 +41,11 @@ import xarray as xr
 
 
 DATA_DIR = config("DATA_DIR_A4G")
+DATA_DIR_ORIG = f'{DATA_DIR}original/'
+DATA_DIR_RAND = f'{DATA_DIR}random/'
+
+
+
 LOG_DIR = config("LOG_DIR_A4G")
 REPO_DIR = config("REPO_DIR_A4G")
 
@@ -70,9 +75,10 @@ event_list = conf['cl']['events'].split('.')
 
 if conf['cl']['extract'] == 'True':
     from utils import cl_prep_2
-    cl_prep_2.process_all_images(data_path=DATA_DIR, patch_size= int(conf['cl']['patch_size']), 
-                                 stride = int(conf['cl']['stride']), vars = var_list, max_exp_patches = conf['cl']['max_nr_patches'],
-                                 events = event_list)
+    cl_prep_2.process_all_images(patch_size= int(conf['cl']['patch_size']), 
+                                 stride = int(conf['cl']['stride']), vars = var_list, 
+                                 max_exp_patches = int(conf['cl']['max_nr_patches']),
+                                 folder_names = event_list)
 # collect data and create dataset
 class ImageDataset(Dataset):
     def __init__(self, setname, path, transform=None, target_transform=None):
@@ -116,7 +122,7 @@ def collate_fn(batch):
 
 class Scheduler(pl.Callback):
     def _prepare_epoch(self, trainer, model, epoch):
-        phase = {'phase': DATA_DIR} #TODO --> change dir based on phase by including current epoch
+        phase = {'phase': DATA_DIR_RAND} #TODO --> change dir based on phase by including current epoch
         trainer.datamodule.set_phase(phase)
 
     def on_epoch_end(self, trainer, model):
@@ -125,7 +131,7 @@ class Scheduler(pl.Callback):
 class Data(LightningDataModule):
     def __init__(self):
         super().__init__()
-        self.path = DATA_DIR
+        self.path = DATA_DIR_RAND
       
     def set_phase(self, phase: dict):
         self.path = phase.get("phase", self.path)

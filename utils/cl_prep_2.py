@@ -9,6 +9,7 @@ from collections import Counter
 from decouple import config
 
 DATA_DIR = config("DATA_DIR_A4G")
+DATA_DIR_ORIG = f"{DATA_DIR}original/"
 
 def patch_image(image, patch_size, stride, vars):
     """
@@ -55,14 +56,14 @@ def calc_class_freq(im_patches):
     
 
 
-def save_best_patches(file_name, image, im_patches, class_freq, max_exp_patches, folder_names = ['background', 'single_tc','single_ar', 'mixed'], ):
+def save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_exp_patches, folder_names = ['background', 'single_tc','single_ar', 'mixed']):
     patch_size = im_patches.shape[-1]
     stride = im_patches.shape[1]
 
     if 'random' in folder_names:
-        paths = [os.path.join(DATA_DIR,'random','train')]
+        paths = [os.path.join(DATA_DIR,'random/',set+'/')]
     else:
-        paths = [os.path.join(DATA_DIR,'cl','train', folder_name+'/') for folder_name in folder_names]
+        paths = [os.path.join(DATA_DIR,'cl/',f'{set}/', folder_name+'/') for folder_name in folder_names]
     
     print(paths)
     for path in paths:
@@ -159,29 +160,31 @@ def save_best_patches(file_name, image, im_patches, class_freq, max_exp_patches,
 def load_single_image(image_path):
     return xr.load_dataset(image_path)
 
-def process_single_image(file_name, image, patch_size, stride, vars, folder_names):
+def process_single_image(set, file_name, image, patch_size, stride, vars, max_exp_patches,folder_names):
     im_patches = patch_image(image, patch_size, stride, vars)
     class_freq = calc_class_freq(im_patches)
-    save_best_patches(file_name, image, im_patches, class_freq, max_exp_patches,folder_names)
+    save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_exp_patches,folder_names)
     return None
 
-def process_all_images(data_path, patch_size, stride, vars, data_dir, folder_names):
-    single_file_paths = [data_path+f for f in listdir(data_path) if isfile(join(data_path, f))]
-    data = [xr.load_dataset(p) for p in tqdm(single_file_paths[:1])]
-    file_names = [p[-1:] for p in tqdm(single_file_paths)]
+def process_all_images(patch_size, stride, vars, max_exp_patches,folder_names):
 
-    for i, image in enumerate(tqdm(data)):
-        file_name = file_names[i][:-3]
-        process_single_image(file_name, image, patch_size, stride, vars, data_dir, max_exp_patches,folder_names)
-    return None
+
+    for set in ['train', 'val', 'test']:
+
+        data_dir = f'{DATA_DIR_ORIG}{set}/'
+        single_file_paths = [data_dir+f for f in listdir(data_dir) if isfile(join(data_dir, f))]
+        data = [xr.load_dataset(p) for p in tqdm(single_file_paths[:1])]
+        file_names = [p[-1:] for p in tqdm(single_file_paths)]
+
+        for i, image in enumerate(tqdm(data)):
+            file_name = file_names[i][:-3]
+            process_single_image(set, file_name, image, patch_size, stride, vars, max_exp_patches,folder_names)
 
 if __name__ == "__main__":
     #TODO: Iterate over all subfolders
-    data_path = "data/original/train/"
     patch_size = 200
     stride = 20
     vars = ['Z1000', 'U850', 'V850']
-    data_dir = "data/original"
     folder_names = ['background', 'single_tc','single_ar', 'mixed']
     max_exp_patches = 5
-    process_all_images(data_path, patch_size, stride, vars, data_dir, max_exp_patches, folder_names)
+    process_all_images(patch_size, stride, vars, max_exp_patches, folder_names)
