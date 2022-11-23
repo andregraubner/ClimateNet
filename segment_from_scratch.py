@@ -53,8 +53,8 @@ bg_im = np.array(Image.open(f'{REPO_DIR}climatenet/bluemarble/BM.jpeg').resize((
 #print(bg_im.shape)
 class_labels = {0: "BG", 1: "TC",  2: "AR"} 
 
-phase_length = 5
-nr_phases = 3
+phase_length = 25
+nr_phases = 4
 parser = argparse.ArgumentParser()
 parser.add_argument(
     "--conf",
