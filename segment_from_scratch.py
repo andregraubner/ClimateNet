@@ -202,7 +202,7 @@ class Model_Task(SemanticSegmentationTask):
         x, y = batch['image'], batch['mask']
         x = x.type(torch.float)
         y = y.type(torch.int)
-        print(x.shape)
+        print(x.dtype)
         y_hat = self.forward(x)
         y_hat_int = y_hat.argmax(dim=1)
         
