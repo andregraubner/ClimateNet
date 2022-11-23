@@ -167,6 +167,8 @@ def process_single_image(set, file_name, image, patch_size, stride, vars, max_ex
 
 def process_all_images(patch_size, stride, vars, max_exp_patches,folder_names):
 
+    if patch_size % 32 != 0:
+        patch_size += 32 - patch_size % 32
 
     for set in ['train', 'val', 'test']:
 
