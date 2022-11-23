@@ -148,8 +148,8 @@ def save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_ex
 
             data_vars={}
             for j in range(len(vars)):
-                data_vars[vars[j]] = (['time', 'lat', 'lon'], np.expand_dims(save_patch[i+1,:,:], axis=0))
-            data_vars["LABELS"] = (['lat', 'lon'], save_patch[0,:,:])
+                data_vars[vars[j]] = (['time', 'lat', 'lon'], np.expand_dims(save_patch[i+1,:,:].astype(np.float32), axis=0))
+            data_vars["LABELS"] = (['lat', 'lon'], save_patch[0,:,:].astype(np.int64))
 
             xr_patch = xr.Dataset(data_vars=data_vars, coords=coords)
             xr_patch.to_netcdf(os.path.join(path+folder_names[i]+"_"+file_name+"_p"+str(n)+".nc"))
