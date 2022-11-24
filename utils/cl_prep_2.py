@@ -175,7 +175,12 @@ def process_all_images(patch_size, stride, vars, max_exp_patches,folder_names):
         single_file_paths = [data_dir+f for f in listdir(data_dir) if isfile(join(data_dir, f))]
         file_names = [f[:-3] for f in listdir(data_dir) if isfile(join(data_dir, f))]
         print('Load all images')
-        data = [xr.load_dataset(p) for p in tqdm(single_file_paths)]
+        data = []
+        for p in tqdm(single_file_paths):
+            try:
+                data.append(xr.load_dataset(p))
+            except:
+                pass
 
         print('process images')
         for i, image in enumerate(tqdm(data)):
