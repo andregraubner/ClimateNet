@@ -10,7 +10,7 @@ max_time: 00:23:50:00
 
 [model]
 loss: focal 
-segmentation_model: deeplabv3+
+segmentation_model: unet
 backbone: resnet50
 learning_rate: 1e-3
 pretrained: True
@@ -25,8 +25,8 @@ num_workers: 2
 
 [cl]
 extract: True
-max_nr_patches: 10
+max_nr_patches: 20
 var_list: TMQ,U850,V850,PRECT
 events: random
-patch_size: 300
-stride: 50
+patch_size: 100
+stride: 10

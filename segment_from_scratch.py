@@ -41,7 +41,6 @@ import xarray as xr
 
 
 DATA_DIR = config("DATA_DIR_A4G")
-DATA_DIR_RAND = f'{DATA_DIR}random/320/'
 
 
 
@@ -53,7 +52,7 @@ bg_im = np.array(Image.open(f'{REPO_DIR}climatenet/bluemarble/BM.jpeg').resize((
 #print(bg_im.shape)
 class_labels = {0: "BG", 1: "TC",  2: "AR"} 
 
-phase_length = 100
+phase_length = 500
 nr_phases = 1
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -78,6 +77,10 @@ if conf['cl']['extract'] == 'True':
                                  stride = int(conf['cl']['stride']), vars = var_list, 
                                  max_exp_patches = int(conf['cl']['max_nr_patches']),
                                  folder_names = event_list)
+
+patch_size = int(conf['cl']['patch_size'])
+DATA_DIR_RAND = f'{DATA_DIR}random/{patch_size}'
+
 # collect data and create dataset
 class ImageDataset(Dataset):
     def __init__(self, setname, path, transform=None, target_transform=None):
