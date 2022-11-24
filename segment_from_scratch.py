@@ -124,7 +124,7 @@ def collate_fn(batch):
 
 class Scheduler(pl.Callback):
     def _prepare_epoch(self, trainer, model, epoch):
-        phase = {'phase': DATA_DIR_RAND} #TODO --> change dir based on phase by including current epoch
+        phase = {'phase': DATA_DIR} #TODO --> change dir based on phase by including current epoch
         trainer.datamodule.set_phase(phase)
 
     def on_epoch_end(self, trainer, model):
@@ -133,7 +133,7 @@ class Scheduler(pl.Callback):
 class Data(LightningDataModule):
     def __init__(self):
         super().__init__()
-        self.path = DATA_DIR_RAND
+        self.path = DATA_DIR
       
     def set_phase(self, phase: dict):
         self.path = phase.get("phase", self.path)
