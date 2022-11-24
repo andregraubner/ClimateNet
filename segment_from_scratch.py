@@ -79,7 +79,7 @@ if conf['cl']['extract'] == 'True':
                                  folder_names = event_list)
 
 patch_size = int(conf['cl']['patch_size'])
-DATA_DIR_RAND = f'{DATA_DIR}random/{patch_size}'
+DATA_DIR_RAND = f'{DATA_DIR}random/{patch_size}/'
 
 # collect data and create dataset
 class ImageDataset(Dataset):

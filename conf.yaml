@@ -29,4 +29,4 @@ max_nr_patches: 20
 var_list: TMQ,U850,V850,PRECT
 events: random
 patch_size: 100
-stride: 10
+stride: 90
