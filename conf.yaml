@@ -27,6 +27,6 @@ num_workers: 2
 extract: False
 max_nr_patches: 10
 var_list: TMQ,U850,V850,PRECT
-events: random
+events: background,single_tc,single_ar,mixed
 patch_size: 200
 stride: 20

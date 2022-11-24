@@ -101,7 +101,10 @@ class ImageDataset(Dataset):
 
         try:    
             data = xr.load_dataset(f'{self.data_dir}{self.setname}/{img_name}')
+            local = np.full(data[self.var_list[0]].shape, float(img_name[-4]))
+            
             image = np.concatenate([np.array(data[var]) for var in self.var_list]).astype(np.float32)
+            image = np.concatenate([image, local]).astype(np.float32)
             mask = np.array(data['LABELS']).astype(np.uint8)
         except:
             print(f'skipped image {img_name}')
@@ -124,7 +127,7 @@ def collate_fn(batch):
 
 class Scheduler(pl.Callback):
     def _prepare_epoch(self, trainer, model, epoch):
-        phase = {'phase': DATA_DIR} #TODO --> change dir based on phase by including current epoch
+        phase = {'phase': DATA_DIR_RAND} #TODO --> change dir based on phase by including current epoch
         trainer.datamodule.set_phase(phase)
 
     def on_epoch_end(self, trainer, model):
@@ -133,7 +136,7 @@ class Scheduler(pl.Callback):
 class Data(LightningDataModule):
     def __init__(self):
         super().__init__()
-        self.path = DATA_DIR
+        self.path = DATA_DIR_RAND
       
     def set_phase(self, phase: dict):
         self.path = phase.get("phase", self.path)
@@ -290,7 +293,7 @@ if __name__ == "__main__":
         segmentation_model=conf["model"]["segmentation_model"],
         encoder_name=conf["model"]["backbone"],
         encoder_weights="imagenet" if conf["model"]["pretrained"] == "True" else "None",
-        in_channels=len(var_list),
+        in_channels=len(var_list)+1,
         num_classes=int(conf["model"]["num_classes"]),
         loss=conf["model"]["loss"],
         ignore_index=None,
