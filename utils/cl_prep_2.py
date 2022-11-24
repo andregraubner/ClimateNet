@@ -60,9 +60,9 @@ def save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_ex
     stride = im_patches.shape[1]
 
     if 'random' in folder_names:
-        paths = [os.path.join(DATA_DIR,'random/',set+'/')]
+        paths = [os.path.join(DATA_DIR,'random/',str(patch_size)+'/',set+'/')]
     else:
-        paths = [os.path.join(DATA_DIR,'cl/',f'{set}/', folder_name+'/') for folder_name in folder_names]
+        paths = [os.path.join(DATA_DIR,'cl/',str(patch_size)+'/',f'{set}/', folder_name+'/') for folder_name in folder_names]
     
     for path in paths:
         if not os.path.exists(path):
@@ -175,7 +175,7 @@ def process_all_images(patch_size, stride, vars, max_exp_patches,folder_names):
         single_file_paths = [data_dir+f for f in listdir(data_dir) if isfile(join(data_dir, f))]
         file_names = [f[:-3] for f in listdir(data_dir) if isfile(join(data_dir, f))]
         print('Load all images')
-        data = [xr.load_dataset(p) for p in tqdm(single_file_paths[:100])]
+        data = [xr.load_dataset(p) for p in tqdm(single_file_paths)]
 
         print('process images')
         for i, image in enumerate(tqdm(data)):
