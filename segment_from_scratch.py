@@ -41,7 +41,7 @@ import xarray as xr
 
 
 DATA_DIR = config("DATA_DIR_A4G")
-DATA_DIR_RAND = f'{DATA_DIR}random/'
+DATA_DIR_RAND = f'{DATA_DIR}random/320/'
 
 
 
