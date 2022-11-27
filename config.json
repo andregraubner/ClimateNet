@@ -5,6 +5,7 @@
     "train_batch_size": 4,
     "pred_batch_size": 8,
     "epochs": 15,
+    "loss": "jaccard",
     "fields": {
         "TMQ": {
             "mean": 19.21859,
@@ -21,6 +22,10 @@
         "PSL": {
             "mean": 100814.414,
             "std": 1461.2227
+        },
+        "Z200": {
+            "mean": 11769.4,
+            "std": 5.0418250664
         }
     },
     "labels": [
