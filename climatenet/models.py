@@ -17,7 +17,7 @@ import xarray as xr
 from climatenet.utils.utils import Config
 from os import path
 import pathlib
-
+import pdb
 class CGNet():
     '''
     The high-level CGNet class. 
@@ -51,11 +51,11 @@ class CGNet():
         if config is not None:
             # Create new model
             self.config = config
-            self.network = CGNetModule(classes=len(self.config.labels), channels=len(list(self.config.fields)), loss="dice")
+            self.network = CGNetModule(classes=len(self.config.labels), channels=len(list(self.config.fields)))
         elif model_path is not None:
             # Load model
             self.config = Config(path.join(model_path, 'config.json'))
-            self.network = CGNetModule(classes=len(self.config.labels), channels=len(list(self.config.fields)), loss="dice")
+            self.network = CGNetModule(classes=len(self.config.labels), channels=len(list(self.config.fields)))
             self.network.load_state_dict(torch.load(path.join(model_path, 'weights.pth')))
         else:
             raise ValueError('''You need to specify either a config or a model path.''')
@@ -87,11 +87,13 @@ class CGNet():
                 aggregate_cm += get_cm(predictions, labels, 3)
 
                 # Pass backward
+                print(f"Using {self.network.loss} loss")
                 if self.network.loss == "jaccard":
                     loss = jaccard_loss(outputs, labels)
-
-                elif self.network.loss == "dice":
+                elif self.config.loss == "dice":
                     loss = dice_coefficient(outputs, labels)
+                elif self.config.loss == "cross_entropy_loss_pytorch":
+                    loss = cross_entropy_loss_pytorch(outputs, labels)
 
                 epoch_loader.set_description(f'Loss: {loss.item()}')
                 loss.backward()
@@ -124,7 +126,6 @@ class CGNet():
 
             coords = batch.coords
             del coords['variable']
-            
             dims = [dim for dim in batch.dims if dim != "variable"]
             
             predictions.append(xr.DataArray(preds, coords=coords, dims=dims, attrs=batch.attrs))
