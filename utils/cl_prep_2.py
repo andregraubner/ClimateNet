@@ -75,7 +75,7 @@ def save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_ex
     for i, name in enumerate(folder_names):
         
         if name == 'single_tc':
-            subset=np.squeeze(np.argwhere((class_freq[:,i+1]==0.0)& (class_freq[:,i]>0.0)))
+            subset=[np.squeeze(np.argwhere((class_freq[:,i+1]==0.0)& (class_freq[:,i]>0.0)))]
             if len(subset) == 0:
                 break
             elif len(subset) < max_exp_patches:
