@@ -80,6 +80,9 @@ if conf['cl']['extract'] == 'True':
                                  folder_names = event_list)
 
 patch_size = int(conf['cl']['patch_size'])
+
+if patch_size % 32 != 0:
+        patch_size += 32 - patch_size % 32
 DATA_DIR_RAND = f'{DATA_DIR}random/{patch_size}/'
 
 # collect data and create dataset
@@ -185,7 +188,7 @@ class Data(LightningDataModule):
             shuffle=False,
             num_workers=int(conf["datamodule"]["num_workers"]),
             collate_fn=collate_fn,
-            drop_last=Trueprint
+            drop_last=True
         )
         return test_dataloader
 
