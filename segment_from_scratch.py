@@ -27,6 +27,7 @@ import pytorch_lightning as pl
 import wandb
 from torchmetrics import (
     Accuracy,
+    ClasswiseWrapper,
     ConfusionMatrix,
     F1Score,
     JaccardIndex,
@@ -192,18 +193,30 @@ class Data(LightningDataModule):
 class Model_Task(SemanticSegmentationTask):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        class_labels = ["BG", "TC",'AR']
+
         self.train_metrics = MetricCollection(
-            [
-                Accuracy(
-                    num_classes=self.hyperparams["num_classes"],
-                    ignore_index=self.ignore_index,
-                    mdmc_average="global",
+            metrics ={ 
+                "accuracy": ClasswiseWrapper(
+                    Accuracy(
+                        num_classes=self.hyperparams["num_classes"],
+                        ignore_index=self.ignore_index,
+                        mdmc_average="global",
+                        average="none",
+                    ),
+                    labels=class_labels,
                 ),
-                JaccardIndex(
-                    num_classes=self.hyperparams["num_classes"],
-                    ignore_index=self.ignore_index,
+                "jaccard_index": ClasswiseWrapper(
+                    JaccardIndex(
+                        num_classes=self.hyperparams["num_classes"],
+                        ignore_index=self.ignore_index,
+                        mdmc_average="global",
+                        average="none",
+                    ),
+                labels=class_labels,
                 ),
-                ],
+            },
             prefix="train_",compute_groups=True
         )
         self.val_metrics = self.train_metrics.clone(prefix="val_")
