@@ -86,6 +86,8 @@ def save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_ex
         
         elif name == 'single_ar':
             subset=np.squeeze(np.argwhere((class_freq[:,i-1]==0.0)& (class_freq[:,i]>0.0)))
+            if subset is None:
+                break
             if len(subset) < max_exp_patches:
                 draws = np.random.choice(len(subset), max_exp_patches)
                 idx[i,:] = subset[draws]
@@ -103,6 +105,8 @@ def save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_ex
 
         
         elif name == 'mixed':
+            if subset is None:
+                break
             combined = class_freq[:,1]*class_freq[:,2]
             subset=np.squeeze(np.argwhere(combined > 0))
             if len(subset) < max_exp_patches:
