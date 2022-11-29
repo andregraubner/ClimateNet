@@ -70,7 +70,7 @@ conf = configparser.ConfigParser()
 conf.read(args.conf)
 
 var_list = conf["cl"]["var_list"].split(',')
-event_list = conf['cl']['events'].split('.')
+event_list = conf['cl']['events'].split(',')
 
 if conf['cl']['extract'] == 'True':
     from utils import cl_prep_2
@@ -210,6 +210,12 @@ class Model_Task(SemanticSegmentationTask):
                     ),
                     labels=class_labels,
                 ),
+                'mean accuracy':
+                Accuracy(
+                        num_classes=self.hyperparams["num_classes"],
+                        ignore_index=self.ignore_index,
+                        mdmc_average="global",
+                    ),
                 "jaccard_index": ClasswiseWrapper(
                     JaccardIndex(
                         num_classes=self.hyperparams["num_classes"],
@@ -219,6 +225,11 @@ class Model_Task(SemanticSegmentationTask):
                     ),
                 labels=class_labels,
                 ),
+                'mean jaccard_index':
+                JaccardIndex(
+                        num_classes=self.hyperparams["num_classes"],
+                        ignore_index=self.ignore_index,
+                    ),
             },
             prefix="train_",compute_groups=True
         )
