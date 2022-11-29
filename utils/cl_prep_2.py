@@ -62,7 +62,8 @@ def save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_ex
     if 'random' in folder_names:
         paths = [os.path.join(DATA_DIR,'random/',str(patch_size)+'/',set+'/')]
     else:
-        paths = [os.path.join(DATA_DIR,'cl/',str(patch_size)+'/',f'{set}/', folder_name+'/') for folder_name in folder_names]
+        
+        paths = [(os.path.join(DATA_DIR,'cl/',str(patch_size)+'/',f'{set}/', folder_name+'/')) for folder_name in folder_names]
     
     for path in paths:
         if not os.path.exists(path):
@@ -72,17 +73,12 @@ def save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_ex
     ##### rank patches from best to worst for each category in folder_names #####
     idx = np.zeros((len(folder_names), max_exp_patches), dtype=int)
     for i, name in enumerate(folder_names):
-        if name == 'background':
-            subset=np.squeeze(np.argwhere(class_freq[:,i]==1.0))
-            if len(subset) < max_exp_patches:
-                draws = np.random.choice(len(subset), max_exp_patches)
-                idx[i,:] = subset[draws]
-            else: 
-                idx[i,:] = subset[np.argsort(class_freq[subset,i])[::-1][:max_exp_patches]]        
         
-        elif name == 'single_tc':
+        if name == 'single_tc':
             subset=np.squeeze(np.argwhere((class_freq[:,i+1]==0.0)& (class_freq[:,i]>0.0)))
-            if len(subset) < max_exp_patches:
+            if len(subset) == 0:
+                break
+            elif len(subset) < max_exp_patches:
                 draws = np.random.choice(len(subset), max_exp_patches)
                 idx[i,:] = subset[draws]
             else: 
@@ -95,6 +91,15 @@ def save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_ex
                 idx[i,:] = subset[draws]
             else: 
                 idx[i,:] = subset[np.argsort(class_freq[subset,i])[::-1][:max_exp_patches]]
+        
+        elif name == 'background':
+            subset=np.squeeze(np.argwhere(class_freq[:,i]==1.0))
+            if len(subset) < max_exp_patches:
+                draws = np.random.choice(len(subset), max_exp_patches)
+                idx[i,:] = subset[draws]
+            else: 
+                idx[i,:] = subset[np.argsort(class_freq[subset,i])[::-1][:max_exp_patches]]        
+        
 
         
         elif name == 'mixed':
