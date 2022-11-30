@@ -55,15 +55,13 @@ def calc_class_freq(im_patches):
     
 
 
-def save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_exp_patches, folder_names = ['background', 'single_tc','single_ar', 'mixed']):
+def save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_exp_patches, folder_names = ['background', 'single_tc','single_ar', 'mixed', 'random']):
     patch_size = im_patches.shape[-1]
     stride = im_patches.shape[1]
 
-    if 'random' in folder_names:
-        paths = [os.path.join(DATA_DIR,'random/',str(patch_size)+'/',set+'/')]
-    else:
-        
-        paths = [(os.path.join(DATA_DIR,'cl/',str(patch_size)+'/',f'{set}/', folder_name+'/')) for folder_name in folder_names]
+    phase_names = ['stage_1','stage_2','stage_3','stage_4','stage_5']
+
+    paths = [(os.path.join(DATA_DIR,'cl/',str(patch_size)+'/',f'{set}/', phase_name+'/')) for phase_name in phase_names]
     
     for path in paths:
         if not os.path.exists(path):
@@ -75,7 +73,7 @@ def save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_ex
     for i, name in enumerate(folder_names):
         
         if name == 'single_tc':
-            subset=np.squeeze(np.argwhere((class_freq[:,i+1]==0.0)& (class_freq[:,i]>0.0)))
+            subset=np.squeeze(np.argwhere((class_freq[:,2]==0.0)& (class_freq[:,1]>0.0)))
             if subset is None:
                 break
             elif len(subset) < max_exp_patches:
@@ -85,7 +83,7 @@ def save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_ex
                 idx[i,:] = subset[np.argsort(class_freq[subset,i])[::-1][:max_exp_patches]]
         
         elif name == 'single_ar':
-            subset=np.squeeze(np.argwhere((class_freq[:,i-1]==0.0)& (class_freq[:,i]>0.0)))
+            subset=np.squeeze(np.argwhere((class_freq[:,1]==0.0)& (class_freq[:,2]>0.0)))
             if subset is None:
                 break
             if len(subset) < max_exp_patches:
@@ -95,14 +93,12 @@ def save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_ex
                 idx[i,:] = subset[np.argsort(class_freq[subset,i])[::-1][:max_exp_patches]]
         
         elif name == 'background':
-            subset=np.squeeze(np.argwhere(class_freq[:,i]==1.0))
+            subset=np.squeeze(np.argwhere(class_freq[:,0]==1.0))
             if len(subset) < max_exp_patches:
                 draws = np.random.choice(len(subset), max_exp_patches)
                 idx[i,:] = subset[draws]
             else: 
                 idx[i,:] = subset[np.argsort(class_freq[subset,i])[::-1][:max_exp_patches]]        
-        
-
         
         elif name == 'mixed':
             if subset is None:
@@ -115,10 +111,9 @@ def save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_ex
             else: 
                 idx[i,:] = subset[np.argsort(combined[subset])[::-1][:max_exp_patches]]
 
-        elif name == 'random':
-            idx[i,:] = np.random.choice(len(class_freq), max_exp_patches, replace=False)
+        else:
+            idx[i,:] = np.random.choice(len(class_freq), max_exp_patches, replace = False)
             
-
 
             
     
@@ -141,7 +136,9 @@ def save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_ex
     # print(lat_all.shape, lon_all.shape)
 
     ###### select best patches; assign correct lat, lon to each patch; create and save .nc file #####
-    for i, path in enumerate(paths):
+    print(folder_names)
+    for i, folder in enumerate(folder_names):
+        print(folder)
         for n in range(max_exp_patches):
             save_patch = im_patches[idx[i,n],:,:]
 
@@ -156,11 +153,12 @@ def save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_ex
 
             data_vars={}
             for j in range(len(vars)):
-                data_vars[vars[j]] = (['time', 'lat', 'lon'], np.expand_dims(save_patch[i+1,:,:].astype(np.float32), axis=0))
+                data_vars[vars[j]] = (['time', 'lat', 'lon'], np.expand_dims(save_patch[j+1,:,:].astype(np.float32), axis=0))
             data_vars["LABELS"] = (['lat', 'lon'], save_patch[0,:,:].astype(np.int64))
 
             xr_patch = xr.Dataset(data_vars=data_vars, coords=coords)
-            xr_patch.to_netcdf(os.path.join(path+file_name+"_p"+str(n)+".nc"))
+            for k in range(len(phase_names)-i):
+                xr_patch.to_netcdf(os.path.join(paths[i+k]+folder+'_'+file_name+"_p"+str(n)+".nc"))
             xr_patch.close()
     
 
@@ -185,7 +183,7 @@ def process_all_images(patch_size, stride, vars, max_exp_patches,folder_names):
         file_names = [f[:-3] for f in listdir(data_dir) if isfile(join(data_dir, f))]
         print('Load all images')
         data = []
-        for p in tqdm(single_file_paths):
+        for p in tqdm(single_file_paths[:1]):
             try:
                 data.append(xr.load_dataset(p))
             except:

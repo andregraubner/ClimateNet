@@ -108,10 +108,10 @@ class ImageDataset(Dataset):
 
         try:    
             data = xr.load_dataset(f'{self.data_dir}{self.setname}/{img_name}')
-            local = np.full(data[self.var_list[0]].shape, float(img_name[-4]))
+            #local = np.full(data[self.var_list[0]].shape, float(img_name[-4]))
             
             image = np.concatenate([np.array(data[var]) for var in self.var_list]).astype(np.float32)
-            image = np.concatenate([image, local]).astype(np.float32)
+            #image = np.concatenate([image, local]).astype(np.float32)
             mask = np.array(data['LABELS']).astype(np.uint8)
         except:
             print(f'skipped image {img_name}')
@@ -131,6 +131,7 @@ def collate_fn(batch):
     batch = list(filter(lambda x: x is not None, batch))
     return torch.utils.data.dataloader.default_collate(batch)
 
+paths = [DATA_DIR_BG, DATA_DIR_AR, DATA_DIR_TC, DATA_DIR_MIXED]
 
 class Scheduler(pl.Callback):
     def _prepare_epoch(self, trainer, model, epoch):
