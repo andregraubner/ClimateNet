@@ -151,7 +151,7 @@ class Data(LightningDataModule):
     def __init__(self):
         super().__init__()
         self.path = DATA_DIR_CL
-        self.stage = 1
+        #self.stage = 1
       
     def set_phase(self, stage: dict):
         self.stage = stage.get("stage", self.stage)
