@@ -98,9 +98,10 @@ class ImageDataset(Dataset):
         self.data_dir = path
         self.var_list = var_list
         self.setname = setname
+        self.stage = stage
         assert self.setname in ["train", "test", "val"]
 
-        self.file_names = os.listdir(f'{self.data_dir}{self.setname}/stage_{stage}')
+        self.file_names = os.listdir(f'{self.data_dir}{self.setname}/stage_{self.stage}')
 
         self.transform = transform
         self.target_transform = target_transform
@@ -112,7 +113,7 @@ class ImageDataset(Dataset):
         img_name = self.file_names[idx]
 
         try:    
-            data = xr.load_dataset(f'{self.data_dir}{self.setname}/{img_name}')
+            data = xr.load_dataset(f'{self.data_dir}{self.setname}/stage_{self.stage}/{img_name}')
             #local = np.full(data[self.var_list[0]].shape, float(img_name[-4]))
             
             image = np.concatenate([np.array(data[var]) for var in self.var_list]).astype(np.float32)
