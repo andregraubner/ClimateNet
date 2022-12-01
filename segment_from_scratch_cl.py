@@ -304,10 +304,11 @@ if __name__ == "__main__":
     
 
     for i in range(5):
-        print(f'Starting training in stage {i}')
+        print(f'Starting training round {i}')
         data_module = Data(stage = i+1)
 
         stage_nr = i+1
+        print(f'Stage number {stage_nr}')
         log_spot = conf["logging"]["log_nr"]
         log_dir = f'{LOG_DIR}{log_spot}/stage_{stage_nr}'
 
@@ -356,23 +357,13 @@ if __name__ == "__main__":
                 auto_scale_batch_size=conf["trainer"]["auto_scale_batch_size"] == "True",
                 reload_dataloaders_every_n_epochs=phase_length,
             )
+            trainer.fit(task, datamodule=data_module)
+
         else:
 
             checkpoints = os.listdir(f'{LOG_DIR}{log_spot}/stage_{i}/checkpoints')
             checkpoint = checkpoints[-1]
-            trainer = Trainer(
-                callbacks=[checkpoint_callback, early_stopping_callback],
-                logger=[csv_logger, wandb_logger],
-                accelerator="gpu",
-                max_epochs=int(conf["trainer"]["max_epochs"]),
-                max_time=conf["trainer"]["max_time"],
-                auto_lr_find=conf["trainer"]["auto_lr_find"] == "True",
-                auto_scale_batch_size=conf["trainer"]["auto_scale_batch_size"] == "True",
-                reload_dataloaders_every_n_epochs=phase_length,
-                resume_from_checkpoint=f'{LOG_DIR}{log_spot}/stage_{i}/checkpoints/{checkpoint}'
-            )
-
-        trainer.fit(task, datamodule=data_module)
+            trainer.fit(task, datamodule=data_module, ckpt_path = f'{LOG_DIR}{log_spot}/stage_{i}/checkpoints/{checkpoint}')
 
     wandb.finish()
     #trainer.test(model=task, datamodule = Data())
