@@ -301,9 +301,7 @@ if __name__ == "__main__":
         data_module = Data(stage = i)
 
         log_dir = LOG_DIR+str(i) + time.strftime("%Y%m%d-%H%M%S")
-        checkpoint_dirs = np.sort(os.listdir(LOG_DIR))    
-        checkpoint = LOG_DIR+checkpoint_dirs[-1]+'/'+'checkpoints'+ os.listdir(LOG_DIR+checkpoint_dirs[-1]+'/'+'checkpoints')[-1]
-        print(checkpoint)
+        
         # checkpoints and loggers
         checkpoint_callback = ModelCheckpoint(
                 monitor="val_loss",
