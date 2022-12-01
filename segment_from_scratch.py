@@ -331,7 +331,7 @@ if __name__ == "__main__":
         segmentation_model=conf["model"]["segmentation_model"],
         encoder_name=conf["model"]["backbone"],
         encoder_weights="imagenet" if conf["model"]["pretrained"] == "True" else "None",
-        in_channels=len(var_list)+1,
+        in_channels=len(var_list),
         num_classes=int(conf["model"]["num_classes"]),
         loss=conf["model"]["loss"],
         ignore_index=None,

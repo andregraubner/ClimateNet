@@ -46,7 +46,6 @@ DATA_DIR = config("DATA_DIR_A4G")
 
 
 
-
 LOG_DIR = config("LOG_DIR_A4G")
 REPO_DIR = config("REPO_DIR_A4G")
 
@@ -302,6 +301,7 @@ if __name__ == "__main__":
         data_module = Data(stage = i)
 
         log_dir = LOG_DIR+str(i) + time.strftime("%Y%m%d-%H%M%S")
+        print(np.sort(os.listdir(LOG_DIR+str(i))))
 
         # checkpoints and loggers
         checkpoint_callback = ModelCheckpoint(
@@ -344,6 +344,10 @@ if __name__ == "__main__":
                 reload_dataloaders_every_n_epochs=phase_length,
             )
         else:
+
+            checkpoint_dirs = np.sort(os.listdir(LOG_DIR+str(i-1)))
+            
+            checkpoint = checkpoint_dirs[-1]
             trainer = Trainer(
                 callbacks=[checkpoint_callback, early_stopping_callback],
                 logger=[csv_logger, wandb_logger],
