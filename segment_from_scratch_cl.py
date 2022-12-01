@@ -350,7 +350,7 @@ if __name__ == "__main__":
             )
         else:
 
-            prev_stage = i-1
+            prev_stage = int(i-1)
             checkpoints = os.listdir(f'{LOG_DIR}{log_spot}/stage_{prev_stage}/checkpoints')
             checkpoint = checkpoints[-1]
             trainer = Trainer(
