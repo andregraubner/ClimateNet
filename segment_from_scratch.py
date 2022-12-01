@@ -97,6 +97,7 @@ class ImageDataset(Dataset):
         self.data_dir = path
         self.var_list = var_list
         self.setname = setname
+        self.stage = stage +1
         assert self.setname in ["train", "test", "val"]
 
         self.file_names = os.listdir(f'{self.data_dir}{self.setname}/stage_{stage}')
@@ -138,7 +139,7 @@ def collate_fn(batch):
 
 class Scheduler(pl.Callback):
     def _prepare_epoch(self, trainer, model, epoch):
-        stage = {'stage': epoch//1 + 1} #TODO --> change dir based on phase by including current epoch
+        stage = {'stage': epoch//1} #TODO --> change dir based on phase by including current epoch
         trainer.datamodule.set_phase(stage)
         print(stage)
 
@@ -149,7 +150,7 @@ class Data(LightningDataModule):
     def __init__(self):
         super().__init__()
         self.path = DATA_DIR_CL
-        self.stage = 0
+        self.stage = 1
       
     def set_phase(self, stage: dict):
         self.stage = stage.get("stage", self.stage)
