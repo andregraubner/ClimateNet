@@ -369,7 +369,7 @@ if __name__ == "__main__":
                 auto_lr_find=conf["trainer"]["auto_lr_find"] == "True",
                 auto_scale_batch_size=conf["trainer"]["auto_scale_batch_size"] == "True",
                 reload_dataloaders_every_n_epochs=phase_length,
-                ckpt_path=f'{LOG_DIR}{log_spot}/stage_{i}/checkpoints/{checkpoint}'
+                resume_from_checkpoint=f'{LOG_DIR}{log_spot}/stage_{i}/checkpoints/{checkpoint}'
             )
 
         trainer.fit(task, datamodule=data_module)
