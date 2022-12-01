@@ -74,39 +74,40 @@ def save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_ex
         
         if name == 'single_tc':
             subset=np.squeeze(np.argwhere((class_freq[:,2]==0.0)& (class_freq[:,1]>0.0)))
-            if subset is None:
+            if subset.size < 2:
                 break
-            elif len(subset) < max_exp_patches:
-                draws = np.random.choice(len(subset), max_exp_patches)
+            elif subset.size < max_exp_patches:
+                draws = np.random.choice(subset.size, max_exp_patches)
                 idx[i,:] = subset[draws]
             else: 
                 idx[i,:] = subset[np.argsort(class_freq[subset,i])[::-1][:max_exp_patches]]
         
         elif name == 'single_ar':
             subset=np.squeeze(np.argwhere((class_freq[:,1]==0.0)& (class_freq[:,2]>0.0)))
-            if subset is None:
+            if subset.size < 2:
                 break
-            if len(subset) < max_exp_patches:
-                draws = np.random.choice(len(subset), max_exp_patches)
+            if subset.size < max_exp_patches:
+                draws = np.random.choice(subset.size, max_exp_patches)
                 idx[i,:] = subset[draws]
             else: 
                 idx[i,:] = subset[np.argsort(class_freq[subset,i])[::-1][:max_exp_patches]]
         
         elif name == 'background':
             subset=np.squeeze(np.argwhere(class_freq[:,0]==1.0))
-            if len(subset) < max_exp_patches:
-                draws = np.random.choice(len(subset), max_exp_patches)
+            if subset.size < max_exp_patches:
+                draws = np.random.choice(subset.size, max_exp_patches)
                 idx[i,:] = subset[draws]
             else: 
                 idx[i,:] = subset[np.argsort(class_freq[subset,i])[::-1][:max_exp_patches]]        
         
         elif name == 'mixed':
-            if subset is None:
-                break
+            
             combined = class_freq[:,1]*class_freq[:,2]
             subset=np.squeeze(np.argwhere(combined > 0))
-            if len(subset) < max_exp_patches:
-                draws = np.random.choice(len(subset), max_exp_patches)
+            if subset.size < 2:
+                break
+            if subset.size < max_exp_patches:
+                draws = np.random.choice(subset.size, max_exp_patches)
                 idx[i,:] = subset[draws]
             else: 
                 idx[i,:] = subset[np.argsort(combined[subset])[::-1][:max_exp_patches]]
@@ -181,7 +182,7 @@ def process_all_images(patch_size, stride, vars, max_exp_patches,folder_names):
         file_names = [f[:-3] for f in listdir(data_dir) if isfile(join(data_dir, f))]
         print('Load all images')
         data = []
-        for p in tqdm(single_file_paths):
+        for p in tqdm(single_file_paths[:]):
             try:
                 data.append(xr.load_dataset(p))
             except:
