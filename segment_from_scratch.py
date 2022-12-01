@@ -140,7 +140,7 @@ def collate_fn(batch):
 
 class Scheduler(pl.Callback):
     def _prepare_epoch(self, trainer, model, epoch):
-        stage = {'stage': epoch//1} #TODO --> change dir based on phase by including current epoch
+        stage = {'stage': epoch//10} #TODO --> change dir based on phase by including current epoch
         trainer.datamodule.set_phase(stage)
         print(stage)
 

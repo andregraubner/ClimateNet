@@ -301,8 +301,9 @@ if __name__ == "__main__":
         data_module = Data(stage = i)
 
         log_dir = LOG_DIR+str(i) + time.strftime("%Y%m%d-%H%M%S")
-        print(np.sort(os.listdir(LOG_DIR+str(i))))
-
+        checkpoint_dirs = np.sort(os.listdir(LOG_DIR))    
+        checkpoint = LOG_DIR+checkpoint_dirs[-1]+'/'+'checkpoints'+ os.listdir(LOG_DIR+checkpoint_dirs[-1]+'/'+'checkpoints')[-1]
+        print(checkpoint)
         # checkpoints and loggers
         checkpoint_callback = ModelCheckpoint(
                 monitor="val_loss",
@@ -345,9 +346,10 @@ if __name__ == "__main__":
             )
         else:
 
-            checkpoint_dirs = np.sort(os.listdir(LOG_DIR+str(i-1)))
+            checkpoint_dirs = np.sort(os.listdir(LOG_DIR))
             
-            checkpoint = checkpoint_dirs[-1]
+            checkpoint = LOG_DIR+checkpoint_dirs[-1]+'/'+'checkpoints'+ os.listdir(LOG_DIR+checkpoint_dirs[-1]+'/'+'checkpoints')[-1]
+            print(checkpoint)
             trainer = Trainer(
                 callbacks=[checkpoint_callback, early_stopping_callback],
                 logger=[csv_logger, wandb_logger],
