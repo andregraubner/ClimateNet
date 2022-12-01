@@ -45,6 +45,8 @@ DATA_DIR = config("DATA_DIR_A4G")
 
 
 
+
+
 LOG_DIR = config("LOG_DIR_A4G")
 REPO_DIR = config("REPO_DIR_A4G")
 
@@ -53,8 +55,8 @@ bg_im = np.array(Image.open(f'{REPO_DIR}climatenet/bluemarble/BM.jpeg').resize((
 #print(bg_im.shape)
 class_labels = {0: "BG", 1: "TC",  2: "AR"} 
 
-phase_length = 500
-nr_phases = 1
+phase_length = 1
+nr_phases = 5
 parser = argparse.ArgumentParser()
 parser.add_argument(
     "--conf",
@@ -83,11 +85,13 @@ patch_size = int(conf['cl']['patch_size'])
 
 if patch_size % 32 != 0:
         patch_size += 32 - patch_size % 32
-DATA_DIR_RAND = f'{DATA_DIR}random/{patch_size}/'
+
+DATA_DIR_CL = f'{DATA_DIR}cl/{patch_size}/'
+
 
 # collect data and create dataset
 class ImageDataset(Dataset):
-    def __init__(self, setname, path, transform=None, target_transform=None):
+    def __init__(self, setname, path, stage, transform=None, target_transform=None):
 
         # Define the  mask file and the json file for retrieving images
         self.data_dir = path
@@ -95,7 +99,7 @@ class ImageDataset(Dataset):
         self.setname = setname
         assert self.setname in ["train", "test", "val"]
 
-        self.file_names = os.listdir(f'{self.data_dir}{self.setname}/')
+        self.file_names = os.listdir(f'{self.data_dir}{self.setname}/stage_{stage}')
 
         self.transform = transform
         self.target_transform = target_transform
@@ -131,12 +135,12 @@ def collate_fn(batch):
     batch = list(filter(lambda x: x is not None, batch))
     return torch.utils.data.dataloader.default_collate(batch)
 
-paths = [DATA_DIR_BG, DATA_DIR_AR, DATA_DIR_TC, DATA_DIR_MIXED]
 
 class Scheduler(pl.Callback):
     def _prepare_epoch(self, trainer, model, epoch):
-        phase = {'phase': DATA_DIR} #TODO --> change dir based on phase by including current epoch
-        trainer.datamodule.set_phase(phase)
+        stage = {'stage': epoch//1} #TODO --> change dir based on phase by including current epoch
+        trainer.datamodule.set_phase(stage)
+        print(stage)
 
     def on_epoch_end(self, trainer, model):
         self._prepare_epoch(trainer, model, trainer.current_epoch + 1)
@@ -145,14 +149,15 @@ class Data(LightningDataModule):
     def __init__(self):
         super().__init__()
         self.path = DATA_DIR
+        self.stage = 0
       
-    def set_phase(self, phase: dict):
-        self.path = phase.get("phase", self.path)
-       
+    def set_phase(self, stage: dict):
+        self.stage = stage.get("stage", self.stage)
+
     def train_dataloader(self):
 
         setname = "train"
-        train_data = ImageDataset(setname, self.path)
+        train_data = ImageDataset(setname, self.stage)
         
         train_dataloader = DataLoader(
             train_data,

@@ -136,9 +136,7 @@ def save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_ex
     # print(lat_all.shape, lon_all.shape)
 
     ###### select best patches; assign correct lat, lon to each patch; create and save .nc file #####
-    print(folder_names)
     for i, folder in enumerate(folder_names):
-        print(folder)
         for n in range(max_exp_patches):
             save_patch = im_patches[idx[i,n],:,:]
 
@@ -183,7 +181,7 @@ def process_all_images(patch_size, stride, vars, max_exp_patches,folder_names):
         file_names = [f[:-3] for f in listdir(data_dir) if isfile(join(data_dir, f))]
         print('Load all images')
         data = []
-        for p in tqdm(single_file_paths[:1]):
+        for p in tqdm(single_file_paths):
             try:
                 data.append(xr.load_dataset(p))
             except:
