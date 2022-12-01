@@ -111,16 +111,17 @@ class ImageDataset(Dataset):
     def __getitem__(self, idx):
         img_name = self.file_names[idx]
 
-        try:    
-            data = xr.load_dataset(f'{self.data_dir}{self.setname}/{img_name}')
-            #local = np.full(data[self.var_list[0]].shape, float(img_name[-4]))
-            
-            image = np.concatenate([np.array(data[var]) for var in self.var_list]).astype(np.float32)
-            #image = np.concatenate([image, local]).astype(np.float32)
-            mask = np.array(data['LABELS']).astype(np.uint8)
-        except:
-            print(f'skipped image {img_name}')
-            return None
+        #try:    
+        data = xr.load_dataset(f'{self.data_dir}{self.setname}/{img_name}')
+        #local = np.full(data[self.var_list[0]].shape, float(img_name[-4]))
+        
+        image = np.concatenate([np.array(data[var]) for var in self.var_list]).astype(np.float32)
+        #image = np.concatenate([image, local]).astype(np.float32)
+        mask = np.array(data['LABELS']).astype(np.uint8)
+        
+        #except:
+        #    print(f'skipped image {img_name}')
+        #    return None
 
         
 
