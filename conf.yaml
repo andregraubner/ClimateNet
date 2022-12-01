@@ -2,7 +2,7 @@
 [trainer]
 gpus: 1
 min_epochs: 1
-max_epochs: 1
+max_epochs: 10
 auto_lr_find: True
 auto_scale_batch_size: False
 precision: 16
@@ -32,4 +32,4 @@ patch_size: 100
 stride: 90
 
 [logging]
-log_nr: 2
+log_nr: 3
