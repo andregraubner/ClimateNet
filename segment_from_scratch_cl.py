@@ -86,6 +86,8 @@ patch_size = int(conf['cl']['patch_size'])
 if patch_size % 32 != 0:
         patch_size += 32 - patch_size % 32
 
+
+     
 DATA_DIR_CL = f'{DATA_DIR}cl/{patch_size}/'
 
 
@@ -135,29 +137,16 @@ def collate_fn(batch):
     batch = list(filter(lambda x: x is not None, batch))
     return torch.utils.data.dataloader.default_collate(batch)
 
-
-class Scheduler(pl.Callback):
-    def _prepare_epoch(self, trainer, model, epoch):
-        stage = {'stage': epoch//1} #TODO --> change dir based on phase by including current epoch
-        trainer.datamodule.set_phase(stage)
-        print(stage)
-
-    def on_epoch_end(self, trainer, model):
-        self._prepare_epoch(trainer, model, trainer.current_epoch + 1)
-
 class Data(LightningDataModule):
-    def __init__(self):
+    def __init__(self,  stage = 1):
         super().__init__()
-        self.path = DATA_DIR_CL
-        self.stage = 0
+        self.stage = stage
       
-    def set_phase(self, stage: dict):
-        self.stage = stage.get("stage", self.stage)
 
     def train_dataloader(self):
 
         setname = "train"
-        train_data = ImageDataset(setname, self.path, self.stage)
+        train_data = ImageDataset(setname, self.stage)
         
         train_dataloader = DataLoader(
             train_data,
@@ -172,7 +161,7 @@ class Data(LightningDataModule):
     def val_dataloader(self):    
 
         setname = "val"
-        val_data = ImageDataset(setname,self.path, self.stage)
+        val_data = ImageDataset(setname,self.path)
         val_dataloader = DataLoader(
             val_data,
             batch_size=int(conf["datamodule"]["batch_size"]),
@@ -186,7 +175,7 @@ class Data(LightningDataModule):
     def test_dataloader(self):
 
         setname = "test"
-        test_data = ImageDataset(setname, self.path, self.stage)
+        test_data = ImageDataset(setname,self.path)
         
         test_dataloader = DataLoader(
             test_data,
@@ -306,52 +295,68 @@ if __name__ == "__main__":
 
 
     wandb.init(entity="ai4good", project="segment_from_scratch")
-    data_module = Data()
+    
 
-    log_dir = LOG_DIR + time.strftime("%Y%m%d-%H%M%S")
+    for i in range(5):
+        print(f'Starting training in stage {i}')
+        data_module = Data(stage = i)
 
-    # checkpoints and loggers
-    checkpoint_callback = ModelCheckpoint(
-            monitor="val_loss",
-            dirpath=log_dir + "/checkpoints",
-            save_top_k=1,
-            save_last=True,
-    )
-    early_stopping_callback = EarlyStopping(
-            monitor="val_loss", min_delta=0.00, patience=10
-    )
-    csv_logger = CSVLogger(save_dir=log_dir, name="logs")
+        log_dir = LOG_DIR+str(i) + time.strftime("%Y%m%d-%H%M%S")
 
-    wandb_logger = WandbLogger(entity="ai4good", log_model=True, project="segment_from_scratch")
+        # checkpoints and loggers
+        checkpoint_callback = ModelCheckpoint(
+                monitor="val_loss",
+                dirpath=log_dir + "/checkpoints",
+                save_top_k=1,
+                save_last=True,
+        )
+        early_stopping_callback = EarlyStopping(
+                monitor="val_loss", min_delta=0.00, patience=10
+        )
+        csv_logger = CSVLogger(save_dir=log_dir, name="logs")
 
-    # set up task
-    task = Model_Task(
-        segmentation_model=conf["model"]["segmentation_model"],
-        encoder_name=conf["model"]["backbone"],
-        encoder_weights="imagenet" if conf["model"]["pretrained"] == "True" else "None",
-        in_channels=len(var_list)+1,
-        num_classes=int(conf["model"]["num_classes"]),
-        loss=conf["model"]["loss"],
-        ignore_index=None,
-        learning_rate=float(conf["model"]["learning_rate"]),
-        learning_rate_schedule_patience=int(
-            conf["model"]["learning_rate_schedule_patience"]
-        ),
-    )
+        wandb_logger = WandbLogger(entity="ai4good", log_model=True, project="segment_from_scratch")
 
-    trainer = Trainer(
-        callbacks=[checkpoint_callback, early_stopping_callback],
-        logger=[csv_logger, wandb_logger],
-        accelerator="gpu",
-        max_epochs=nr_phases*phase_length,
-        max_time=conf["trainer"]["max_time"],
-        auto_lr_find=conf["trainer"]["auto_lr_find"] == "True",
-        auto_scale_batch_size=conf["trainer"]["auto_scale_batch_size"] == "True",
-        reload_dataloaders_every_n_epochs=phase_length,
-    )
+        # set up task
+        task = Model_Task(
+            segmentation_model=conf["model"]["segmentation_model"],
+            encoder_name=conf["model"]["backbone"],
+            encoder_weights="imagenet" if conf["model"]["pretrained"] == "True" else "None",
+            in_channels=len(var_list)+1,
+            num_classes=int(conf["model"]["num_classes"]),
+            loss=conf["model"]["loss"],
+            ignore_index=None,
+            learning_rate=float(conf["model"]["learning_rate"]),
+            learning_rate_schedule_patience=int(
+                conf["model"]["learning_rate_schedule_patience"]
+            ),
+        )
 
+        if i == 1:
+            trainer = Trainer(
+                callbacks=[checkpoint_callback, early_stopping_callback],
+                logger=[csv_logger, wandb_logger],
+                accelerator="gpu",
+                max_epochs=nr_phases*phase_length,
+                max_time=conf["trainer"]["max_time"],
+                auto_lr_find=conf["trainer"]["auto_lr_find"] == "True",
+                auto_scale_batch_size=conf["trainer"]["auto_scale_batch_size"] == "True",
+                reload_dataloaders_every_n_epochs=phase_length,
+            )
+        else:
+            trainer = Trainer(
+                callbacks=[checkpoint_callback, early_stopping_callback],
+                logger=[csv_logger, wandb_logger],
+                accelerator="gpu",
+                max_epochs=nr_phases*phase_length,
+                max_time=conf["trainer"]["max_time"],
+                auto_lr_find=conf["trainer"]["auto_lr_find"] == "True",
+                auto_scale_batch_size=conf["trainer"]["auto_scale_batch_size"] == "True",
+                reload_dataloaders_every_n_epochs=phase_length,
+                resume_from_checkpoint=LOG_DIR+str(i-1) + time.strftime("%Y%m%d-%H%M%S")
+            )
 
-    trainer.fit(task, datamodule=data_module)
+        trainer.fit(task, datamodule=data_module)
 
     wandb.finish()
     #trainer.test(model=task, datamodule = Data())
