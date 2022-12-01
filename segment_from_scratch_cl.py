@@ -304,7 +304,7 @@ if __name__ == "__main__":
 
     for i in range(5):
         print(f'Starting training in stage {i}')
-        data_module = Data(stage = i)
+        data_module = Data(stage = i+1)
 
         stage_nr = i+1
         log_spot = conf["logging"]["log_nr"]
