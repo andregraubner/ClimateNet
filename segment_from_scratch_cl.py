@@ -136,16 +136,22 @@ def collate_fn(batch):
     batch = list(filter(lambda x: x is not None, batch))
     return torch.utils.data.dataloader.default_collate(batch)
 
+
+
+DATA_DIR_CL = f'{DATA_DIR}cl/{patch_size}/'
+
+
 class Data(LightningDataModule):
     def __init__(self,  stage = 1):
         super().__init__()
+        self.path = DATA_DIR_CL = f'{DATA_DIR}cl/{patch_size}/'
         self.stage = stage
       
 
     def train_dataloader(self):
 
         setname = "train"
-        train_data = ImageDataset(setname, self.stage)
+        train_data = ImageDataset(setname, self.path, self.stage)
         
         train_dataloader = DataLoader(
             train_data,
@@ -160,7 +166,7 @@ class Data(LightningDataModule):
     def val_dataloader(self):    
 
         setname = "val"
-        val_data = ImageDataset(setname,self.path)
+        val_data = ImageDataset(setname,self.path, self.stage)
         val_dataloader = DataLoader(
             val_data,
             batch_size=int(conf["datamodule"]["batch_size"]),
@@ -174,7 +180,7 @@ class Data(LightningDataModule):
     def test_dataloader(self):
 
         setname = "test"
-        test_data = ImageDataset(setname,self.path)
+        test_data = ImageDataset(setname,self.path, self.stage)
         
         test_dataloader = DataLoader(
             test_data,
@@ -343,7 +349,7 @@ if __name__ == "__main__":
                 callbacks=[checkpoint_callback, early_stopping_callback],
                 logger=[csv_logger, wandb_logger],
                 accelerator="gpu",
-                max_epochs=nr_phases*phase_length,
+                max_epochs=conf["trainer"]["max_epochs"],
                 max_time=conf["trainer"]["max_time"],
                 auto_lr_find=conf["trainer"]["auto_lr_find"] == "True",
                 auto_scale_batch_size=conf["trainer"]["auto_scale_batch_size"] == "True",
@@ -357,7 +363,7 @@ if __name__ == "__main__":
                 callbacks=[checkpoint_callback, early_stopping_callback],
                 logger=[csv_logger, wandb_logger],
                 accelerator="gpu",
-                max_epochs=nr_phases*phase_length,
+                max_epochs=conf["trainer"]["max_epochs"],
                 max_time=conf["trainer"]["max_time"],
                 auto_lr_find=conf["trainer"]["auto_lr_find"] == "True",
                 auto_scale_batch_size=conf["trainer"]["auto_scale_batch_size"] == "True",
