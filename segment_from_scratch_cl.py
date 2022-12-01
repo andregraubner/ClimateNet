@@ -300,8 +300,9 @@ if __name__ == "__main__":
         print(f'Starting training in stage {i}')
         data_module = Data(stage = i)
 
+        stage_nr = i+1
         log_spot = conf["logging"]["log_nr"]
-        log_dir = f'{LOG_DIR}{log_spot}/stage_{i}'
+        log_dir = f'{LOG_DIR}{log_spot}/stage_{stage_nr}'
 
         if not os.path.exists(log_dir):
             print(f'Create {log_dir}')
@@ -337,7 +338,7 @@ if __name__ == "__main__":
             ),
         )
 
-        if i == 1:
+        if i == 0:
             trainer = Trainer(
                 callbacks=[checkpoint_callback, early_stopping_callback],
                 logger=[csv_logger, wandb_logger],
@@ -350,8 +351,7 @@ if __name__ == "__main__":
             )
         else:
 
-            prev_stage = int(i-1)
-            checkpoints = os.listdir(f'{LOG_DIR}{log_spot}/stage_{prev_stage}/checkpoints')
+            checkpoints = os.listdir(f'{LOG_DIR}{log_spot}/stage_{i}/checkpoints')
             checkpoint = checkpoints[-1]
             trainer = Trainer(
                 callbacks=[checkpoint_callback, early_stopping_callback],
@@ -362,7 +362,7 @@ if __name__ == "__main__":
                 auto_lr_find=conf["trainer"]["auto_lr_find"] == "True",
                 auto_scale_batch_size=conf["trainer"]["auto_scale_batch_size"] == "True",
                 reload_dataloaders_every_n_epochs=phase_length,
-                ckpt_path=f'{LOG_DIR}{log_spot}/stage_{prev_stage}/checkpoints/{checkpoint}'
+                ckpt_path=f'{LOG_DIR}{log_spot}/stage_{i}/checkpoints/{checkpoint}'
             )
 
         trainer.fit(task, datamodule=data_module)
