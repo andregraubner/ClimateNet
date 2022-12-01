@@ -148,15 +148,15 @@ class Scheduler(pl.Callback):
 class Data(LightningDataModule):
     def __init__(self):
         super().__init__()
-        self.path = DATA_DIR_CL
+        self.stage = 1
       
     def set_phase(self, epoch):
-        self.stage = epoch//10
+        self.stage = epoch//phase_length
 
     def train_dataloader(self):
 
         setname = "train"
-        train_data = ImageDataset(setname, self.path, self.stage)
+        train_data = ImageDataset(setname, DATA_DIR_CL, self.stage)
         
         train_dataloader = DataLoader(
             train_data,
@@ -171,7 +171,7 @@ class Data(LightningDataModule):
     def val_dataloader(self):    
 
         setname = "val"
-        val_data = ImageDataset(setname,self.path, self.stage)
+        val_data = ImageDataset(setname,DATA_DIR_CL, self.stage)
         val_dataloader = DataLoader(
             val_data,
             batch_size=int(conf["datamodule"]["batch_size"]),
@@ -185,7 +185,7 @@ class Data(LightningDataModule):
     def test_dataloader(self):
 
         setname = "test"
-        test_data = ImageDataset(setname, self.path, self.stage)
+        test_data = ImageDataset(setname, DATA_DIR_CL, self.stage)
         
         test_dataloader = DataLoader(
             test_data,
