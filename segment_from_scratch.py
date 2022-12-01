@@ -99,7 +99,7 @@ class ImageDataset(Dataset):
         self.setname = setname
         self.stage = stage +1
         assert self.setname in ["train", "test", "val"]
-
+        
         self.file_names = os.listdir(f'{self.data_dir}{self.setname}/stage_{stage}')
 
         self.transform = transform

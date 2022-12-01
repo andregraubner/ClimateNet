@@ -30,3 +30,6 @@ var_list: TMQ,U850,V850,PRECT
 events: background,single_ar,single_tc,mixed,random
 patch_size: 100
 stride: 90
+
+[logging]
+log_nr: 1
