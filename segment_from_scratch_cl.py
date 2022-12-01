@@ -304,6 +304,8 @@ if __name__ == "__main__":
         log_dir = f'{LOG_DIR}{log_spot}/stage_{i}'
 
         if not os.path.exists(log_dir):
+            print(f'Create {log_dir}')
+
             os.makedirs(log_dir)
         
         # checkpoints and loggers
@@ -349,7 +351,7 @@ if __name__ == "__main__":
         else:
 
             prev_stage = i-1
-            checkpoints = f'{LOG_DIR}{log_spot}/stage_{prev_stage}/checkpoints/'
+            checkpoints = os.listdir(f'{LOG_DIR}{log_spot}/stage_{prev_stage}/checkpoints')
             checkpoint = checkpoints[-1]
             trainer = Trainer(
                 callbacks=[checkpoint_callback, early_stopping_callback],
@@ -360,7 +362,7 @@ if __name__ == "__main__":
                 auto_lr_find=conf["trainer"]["auto_lr_find"] == "True",
                 auto_scale_batch_size=conf["trainer"]["auto_scale_batch_size"] == "True",
                 reload_dataloaders_every_n_epochs=phase_length,
-                resume_from_checkpoint=f'{LOG_DIR}{log_spot}/stage_{prev_stage}/checkpoints/{checkpoint}'
+                ckpt_path=f'{LOG_DIR}{log_spot}/stage_{prev_stage}/checkpoints/{checkpoint}'
             )
 
         trainer.fit(task, datamodule=data_module)
