@@ -310,7 +310,7 @@ if __name__ == "__main__":
         stage_nr = i+1
         print(f'Stage number {stage_nr}')
         log_spot = conf["logging"]["log_nr"]
-        log_dir = f'{LOG_DIR}{log_spot}/stage_{stage_nr}'
+        log_dir = f'{LOG_DIR}{log_spot}/'
 
         if not os.path.exists(log_dir):
             print(f'Create {log_dir}')
@@ -361,7 +361,7 @@ if __name__ == "__main__":
 
         else:
 
-            checkpoints = os.listdir(f'{LOG_DIR}{log_spot}/stage_{i}/checkpoints')
+            checkpoints = os.listdir(f'{LOG_DIR}{log_spot}/checkpoints')
             checkpoint = checkpoints[-1]
             trainer = Trainer(
                 callbacks=[checkpoint_callback, early_stopping_callback],
@@ -372,7 +372,7 @@ if __name__ == "__main__":
                 auto_lr_find=conf["trainer"]["auto_lr_find"] == "True",
                 auto_scale_batch_size=conf["trainer"]["auto_scale_batch_size"] == "True",
             )
-            trainer.fit(task, datamodule=data_module, ckpt_path = f'{LOG_DIR}{log_spot}/stage_{i}/checkpoints/{checkpoint}')
+            trainer.fit(task, datamodule=data_module, ckpt_path = f'{LOG_DIR}{log_spot}/checkpoints/{checkpoint}')
 
     wandb.finish()
     #trainer.test(model=task, datamodule = Data())
