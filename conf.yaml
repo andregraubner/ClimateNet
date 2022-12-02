@@ -28,8 +28,8 @@ extract: True
 max_nr_patches: 5
 var_list: TMQ,U850,V850,PRECT
 events: background,single_ar,single_tc,mixed,random
-patch_size: 200
-stride: 180
+patch_size: 150
+stride: 50
 
 [logging]
-log_nr: 6
+log_nr: 10

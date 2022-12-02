@@ -94,6 +94,8 @@ def save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_ex
         
         elif name == 'background':
             subset=np.squeeze(np.argwhere(class_freq[:,0]==1.0))
+            if subset.size < 2:
+                break
             if subset.size < max_exp_patches:
                 draws = np.random.choice(subset.size, max_exp_patches)
                 idx[i,:] = subset[draws]
@@ -165,6 +167,7 @@ def load_single_image(image_path):
     return xr.load_dataset(image_path)
 
 def process_single_image(set, file_name, image, patch_size, stride, vars, max_exp_patches,folder_names):
+    
     im_patches = patch_image(image, patch_size, stride, vars)
     class_freq = calc_class_freq(im_patches)
     save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_exp_patches,folder_names)
