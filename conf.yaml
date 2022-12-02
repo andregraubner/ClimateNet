@@ -2,7 +2,7 @@
 [trainer]
 gpus: 1
 min_epochs: 1
-max_epochs: 10
+max_epochs: 1
 auto_lr_find: True
 auto_scale_batch_size: False
 precision: 16
@@ -10,7 +10,7 @@ max_time: 00:23:50:00
 
 [model]
 loss: focal 
-segmentation_model: deeplabv3+
+segmentation_model: unet
 backbone: resnet50
 learning_rate: 1e-3
 pretrained: True
