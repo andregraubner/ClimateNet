@@ -319,7 +319,7 @@ if __name__ == "__main__":
         
         # checkpoints and loggers
         checkpoint_callback = ModelCheckpoint(
-                monitor="val_loss",
+                monitor=None,
                 dirpath=log_dir + "/checkpoints",
                 save_top_k=1,
                 save_last=True,
@@ -362,7 +362,7 @@ if __name__ == "__main__":
         else:
 
             checkpoints = os.listdir(f'{LOG_DIR}{log_spot}/checkpoints')
-            checkpoint = 'last.ckpt'
+            checkpoint = checkpoints[-1]
             trainer = Trainer(
                 callbacks=[checkpoint_callback, early_stopping_callback],
                 logger=[csv_logger, wandb_logger],
