@@ -362,7 +362,7 @@ if __name__ == "__main__":
         else:
 
             checkpoints = os.listdir(f'{LOG_DIR}{log_spot}/checkpoints')
-            checkpoint = checkpoints[-1]
+            checkpoint = 'last.ckpt'
             trainer = Trainer(
                 callbacks=[checkpoint_callback, early_stopping_callback],
                 logger=[csv_logger, wandb_logger],
