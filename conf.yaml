@@ -11,7 +11,7 @@ max_time: 00:23:50:00
 [model]
 loss: focal 
 segmentation_model: unet
-backbone: resnet50
+backbone: resnet15
 learning_rate: 1e-3
 pretrained: True
 learning_rate_schedule_patience: 5
