@@ -324,9 +324,6 @@ if __name__ == "__main__":
                 save_top_k=1,
                 save_last=True,
         )
-        early_stopping_callback = EarlyStopping(
-                monitor="val_loss", min_delta=0.00, patience=10
-        )
         csv_logger = CSVLogger(save_dir=log_dir, name="logs")
 
         wandb_logger = WandbLogger(entity="ai4good", log_model=True, project="segment_from_scratch")
@@ -348,7 +345,7 @@ if __name__ == "__main__":
 
         if i == 0:
             trainer = Trainer(
-                callbacks=[checkpoint_callback, early_stopping_callback],
+                callbacks=[checkpoint_callback],
                 logger=[csv_logger, wandb_logger],
                 accelerator="gpu",
                 max_epochs=int(conf["trainer"]["max_epochs"]),
@@ -364,7 +361,7 @@ if __name__ == "__main__":
             checkpoints = os.listdir(f'{LOG_DIR}{log_spot}/checkpoints')
             checkpoint = checkpoints[-1]
             trainer = Trainer(
-                callbacks=[checkpoint_callback, early_stopping_callback],
+                callbacks=[checkpoint_callback],
                 logger=[csv_logger, wandb_logger],
                 accelerator="gpu",
                 max_epochs=int(conf["trainer"]["max_epochs"])*(i+1),
