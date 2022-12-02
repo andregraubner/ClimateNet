@@ -2,7 +2,7 @@
 [trainer]
 gpus: 1
 min_epochs: 1
-max_epochs: 1
+max_epochs: 10
 auto_lr_find: True
 auto_scale_batch_size: False
 precision: 16
@@ -10,8 +10,8 @@ max_time: 00:23:50:00
 
 [model]
 loss: focal 
-segmentation_model: unet
-backbone: resnet18
+segmentation_model: deeplabv3+
+backbone: resnet50
 learning_rate: 1e-3
 pretrained: True
 learning_rate_schedule_patience: 5
@@ -24,12 +24,12 @@ batch_size: 4
 num_workers: 2
 
 [cl]
-extract: False
-max_nr_patches: 10
+extract: True
+max_nr_patches: 5
 var_list: TMQ,U850,V850,PRECT
 events: background,single_ar,single_tc,mixed,random
-patch_size: 100
-stride: 90
+patch_size: 200
+stride: 180
 
 [logging]
 log_nr: 6
