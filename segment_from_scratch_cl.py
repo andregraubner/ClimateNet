@@ -359,7 +359,7 @@ if __name__ == "__main__":
             trainer.fit(task, datamodule=data_module)
 
 
-        elif i == 1 :
+        elif (i == 1) or (i == 2):
 
             checkpoints = os.listdir(f'{LOG_DIR}{log_spot}/checkpoints')
             checkpoint = checkpoints[-1]
@@ -382,7 +382,7 @@ if __name__ == "__main__":
                 callbacks=[checkpoint_callback, early_stopping_callback],
                 logger=[csv_logger, wandb_logger],
                 accelerator="gpu",
-                max_epochs=int(conf["trainer"]["max_epochs"])*(i+1),
+                max_epochs=int(conf["trainer"]["max_epochs"])*3,
                 max_time=conf["trainer"]["max_time"],
                 auto_lr_find=conf["trainer"]["auto_lr_find"] == "True",
                 auto_scale_batch_size=conf["trainer"]["auto_scale_batch_size"] == "True",
