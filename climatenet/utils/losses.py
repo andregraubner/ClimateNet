@@ -82,3 +82,14 @@ def dice_coefficient(logits, true, eps=1e-7):
     dice_loss = (2 * intersection / (2 * cardinality + eps)).mean()
     return (1 - dice_loss)
 
+def cross_entropy_loss_pytorch(y_logit, y_true):
+    '''
+    Multi-label cross-entropy with pytorch
+    y_true: true value
+    y_logit: predicted value
+    https://www.cs.toronto.edu/~lczhang/321/tut/tut04.pdf
+    https://pytorch.org/docs/stable/generated/torch.nn.CrossEntropyLoss.html
+    '''
+
+    loss = nn.CrossEntropyLoss(y_logit,y_true)
+    return loss(y_logit,y_true)

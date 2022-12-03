@@ -7,7 +7,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from climatenet.modules import *
 from climatenet.utils.data import ClimateDataset, ClimateDatasetLabeled
-from climatenet.utils.losses import jaccard_loss, dice_coefficient
+from climatenet.utils.losses import jaccard_loss, dice_coefficient, cross_entropy_loss_pytorch
 from climatenet.utils.metrics import get_cm, get_iou_perClass, get_dice_perClass
 from torch.optim import Adam
 from torch.utils.data import DataLoader
@@ -64,7 +64,6 @@ class CGNet():
         
     def train(self, dataset: ClimateDatasetLabeled):
         '''Train the network on the given dataset for the given amount of epochs'''
-        print(self.network.loss)
         self.network.train()
         collate = ClimateDatasetLabeled.collate
         loader = DataLoader(dataset, batch_size=self.config.train_batch_size, collate_fn=collate, num_workers=0, shuffle=True)
@@ -87,8 +86,9 @@ class CGNet():
                 aggregate_cm += get_cm(predictions, labels, 3)
 
                 # Pass backward
-                print(f"Using {self.network.loss} loss")
-                if self.network.loss == "jaccard":
+                pdb.set_trace()
+                print(f"Using {self.config.loss} loss")
+                if self.config.loss == "jaccard":
                     loss = jaccard_loss(outputs, labels)
                 elif self.config.loss == "dice":
                     loss = dice_coefficient(outputs, labels)
@@ -185,7 +185,7 @@ class CGNetModule(nn.Module):
     CGNet (Wu et al, 2018: https://arxiv.org/pdf/1811.08201.pdf) implementation.
     This is taken from their implementation, we do not claim credit for this.
     """
-    def __init__(self, classes=19, channels=4, M=3, N= 21, dropout_flag = False, loss="jaccard"):
+    def __init__(self, classes=19, channels=4, M=3, N= 21, dropout_flag = False):
         """
         args:
           classes: number of classes in the dataset. Default is 19 for the cityscapes
@@ -193,7 +193,6 @@ class CGNetModule(nn.Module):
           N: the number of blocks in stage 3
         """
         super().__init__()
-        self.loss = loss
 
         self.level1_0 = ConvBNPReLU(channels, 32, 3, 2)      # feature map size divided 2, 1/2
         self.level1_1 = ConvBNPReLU(32, 32, 3, 1)                          
