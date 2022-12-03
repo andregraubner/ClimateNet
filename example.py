@@ -10,11 +10,11 @@ from os import path
 config = Config('config.json')
 cgnet = CGNet(config)
 
-train_path = 'PATH_TO_TRAINING_SET'
-inference_path = 'PATH_TO_INFERENCE_SET'
+train_path = 'Data'
+inference_path = 'Data'
 
-train = ClimateDatasetLabeled(path.join(train_path, 'train'), config)
-test = ClimateDatasetLabeled(path.join(train_path, 'test'), config)
+train = ClimateDatasetLabeled(path.join(train_path, 'Train'), config)
+test = ClimateDatasetLabeled(path.join(train_path, 'Test'), config)
 inference = ClimateDataset(inference_path, config)
 
 cgnet.train(train)
