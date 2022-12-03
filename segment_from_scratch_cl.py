@@ -303,7 +303,7 @@ if __name__ == "__main__":
     wandb.init(entity="ai4good", project="segment_from_scratch")
     
 
-    for i in range(5):
+    for i in range(1,5):
         print(f'Starting training round {i}')
         data_module = Data(stage = i+1)
 
