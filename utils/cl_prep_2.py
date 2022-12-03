@@ -159,7 +159,10 @@ def save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_ex
 
             xr_patch = xr.Dataset(data_vars=data_vars, coords=coords)
             for k in range(len(phase_names)-i):
-                xr_patch.to_netcdf(os.path.join(paths[i+k]+folder+'_'+file_name+"_p"+str(n)+".nc"))
+                prob = 1-0.1*k
+                include = np.random.choice(2, 1, p=[1-prob,prob])
+                if include == 1:
+                    xr_patch.to_netcdf(os.path.join(paths[i+k]+folder+'_'+file_name+"_p"+str(n)+".nc"))
             xr_patch.close()
     
 
