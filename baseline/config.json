@@ -7,26 +7,26 @@
     "epochs": 15,
     "fields": {
         "TMQ": {
-            "mean": 0.37387,
-            "std": 302.66
+            "mean": 19.21859,
+            "std": 15.81723
         },
         "U850": {
-            "mean": 0.021035,
-            "std": 100.25
+            "mean": 1.55302,
+            "std": 8.29764
         },
         "V850": {
-            "mean": 0.0060484,
-            "std": 74.048
+            "mean": 0.25413,
+            "std": 6.23163
         },
         "PSL": {
-            "mean": 1619.3,
-            "std": 1178300.0
+            "mean": 100814.414,
+            "std": 1461.2227
         }
     },
     "labels": [
-        "Background",
-        "Tropical Cyclone",
-        "Atmospheric River"
+      "Background",
+      "Tropical Cyclone",
+      "Atmospheric River"
     ],
     "description": "The basic CGNet model. You can use this config to train your own model, or load it with our trained weights."
 }
