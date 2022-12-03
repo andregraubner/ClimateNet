@@ -2,7 +2,7 @@
 [trainer]
 gpus: 1
 min_epochs: 1
-max_epochs: 10
+max_epochs: 20
 auto_lr_find: True
 auto_scale_batch_size: False
 precision: 16
