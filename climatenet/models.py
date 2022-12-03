@@ -17,7 +17,7 @@ import xarray as xr
 from climatenet.utils.utils import Config
 from os import path
 import pathlib
-import pdb
+
 class CGNet():
     '''
     The high-level CGNet class. 
@@ -86,7 +86,6 @@ class CGNet():
                 aggregate_cm += get_cm(predictions, labels, 3)
 
                 # Pass backward
-                pdb.set_trace()
                 print(f"Using {self.config.loss} loss")
                 if self.config.loss == "jaccard":
                     loss = jaccard_loss(outputs, labels)
