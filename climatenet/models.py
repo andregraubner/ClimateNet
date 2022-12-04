@@ -67,6 +67,14 @@ class CGNet():
         self.network.train()
         collate = ClimateDatasetLabeled.collate
         loader = DataLoader(dataset, batch_size=self.config.train_batch_size, collate_fn=collate, num_workers=0, shuffle=True)
+
+        if torch.cuda.is_available():
+            device = torch.device("cuda")
+        else:
+            device = torch.device("cpu")
+        print("Training model on device of type: ", str(device), "\n\n")
+        self.network.to(device)
+
         for epoch in range(1, self.config.epochs+1):
 
             print(f'Epoch {epoch}:')
