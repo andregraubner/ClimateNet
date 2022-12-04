@@ -161,7 +161,6 @@ def save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_ex
             for k in range(len(phase_names)-i):
                 prob = 1-0.1*2*k
                 include = np.random.choice(2, 1, p=[1-prob,prob])
-                print(include,paths[i+k] )
                 if include == 1:
                     xr_patch.to_netcdf(os.path.join(paths[i+k]+folder+'_'+file_name+"_p"+str(n)+".nc"))
             xr_patch.close()
@@ -189,7 +188,7 @@ def process_all_images(patch_size, stride, vars, max_exp_patches,folder_names):
         file_names = [f[:-3] for f in listdir(data_dir) if isfile(join(data_dir, f))]
         print('Load all images')
         data = []
-        for p in tqdm(single_file_paths[:1]):
+        for p in tqdm(single_file_paths[:]):
             try:
                 data.append(xr.load_dataset(p))
             except:
