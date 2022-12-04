@@ -7,7 +7,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from climatenet.modules import *
 from climatenet.utils.data import ClimateDataset, ClimateDatasetLabeled
-from climatenet.utils.losses import jaccard_loss, dice_coefficient, cross_entropy_loss_pytorch
+from climatenet.utils.losses import jaccard_loss, dice_coefficient, cross_entropy_loss_pytorch, weighted_cross_entropy_loss
 from climatenet.utils.metrics import get_cm, get_iou_perClass, get_dice_perClass
 from torch.optim import Adam
 from torch.utils.data import DataLoader
@@ -93,7 +93,9 @@ class CGNet():
                     loss = dice_coefficient(outputs, labels)
                 elif self.config.loss == "cross_entropy_loss_pytorch":
                     loss = cross_entropy_loss_pytorch(outputs, labels)
-
+                elif self.config.loss == "weighted_cross_entropy":
+                    loss = weighted_cross_entropy_loss(outputs, labels, self.config.weights)
+                    
                 epoch_loader.set_description(f'Loss: {loss.item()}')
                 loss.backward()
                 self.optimizer.step()
