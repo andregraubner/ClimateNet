@@ -65,35 +65,43 @@ class CGNet():
     def train(self, dataset: ClimateDatasetLabeled):
         '''Train the network on the given dataset for the given amount of epochs'''
         self.network.train()
-        collate = ClimateDatasetLabeled.collate
-        loader = DataLoader(dataset, batch_size=self.config.train_batch_size, collate_fn=collate, num_workers=0, shuffle=True)
-
+        
+        # Push model and data on GPU if available
         if torch.cuda.is_available():
             device = torch.device("cuda")
         else:
             device = torch.device("cpu")
-        print("Training model on device of type: ", str(device), "\n\n")
+        
         self.network.to(device)
 
+        collate = ClimateDatasetLabeled.collate
+        loader = DataLoader(dataset, batch_size=self.config.train_batch_size, collate_fn=collate, num_workers=0, shuffle=True)
+    
+        # Loop over epochs
         for epoch in range(1, self.config.epochs+1):
 
-            print(f'Epoch {epoch}:')
+            print(f'Epoch #{epoch}:')
             epoch_loader = tqdm(loader)
             aggregate_cm = np.zeros((3,3))
 
             for features, labels in epoch_loader:
         
-                # Push data on GPU and pass forward
+                # Move dataset to GPU if available
                 features = torch.tensor(features.values)
                 labels = torch.tensor(labels.values)
+
+                features.to(device)
+                labels.to(device)
+                print("Data loaded on: ", features.device)
                 
+                # Forward pass
                 outputs = torch.softmax(self.network(features), 1)
 
-                # Update training CM
+                # Update training confusion matrix
                 predictions = torch.max(outputs, 1)[1]
                 aggregate_cm += get_cm(predictions, labels, 3)
 
-                # Pass backward
+                # Backward pass
                 print(f"Using {self.config.loss} loss")
                 if self.config.loss == "jaccard":
                     loss = jaccard_loss(outputs, labels)
