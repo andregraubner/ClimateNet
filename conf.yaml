@@ -11,7 +11,7 @@ max_time: 00:23:50:00
 [model]
 loss: focal 
 segmentation_model: deeplabv3+
-backbone: resnet50
+backbone: resnext101_64x4d
 learning_rate: 1e-3
 pretrained: True
 learning_rate_schedule_patience: 5
@@ -28,8 +28,8 @@ extract: True
 max_nr_patches: 5
 var_list: TMQ,U850,V850,PRECT
 events: background,single_ar,single_tc,mixed,random
-patch_size: 170
+patch_size: 200
 stride: 20
 
 [logging]
-log_nr: 30
+log_nr: 35
