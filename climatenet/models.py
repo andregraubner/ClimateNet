@@ -101,13 +101,15 @@ class CGNet():
                 self.optimizer.step()
                 self.optimizer.zero_grad() 
 
-            print('Epoch stats:')
+            # Epoch reporting
+            print('\nEpoch stats:')
             print(aggregate_cm)
             ious = get_iou_perClass(aggregate_cm)
-            print('IOUs: ', ious, ', mean: ', ious.mean())
+            print('Metric ', self.labels[0], ' | ', self.labels[1],' | ', self.labels[2])
+            print('IoUs: ', ious, ', mean: ', ious.mean())
             dices = get_dice_perClass(aggregate_cm)
-            print('DICE: ', dices, ', mean: ', dices.mean())
-            
+            print('Dice: ', dices, ', mean: ', dices.mean(),'\n')
+
          
 
     def predict(self, dataset: ClimateDataset, save_dir: str = None):
@@ -153,12 +155,15 @@ class CGNet():
             predictions = torch.max(outputs, 1)[1]
             aggregate_cm += get_cm(predictions, labels, 3)
 
+        # Evaluation stats: IoUs and Dice score:
         print('Evaluation stats:')
         print(aggregate_cm)
         ious = get_iou_perClass(aggregate_cm)
-        print('IOUs: ', ious, ', mean: ', ious.mean())
+        print('Metric ', self.labels[0], ' | ', self.labels[1],' | ', self.labels[2])
+        print('IoUs: ', ious, ', mean: ', ious.mean())
         dices = get_dice_perClass(aggregate_cm)
-        print('DICE: ', dices, ', mean: ', dices.mean())
+        print('Dice: ', dices, ', mean: ', dices.mean())
+
 
     def save_model(self, save_path: str):
         '''
