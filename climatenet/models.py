@@ -110,7 +110,10 @@ class CGNet():
             dices = get_dice_perClass(aggregate_cm)
             print('Dice: ', dices, ', mean: ', dices.mean(),'\n')
 
-         
+            # Save model at each epoch if specified in config.json
+            if self.save_epochs : 
+                save_model(self, model_path)
+                print("Saving weights from epoch #", str(epoch), "\n")
 
     def predict(self, dataset: ClimateDataset, save_dir: str = None):
         '''Make predictions for the given dataset and return them as xr.DataArray'''
