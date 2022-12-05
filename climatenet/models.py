@@ -120,7 +120,7 @@ class CGNet():
 
             train_ious = get_iou_perClass(train_aggregate_cm)
             print('Classes:   [    BG         TCs        ARs   ]')
-            print('IoUs:     ', train_ious, ' | Mean: ', ious.mean())
+            print('IoUs:     ', train_ious, ' | Mean: ', train_ious.mean())
             train_dices = get_dice_perClass(train_aggregate_cm)
             print('Dice:     ', train_dices, ' | Mean: ', train_dices.mean())
 
