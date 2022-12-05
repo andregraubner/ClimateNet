@@ -181,8 +181,11 @@ def save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_ex
     for i, (stage, set) in enumerate(curriculum.items()):
         functions = [globals()[type]for type in set]
         data = np.hstack(np.array([func(class_freq, max_exp_patches) for func in functions]))
-        draws = np.random.choice(len(data), max_exp_patches)
-        idx[i,:] = data[draws]
+        if len(data) == 0:
+            break
+        else:
+            draws = np.random.choice(len(data), max_exp_patches)
+            idx[i,:] = data[draws]
 
 
    
