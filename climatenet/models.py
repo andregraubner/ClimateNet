@@ -60,7 +60,7 @@ class CGNet():
         else:
             raise ValueError('''You need to specify either a config or a model path.''')
 
-        self.class_weights = torch.Tensor(self.config.weights) if hasattr(self, "config.weights") else None
+        self.class_weights = torch.Tensor(self.config.class_weights) if hasattr(self, "config.class_weights") else []
 
         self.optimizer = Adam(self.network.parameters(), lr=self.config.lr)        
         

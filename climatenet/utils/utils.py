@@ -43,7 +43,7 @@ class Config():
         self.description = self.config_dict['description']
         self.loss = self.config_dict['loss']
 
-        self.weights = self.config_dict['weights'] if 'weights' in self.config_dict else None # TODO: raise exception if None
+        self.class_weights = self.config_dict['weights'] if 'weights' in self.config_dict else [] # TODO: raise exception if None
         self.save_epochs = self.config_dict.get('save_epochs', False) 
         # Make reproducible
         torch.manual_seed(self.seed)
