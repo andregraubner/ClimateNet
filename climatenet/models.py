@@ -90,8 +90,8 @@ class CGNet():
                 features = torch.tensor(features.values)
                 labels = torch.tensor(labels.values)
 
-                features.to(device)
-                labels.to(device)
+                features = features.to(device)
+                labels = labels.to(device)
                 print("Data loaded on: ", features.device)
 
                 # Forward pass
