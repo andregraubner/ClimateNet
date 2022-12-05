@@ -117,10 +117,10 @@ class CGNet():
             # Epoch reporting
             print('\nEpoch stats:')
             ious = get_iou_perClass(aggregate_cm)
-            print('Classes:  [   BG         TCs        ARs    ]')
+            print('Classes:   [   BG         TCs        ARs    ]')
             print('IoUs:     ', ious, ' | Mean: ', ious.mean())
             dices = get_dice_perClass(aggregate_cm)
-            print('Dice:   ', dices, ' | Mean: ', dices.mean())
+            print('Dice:     ', dices, ' | Mean: ', dices.mean())
 
             # Save model at each epoch if specified in config.json
             #if self.config.save_epochs : 
@@ -180,10 +180,10 @@ class CGNet():
         # Evaluation stats: IoUs and Dice score:
         print('Evaluation stats:')
         ious = get_iou_perClass(aggregate_cm)
-        print('Classes:  [   BG         TCs        ARs    ]')
+        print('Classes:   [   BG         TCs        ARs    ]')
         print('IoUs:     ', ious, ' | Mean: ', ious.mean())
         dices = get_dice_perClass(aggregate_cm)
-        print('Dice:   ', dices, ' | Mean: ', dices.mean())
+        print('Dice:     ', dices, ' | Mean: ', dices.mean())
 
     def save_model(self, save_path: str):
         '''
