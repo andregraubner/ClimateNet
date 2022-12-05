@@ -127,7 +127,7 @@ class CGNet():
             print('Dice: ', dices, ' | mean: ', dices.mean(),'\n')
 
             # Save model at each epoch if specified in config.json
-            if self.config.save_epochs : 
+            #if self.config.save_epochs : 
                 #self.save_model(self, self.config.model_path)
                 #print("Saving weights from epoch #", str(epoch), "\n")
 
