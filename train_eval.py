@@ -20,7 +20,8 @@ cgnet = CGNet(config)
 
 # Train model
 train = ClimateDatasetLabeled(path.join(data_path, 'train'), config)
-cgnet.train(train)
+val = ClimateDatasetLabeled(path.join(data_path, 'val'), config)
+cgnet.train(train, val)
 
 # Evaluate performance
 test = ClimateDatasetLabeled(path.join(data_path, 'test'), config)
