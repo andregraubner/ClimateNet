@@ -116,7 +116,7 @@ class CGNet():
 
             # Training stats reporting
             print(f'\nTraining stats:')
-            print(f'{train_aggregate_cm/np.sum(train_aggregate_cm):.2f}')
+            print(train_aggregate_cm/np.sum(train_aggregate_cm)
 
             train_ious = get_iou_perClass(train_aggregate_cm)
             print('Classes:   [    BG         TCs        ARs   ]')
@@ -128,7 +128,7 @@ class CGNet():
             val_loss, val_aggregate_cm, val_ious, val_dices = self.validate(self, val_dataset)
             print(f'\nValidation stats:')
             print(f'Loss: {val_loss.item():.5f} ({val_loss})')
-            print(f'{val_aggregate_cm/np.sum(train_aggregate_cm):.2f}')
+            print(val_aggregate_cm/np.sum(train_aggregate_cm))
             print('Classes:   [    BG         TCs        ARs   ]')
             print('IoUs:     ', val_ious, ' | Mean: ', val_ious.mean())
             print('Dice:     ', val_dices, ' | Mean: ', val_dices.mean())
