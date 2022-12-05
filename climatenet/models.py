@@ -116,22 +116,26 @@ class CGNet():
 
             # Training stats reporting
             print(f'\nTraining:')
-            print('%0.3f' % train_aggregate_cm/np.sum(train_aggregate_cm))
-            seprint(f'Train loss: {train_loss.item():.5f} ({self.config.loss}) ')
+            print(f'Train loss: {train_loss.item():.5f} ({self.config.loss}) ')
             train_ious = get_iou_perClass(train_aggregate_cm)
             print('Classes:   [    BG         TCs        ARs   ]')
             print('IoUs:     ', train_ious, ' | Mean: ', train_ious.mean())
             train_dices = get_dice_perClass(train_aggregate_cm)
             print('Dice:     ', train_dices, ' | Mean: ', train_dices.mean())
+            print(f'\nConfusion matrix:')
+            print(np.array_str(np.around(train_aggregate_cm/np.sum(train_aggregate_cm)), precision=3))
+
 
             # Validation stats reporting
             val_loss, val_aggregate_cm, val_ious, val_dices = self.validate(val_dataset)
             print(f'\nValidation:')
             print(f'Val loss: {val_loss.item():.5f} ({self.config.loss})')
-            print('%0.3f' % val_aggregate_cm/np.sum(val_aggregate_cm))
             print('Classes:   [    BG         TCs        ARs   ]')
             print('IoUs:     ', val_ious, ' | Mean: ', val_ious.mean())
             print('Dice:     ', val_dices, ' | Mean: ', val_dices.mean())
+            print(f'\nConfusion matrix:')
+            print(np.array_str(np.around(val_aggregate_cm/np.sum(val_aggregate_cm)), precision=3))
+            
             self.network.train()
 
             # Decide if adapt learning rate
@@ -239,14 +243,14 @@ class CGNet():
 
         # Evaluation stats reporting:
         print('\nEvaluation stats:')
-        print(f'Test loss: {test_loss.item():.5f} ({self.config.loss})')
-        print('%0.3f' % aggregate_cm/np.sum(aggregate_cm))
-         
+        print(f'Test loss: {test_loss.item():.5f} ({self.config.loss})')         
         ious = get_iou_perClass(aggregate_cm)
         print('Classes:   [   BG         TCs        ARs    ]')
         print('IoUs:     ', ious, ' | Mean: ', ious.mean())
         dices = get_dice_perClass(aggregate_cm)
         print('Dice:     ', dices, ' | Mean: ', dices.mean())
+        print('\nConfusion matrix:')
+        print(np.array_str(np.around(aggregate_cm/np.sum(aggregate_cm)), precision=3))
 
     def save_model(self, save_path: str):
         '''
