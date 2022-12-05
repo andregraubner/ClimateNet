@@ -71,7 +71,7 @@ class CGNet():
         device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
        
         self.network.to(device)
-        self.loss_weights = torch.Tensor(self.config.loss_weights, device=device) if hasattr(self, "config.loss_weights") else torch.Tensor([0, 0, 0], device=device)
+        self.loss_weights = torch.tensor(self.config.loss_weights, device=device) if hasattr(self, "config.loss_weights") else torch.tensor([0, 0, 0], device=device)
 #       
         collate = ClimateDatasetLabeled.collate
         loader = DataLoader(train_dataset, batch_size=self.config.train_batch_size, collate_fn=collate, num_workers=0, shuffle=True)
