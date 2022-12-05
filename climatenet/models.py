@@ -5,7 +5,6 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torchinfo import summary
 from climatenet.modules import *
 from climatenet.utils.data import ClimateDataset, ClimateDatasetLabeled
 from climatenet.utils.losses import jaccard_loss, dice_coefficient, cross_entropy_loss_pytorch, weighted_cross_entropy_loss
@@ -266,6 +265,8 @@ class CGNet():
         args:
             input: Receives the CGNet object to print
         """
+        from torchinfo import summary
+
         # Load data for a forward pass
         collate = ClimateDatasetLabeled.collate
         loader = DataLoader(dataset, batch_size=self.config.train_batch_size, collate_fn=collate, num_workers=0, shuffle=True)
