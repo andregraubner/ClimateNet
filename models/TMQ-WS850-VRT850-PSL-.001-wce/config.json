@@ -34,6 +34,7 @@
 =======
     "loss": "weighted_cross_entropy",
     "weights": [0.355, 72.171, 5.875],
+    "save_epochs": true,
     "description": "CGNet model with weighted cross-entropy loss."
 >>>>>>> main:models/TMQ-WS850-VRT850-PSL-.001-wce/config.json
 }

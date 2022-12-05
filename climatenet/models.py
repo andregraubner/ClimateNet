@@ -62,65 +62,99 @@ class CGNet():
 
         self.optimizer = Adam(self.network.parameters(), lr=self.config.lr)        
         
-    def train(self, dataset: ClimateDatasetLabeled):
-        '''Train the network on the given dataset for the given amount of epochs'''
+    def train(self, train_dataset: ClimateDatasetLabeled, val_dataset: ClimateDatasetLabeled):
+        '''Train the network on the train dataset for the given amount of epochs, and validate it
+        at each epoch on the validation dataset.'''
         self.network.train()
+        
+        # Push model and data on GPU if available
+        device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
+       
+        self.network.to(device)
+        if hasattr(self, "config,weights"): self.config.weights = self.config.weights.to(device)
+
         collate = ClimateDatasetLabeled.collate
-        loader = DataLoader(dataset, batch_size=self.config.train_batch_size, collate_fn=collate, num_workers=0, shuffle=True)
+        loader = DataLoader(train_dataset, batch_size=self.config.train_batch_size, collate_fn=collate, num_workers=0, shuffle=True)
+        
+        # Loop over epochs
         for epoch in range(1, self.config.epochs+1):
 
-            print(f'Epoch {epoch}:')
-            epoch_loader = tqdm(loader)
-            aggregate_cm = np.zeros((3,3))
+            print(f'\n================ Training epoch #{epoch} ({device}) ================')
+            epoch_loader = tqdm(loader, leave=True)
+            train_aggregate_cm = np.zeros((3,3))
 
             for features, labels in epoch_loader:
         
-                # Push data on GPU and pass forward
+                # Move dataset to GPU if available
                 features = torch.tensor(features.values)
                 labels = torch.tensor(labels.values)
+
+                features = features.to(device)
+                labels = labels.to(device)
                 
+                # Forward pass
                 outputs = torch.softmax(self.network(features), 1)
 
-                # Update training CM
+                # Update training confusion matrix
                 predictions = torch.max(outputs, 1)[1]
-                aggregate_cm += get_cm(predictions, labels, 3)
+                train_aggregate_cm += get_cm(predictions, labels, 3)
 
-                # Pass backward
-                print(f"Using {self.config.loss} loss")
+                # Backward pass
                 if self.config.loss == "jaccard":
-                    loss = jaccard_loss(outputs, labels)
+                    train_loss = jaccard_loss(outputs, labels)
                 elif self.config.loss == "dice":
-                    loss = dice_coefficient(outputs, labels)
+                    train_loss = dice_coefficient(outputs, labels)
                 elif self.config.loss == "cross_entropy_loss_pytorch":
-                    loss = cross_entropy_loss_pytorch(outputs, labels)
+                    train_loss = cross_entropy_loss_pytorch(outputs, labels)
                 elif self.config.loss == "weighted_cross_entropy":
-                    loss = weighted_cross_entropy_loss(outputs, labels, self.config.weights)
+                    train_loss = weighted_cross_entropy_loss(outputs, labels, self.config.weights)
                     
-                epoch_loader.set_description(f'Loss: {loss.item()}')
-                loss.backward()
+                epoch_loader.set_description(f'Loss: {train_loss.item():.5f} ({self.config.loss}) ')
+                train_loss.backward()
                 self.optimizer.step()
                 self.optimizer.zero_grad() 
 
-            print('Epoch stats:')
-            print(aggregate_cm)
-            ious = get_iou_perClass(aggregate_cm)
-            print('IOUs: ', ious, ', mean: ', ious.mean())
-            dices = get_dice_perClass(aggregate_cm)
-            print('DICE: ', dices, ', mean: ', dices.mean())
+            # Training stats reporting
+            print(f'\nTraining loss: {train_loss.item():.5f} ({self.config.loss}) ')
+            train_ious = get_iou_perClass(train_aggregate_cm)
+            print('Classes:   [    BG         TCs        ARs   ]')
+            print('IoUs:     ', train_ious, ' | Mean: ', train_ious.mean())
+            train_dices = get_dice_perClass(train_aggregate_cm)
+            print('Dice:     ', train_dices, ' | Mean: ', train_dices.mean())
+            print(np.array_str(np.around(train_aggregate_cm/np.sum(train_aggregate_cm), decimals=3), precision=3))
+
+
+            # Validation stats reporting
+            val_loss, val_aggregate_cm, val_ious, val_dices = self.validate(val_dataset)
+            print(f'\nValidation loss: {val_loss.item():.5f} ({self.config.loss})')
+            print('Classes:   [    BG         TCs        ARs   ]')
+            print('IoUs:     ', val_ious, ' | Mean: ', val_ious.mean())
+            print('Dice:     ', val_dices, ' | Mean: ', val_dices.mean())
+            print(np.array_str(np.around(val_aggregate_cm/np.sum(val_aggregate_cm), decimals=3), precision=3))
             
-         
+            self.network.train()
+
+            # Decide if adapt learning rate
+            # TODO
+
+            # Save model at each epoch if specified in config.json
+            #if self.config.save_epochs : 
+                #self.save_model(self, self.config.model_path)
+                #print("Saving weights from epoch #", str(epoch), "\n")
 
     def predict(self, dataset: ClimateDataset, save_dir: str = None):
         '''Make predictions for the given dataset and return them as xr.DataArray'''
         self.network.eval()
         collate = ClimateDataset.collate
         loader = DataLoader(dataset, batch_size=self.config.pred_batch_size, collate_fn=collate)
-        epoch_loader = tqdm(loader)
+        epoch_loader = tqdm(loader, leave=True)
+        device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
 
         predictions = []
         for batch in epoch_loader:
             features = torch.tensor(batch.values)
-        
+            features = features.to(device)
+
             with torch.no_grad():
                 outputs = torch.softmax(self.network(features), 1)
             preds = torch.max(outputs, 1)[1].cpu().numpy()
@@ -134,31 +168,89 @@ class CGNet():
         print(predictions)
         return xr.concat(predictions, dim='time')
 
-    def evaluate(self, dataset: ClimateDatasetLabeled):
-        '''Evaluate on a dataset and return statistics'''
+    def validate(self, dataset: ClimateDatasetLabeled):
+        '''Validate on a dataset and return statistics'''
+
         self.network.eval()
         collate = ClimateDatasetLabeled.collate
         loader = DataLoader(dataset, batch_size=self.config.pred_batch_size, collate_fn=collate, num_workers=0)
 
-        epoch_loader = tqdm(loader)
+        device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
+
+        print(f'\n---------- Validation ({device}) ----------')
+
+        epoch_loader = tqdm(loader, leave=True)
         aggregate_cm = np.zeros((3,3))
 
         for features, labels in epoch_loader:
         
             features = torch.tensor(features.values)
             labels = torch.tensor(labels.values)
-                
+
+            features = features.to(device)
+            labels = labels.to(device)
+
             with torch.no_grad():
                 outputs = torch.softmax(self.network(features), 1)
             predictions = torch.max(outputs, 1)[1]
             aggregate_cm += get_cm(predictions, labels, 3)
 
-        print('Evaluation stats:')
-        print(aggregate_cm)
+            if self.config.loss == "jaccard":
+                val_loss = jaccard_loss(outputs, labels)
+            elif self.config.loss == "dice":
+                val_loss = dice_coefficient(outputs, labels)
+            elif self.config.loss == "cross_entropy_loss_pytorch":
+                val_loss = cross_entropy_loss_pytorch(outputs, labels)
+            elif self.config.loss == "weighted_cross_entropy":
+                val_loss = weighted_cross_entropy_loss(outputs, labels, self.config.weights)
+
+        # Return validation stats:
+        return val_loss, aggregate_cm, get_iou_perClass(aggregate_cm), get_dice_perClass(aggregate_cm)
+
+    def evaluate(self, dataset: ClimateDatasetLabeled):
+        '''Evaluate on a dataset and return statistics'''
+        self.network.eval()
+
+        collate = ClimateDatasetLabeled.collate
+        loader = DataLoader(dataset, batch_size=self.config.pred_batch_size, collate_fn=collate, num_workers=0)
+
+        device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
+
+        print(f'\n---------- Evaluation ({device}) ----------')
+
+        epoch_loader = tqdm(loader, leave=True)
+        aggregate_cm = np.zeros((3,3))
+
+        for features, labels in epoch_loader:
+        
+            features = torch.tensor(features.values)
+            labels = torch.tensor(labels.values)
+
+            features = features.to(device)
+            labels = labels.to(device)
+
+            with torch.no_grad():
+                outputs = torch.softmax(self.network(features), 1)
+            predictions = torch.max(outputs, 1)[1]
+            aggregate_cm += get_cm(predictions, labels, 3)
+
+            if self.config.loss == "jaccard":
+                test_loss = jaccard_loss(outputs, labels)
+            elif self.config.loss == "dice":
+                test_loss = dice_coefficient(outputs, labels)
+            elif self.config.loss == "cross_entropy_loss_pytorch":
+                test_loss = cross_entropy_loss_pytorch(outputs, labels)
+            elif self.config.loss == "weighted_cross_entropy":
+                test_loss = weighted_cross_entropy_loss(outputs, labels, self.config.weights)
+
+        # Evaluation stats reporting:
+        print(f'\nTest loss: {test_loss.item():.5f} ({self.config.loss})')         
         ious = get_iou_perClass(aggregate_cm)
-        print('IOUs: ', ious, ', mean: ', ious.mean())
+        print('Classes:   [   BG         TCs        ARs    ]')
+        print('IoUs:     ', ious, ' | Mean: ', ious.mean())
         dices = get_dice_perClass(aggregate_cm)
-        print('DICE: ', dices, ', mean: ', dices.mean())
+        print('Dice:     ', dices, ' | Mean: ', dices.mean())
+        print(np.array_str(np.around(aggregate_cm/np.sum(aggregate_cm), decimals=3), precision=3))
 
     def save_model(self, save_path: str):
         '''
@@ -179,7 +271,31 @@ class CGNet():
         self.config = Config(path.join(model_path, 'config.json'))
         self.network = CGNetModule(classes=len(self.config.labels), channels=len(list(self.config.fields)))
         self.network.load_state_dict(torch.load(path.join(model_path, 'weights.pth')))
+    
+    def print_model(self, dataset: ClimateDatasetLabeled, depth=1):
+        """
+        Prints a summary of the network using torchinfo (https://github.com/TylerYep/torchinfo).
 
+        args:
+            input: Receives the CGNet object to print
+        """
+        from torchinfo import summary
+
+        # Load data for a forward pass
+        collate = ClimateDatasetLabeled.collate
+        loader = DataLoader(dataset, batch_size=self.config.train_batch_size, collate_fn=collate, num_workers=0, shuffle=True)
+
+        # Print summary using 'torchinfo'
+        summary(self.network, \
+                input_size=next(iter(loader))[0].shape, \
+                col_names=[\
+                "input_size",\
+                "output_size",\
+                #"kernel_size",\
+                "num_params", \
+                "mult_adds"],\
+                #"trainable"],\
+                depth=depth)
 
 class CGNetModule(nn.Module):
     """
@@ -274,8 +390,8 @@ class CGNetModule(nn.Module):
         # classifier
         classifier = self.classifier(output2_cat)
 
-        # upsample segmenation map ---> the input image size
+        # upsample segmentation map ---> the input image size
         out = F.interpolate(classifier, input.size()[2:], mode='bilinear',align_corners = False)   #Upsample score map, factor=8
         return out
-      
+  
    

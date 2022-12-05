@@ -1,0 +1,38 @@
+{
+    "architecture": "cgnet",
+    "seed": 42,
+    "lr": 0.001,
+    "train_batch_size": 16,
+    "pred_batch_size": 8,
+    "epochs": 3,
+    "fields": {
+        "TMQ": {
+            "mean": 19.2185,
+            "std": 15.7346
+        },
+        "WS850": {
+            "mean": 8.70061,
+            "std": 5.85448
+        },
+        "VRT850": {
+            "mean": 0.00256632,
+            "std": 6.85154
+        },
+        "PSL": {
+            "mean": 100814.414,
+            "std": 1461.2227
+        },
+        "PRECT": {
+            "mean": 2.94582e-08,
+            "std": 1.55088e-07
+        }
+    },
+    "labels": [
+      "Background",
+      "Tropical Cyclone",
+      "Atmospheric River"
+    ],
+    "loss": "jaccard",
+    "save_epochs": true,
+    "description": "CGNet model with Jaccard loss and engineered features."
+}
