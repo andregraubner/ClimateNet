@@ -244,7 +244,7 @@ def process_all_images(patch_size, stride, vars, max_exp_patches):
     if patch_size % 32 != 0:
         patch_size += 32 - patch_size % 32
 
-    for set in ['train', 'val', 'test']:
+    for set in ['train', 'val']:
 
         data_dir = f'{DATA_DIR}{set}/'
         single_file_paths = [data_dir+f for f in listdir(data_dir) if isfile(join(data_dir, f))]
