@@ -29,12 +29,5 @@
         "Tropical Cyclone",
         "Atmospheric River"
     ],
-<<<<<<< HEAD:config.json
     "description": "The basic CGNet model. You can use this config to train your own model, or load it with our trained weights."
-=======
-    "loss": "weighted_cross_entropy",
-    "weights": [0.355, 72.171, 5.875],
-    "save_epochs": true,
-    "description": "CGNet model with weighted cross-entropy loss."
->>>>>>> main:models/TMQ-WS850-VRT850-PSL-.001-wce/config.json
 }
