@@ -250,7 +250,7 @@ class CGNet():
         print('IoUs:     ', ious, ' | Mean: ', ious.mean())
         dices = get_dice_perClass(aggregate_cm)
         print('Dice:     ', dices, ' | Mean: ', dices.mean())
-        print(np.array_str(np.around(aggregate_cm/np.sum(aggregate_cm), decimals=3)), precision=3)
+        print(np.array_str(np.around(aggregate_cm/np.sum(aggregate_cm), decimals=3), precision=3))
 
     def save_model(self, save_path: str):
         '''
