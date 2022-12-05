@@ -301,11 +301,11 @@ if __name__ == "__main__":
     wandb.init(entity="ai4good", project="segment_from_scratch")
     
 
-    for i in range(4):
+    for i in range(17):
         print(f'Starting training round {i}')
-        data_module = Data(stage = i+2)
+        data_module = Data(stage = i+1)
 
-        stage_nr = i+2
+        stage_nr = i+1
         print(f'Stage number {stage_nr}')
         log_spot = conf["logging"]["log_nr"]
         log_dir = f'{LOG_DIR}{log_spot}/'
@@ -362,7 +362,7 @@ if __name__ == "__main__":
                 callbacks=[checkpoint_callback],
                 logger=[csv_logger, wandb_logger],
                 accelerator="gpu",
-                max_epochs=int(conf["trainer"]["max_epochs"])*(i+2),
+                max_epochs=int(conf["trainer"]["max_epochs"])*(i+1),
                 max_time=conf["trainer"]["max_time"],
                 auto_lr_find=conf["trainer"]["auto_lr_find"] == "True",
                 auto_scale_batch_size=conf["trainer"]["auto_scale_batch_size"] == "True",
