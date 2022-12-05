@@ -5,6 +5,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torchinfo import summary
 from climatenet.modules import *
 from climatenet.utils.data import ClimateDataset, ClimateDatasetLabeled
 from climatenet.utils.losses import jaccard_loss, dice_coefficient, cross_entropy_loss_pytorch, weighted_cross_entropy_loss
@@ -203,7 +204,29 @@ class CGNet():
         self.config = Config(path.join(model_path, 'config.json'))
         self.network = CGNetModule(classes=len(self.config.labels), channels=len(list(self.config.fields)))
         self.network.load_state_dict(torch.load(path.join(model_path, 'weights.pth')))
+    
+    def print_model(self, dataset: ClimateDatasetLabeled, depth=1):
+        """
+        Prints a summary of the network using torchinfo (https://github.com/TylerYep/torchinfo).
 
+        args:
+            input: Receives the CGNet object to print
+        """
+        # Load data for a forward pass
+        collate = ClimateDatasetLabeled.collate
+        loader = DataLoader(dataset, batch_size=self.config.train_batch_size, collate_fn=collate, num_workers=0, shuffle=True)
+
+        # Print summary using 'torchinfo'
+        summary(self.network, \
+                input_size=next(iter(loader))[0].shape, \
+                col_names=[\
+                "input_size",\
+                "output_size",\
+                #"kernel_size",\
+                "num_params", \
+                "mult_adds"],\
+                #"trainable"],\
+                depth=depth)
 
 class CGNetModule(nn.Module):
     """
@@ -298,8 +321,8 @@ class CGNetModule(nn.Module):
         # classifier
         classifier = self.classifier(output2_cat)
 
-        # upsample segmenation map ---> the input image size
+        # upsample segmentation map ---> the input image size
         out = F.interpolate(classifier, input.size()[2:], mode='bilinear',align_corners = False)   #Upsample score map, factor=8
         return out
-      
+  
    
