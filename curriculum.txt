@@ -7,12 +7,6 @@
  "stage_7": ["TC_o", "AR_o"], 
  "stage_8": ["TC_o", "TC", "AR_o", "AR"], 
  "stage_9": ["TC_o", "TC", "AR_o", "AR", "BG"], 
- "stage_10": ["M_o"], 
- "stage_11": ["M_o","M"],
- "stage_12": ["M_o","M", "AR_o"],
- "stage_13": ["M_o","M", "AR_o", "AR"],
- "stage_13": ["M_o","M", "AR_o", "AR", "BG"],
- "stage_14": ["M_o","M", "TC_o"],
- "stage_15": ["M_o","M", "TC_o", "TC"],
- "stage_16": ["M_o","M", "TC_o", "TC", "BG"],
- "stage_17": ["R"]}
+ "stage_10": ["M_o","TC_o", "TC", "AR_o", "AR", "BG"], 
+ "stage_11": ["M_o","M","TC_o", "TC", "AR_o", "AR", "BG"], 
+ "stage_12: ["R"]}

@@ -168,7 +168,6 @@ def save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_ex
     stages = list(curriculum.keys())
     subsets = list(curriculum.values())
 
-    #phase_names = ['stage_1','stage_2','stage_3','stage_4','stage_5']
 
     paths = [(os.path.join(DATA_DIR,'cl/',str(patch_size)+'/',f'{set}/', stage_name+'/')) for stage_name in stages]
     
