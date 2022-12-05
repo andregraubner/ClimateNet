@@ -5,6 +5,7 @@
     "train_batch_size": 4,
     "pred_batch_size": 8,
     "epochs": 15,
+    "loss": "jaccard",
     "fields": {
         "TMQ": {
             "mean": 19.2185,
@@ -28,7 +29,11 @@
         "Tropical Cyclone",
         "Atmospheric River"
     ],
+<<<<<<< HEAD:config.json
+    "description": "The basic CGNet model. You can use this config to train your own model, or load it with our trained weights."
+=======
     "loss": "weighted_cross_entropy",
     "weights": [0.355, 72.171, 5.875],
     "description": "CGNet model with weighted cross-entropy loss."
+>>>>>>> main:models/TMQ-WS850-VRT850-PSL-.001-wce/config.json
 }

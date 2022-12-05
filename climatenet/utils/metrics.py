@@ -8,10 +8,10 @@ def get_dice_perClass(confM):
     unionPerClass = confM.sum(axis=0) + confM.sum(axis=1) - confM.diagonal()
     dicePerClass = np.zeros(3)
     for i in range(0,3):
-      if dicePerClass[i] == 0:
+        if unionPerClass[i] == 0:
             dicePerClass[i] = 1
-      else:
-          dicePerClass[i] = (2* confM.diagonal()[i]) / (unionPerClass[i] + confM.diagonal())
+        else:
+            dicePerClass[i] = (2 * confM.diagonal()[i]) / (unionPerClass[i] + confM.diagonal()[i])
     return dicePerClass
 
 def get_iou_perClass(confM):

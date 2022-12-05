@@ -41,7 +41,8 @@ class Config():
         self.fields = self.config_dict['fields']
         self.labels = self.config_dict['labels']
         self.description = self.config_dict['description']
-
+        self.loss = self.config_dict['loss']
+        self.weights = torch.tensor(self.config_dict.get('weights', None)) # TODO: raise exception if None
         # Make reproducible
         torch.manual_seed(self.seed)
         np.random.seed(self.seed)
