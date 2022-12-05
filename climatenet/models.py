@@ -68,7 +68,7 @@ class CGNet():
         
         # Push model and data on GPU if available
         if torch.cuda.is_available():
-            device = torch.device("cuda")
+            device = torch.device("cuda:0")
         else:
             device = torch.device("cpu")
         
@@ -93,7 +93,7 @@ class CGNet():
                 features.to(device)
                 labels.to(device)
                 print("Data loaded on: ", features.device)
-                
+
                 # Forward pass
                 outputs = torch.softmax(self.network(features), 1)
 
