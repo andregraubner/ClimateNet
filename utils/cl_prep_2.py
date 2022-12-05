@@ -100,7 +100,7 @@ def M(class_freq, max_exp_patches):
     combined = class_freq[:,1]*class_freq[:,2]
     subset=np.squeeze(np.argwhere(combined > 0))
     if subset.size < 1:
-        return None
+        return []
     elif subset.size < max_exp_patches:
         draws = np.random.choice(subset.size, max_exp_patches)
     else: 
@@ -179,12 +179,11 @@ def save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_ex
     idx = np.zeros((len(stages), max_exp_patches), dtype=int)
     for i, (stage, set) in enumerate(curriculum.items()):
         functions = [globals()[type]for type in set]
-        data = np.hstack(np.array([func(class_freq, max_exp_patches) for func in functions]))
+        data = np.hstack(np.array([func(class_freq, max_exp_patches) for func in functions], dtype=object))
         if len(data) == 0:
             break
         else:
             draws = np.random.choice(len(data), max_exp_patches)
-            print(data)
             idx[i,:] = data[draws]
 
 
