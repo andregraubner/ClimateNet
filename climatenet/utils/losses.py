@@ -142,3 +142,23 @@ def cross_entropy_loss(y_logit, y_true):
         # second_term = Wn[key] * (1 - y_true[i]) * K.log(1 - y_logit[i] + K.epsilon())
         loss -= (first_term + second_term)
     return loss
+
+# IN PROGRESS
+def weighted_IoU_jaccard_loss(logits, true, weights, eps=1e-7):
+    """Computes the weighted Jaccard loss.
+    Args:
+        true: a tensor of shape [B, H, W] or [B, 1, H, W].
+        logits: a tensor of shape [B, C, H, W]. Corresponds to
+            the raw output or logits of the model.
+        weights: a tensor of shape [C]. Corresponds to the relative
+            weights we want to assign to each class.
+    Returns:
+        wjacc_loss: the weighted cross-entropy loss.
+    """
+    probas, true_1_hot, dims = inputs(logits, true)
+    intersection = get_intersection(probas, true_1_hot, dims)
+    cardinality = get_cardinality(probas, true_1_hot, dims)
+    union = get_union(cardinality, intersection)
+
+    wjacc_loss = (intersection / (union + eps)).mean()
+    return (1 - wjacc_loss)
