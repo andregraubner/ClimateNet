@@ -10,8 +10,8 @@ from os import path
 config = Config('config.json')
 cgnet = CGNet(config)
 
-train_path = 'PATH_TO_TRAINING_SET'
-inference_path = 'PATH_TO_INFERENCE_SET'
+train_path = 'Data/augmented'
+inference_path = 'Data'
 
 train = ClimateDatasetLabeled(path.join(train_path, 'train'), config)
 test = ClimateDatasetLabeled(path.join(train_path, 'test'), config)
@@ -20,7 +20,8 @@ inference = ClimateDataset(inference_path, config)
 cgnet.train(train)
 cgnet.evaluate(test)
 
-cgnet.save_model('trained_cgnet')
+model_path = "PSL-TMQ-VRT850-WS850-.001-jaccard"
+cgnet.save_model(path.join('models', model_path))
 # use a saved model with
 # cgnet.load_model('trained_cgnet')
 
