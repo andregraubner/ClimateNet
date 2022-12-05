@@ -7,8 +7,110 @@ from os.path import isfile, join
 import os
 from collections import Counter
 from decouple import config
+import json
 
 DATA_DIR = config("DATA_DIR_A4G")
+CL = 'curriculum.txt'
+
+'''
+Functions for extracting patches according to their characteristics
+
+AR_o:   optimal ARs (thresholded)
+AR:     random ARs
+
+TC_o:   optimal TCs (thresholded)
+TC:     random TCs
+
+BG:     Background
+
+M_o:    optimal mixed (thresholded)
+M:      random mixed
+
+R:      random patches
+'''
+def AR_o(class_freq, max_exp_patches):
+    subset=np.squeeze(np.argwhere((class_freq[:,1]==0.0)& (class_freq[:,2]>0.0)))
+    if subset.size < 1:
+            return []
+    elif subset.size < max_exp_patches:
+            draws = np.random.choice(subset.size, max_exp_patches)
+            ids = subset[draws]
+    else: 
+            ids = subset[np.argsort(class_freq[subset,2])[::-1][:max_exp_patches]]
+    return ids
+
+def AR(class_freq, max_exp_patches):
+    subset=np.squeeze(np.argwhere((class_freq[:,1]==0.0)& (class_freq[:,2]>0.0)))
+    if subset.size < 1:
+            return []
+    elif subset.size < max_exp_patches:
+            draws = np.random.choice(subset.size, max_exp_patches)
+    else: 
+            draws = np.random.choice(subset.size, max_exp_patches, replace = False)
+    ids = subset[draws]
+    return ids
+
+def TC_o(class_freq, max_exp_patches):
+    subset=np.squeeze(np.argwhere((class_freq[:,2]==0.0)& (class_freq[:,1]>0.0)))
+    if subset.size < 1:
+            return []
+    elif subset.size < max_exp_patches:
+            draws = np.random.choice(subset.size, max_exp_patches)
+            ids = subset[draws]
+    else: 
+            ids = subset[np.argsort(class_freq[subset,1])[::-1][:max_exp_patches]]
+    return ids
+
+def TC(class_freq, max_exp_patches):
+    subset=np.squeeze(np.argwhere((class_freq[:,2]==0.0)& (class_freq[:,1]>0.0)))
+    if subset.size < 1:
+            return []
+    elif subset.size < max_exp_patches:
+            draws = np.random.choice(subset.size, max_exp_patches)
+    else: 
+            draws = np.random.choice(subset.size, max_exp_patches, replace = False)
+    ids = subset[draws]
+    return ids
+    
+
+def BG(class_freq, max_exp_patches):
+    subset=np.squeeze(np.argwhere(class_freq[:,0]==1.0))
+    if subset.size < 1:
+            return []
+    elif subset.size < max_exp_patches:
+            draws = np.random.choice(subset.size, max_exp_patches)
+    else: 
+            draws = np.random.choice(subset.size, max_exp_patches, replace = False)
+    ids = subset[draws]
+    return ids     
+
+def M_o(class_freq, max_exp_patches):
+    combined = class_freq[:,1]*class_freq[:,2]
+    subset=np.squeeze(np.argwhere(combined > 0))
+    if subset.size < 1:
+        return []
+    if subset.size < max_exp_patches:
+        draws = np.random.choice(subset.size, max_exp_patches)
+        ids = subset[draws]
+    else: 
+        ids = subset[np.argsort(combined[subset])[::-1][:max_exp_patches]]
+    return ids
+
+def M(class_freq, max_exp_patches):
+    combined = class_freq[:,1]*class_freq[:,2]
+    subset=np.squeeze(np.argwhere(combined > 0))
+    if subset.size < 1:
+        return None
+    elif subset.size < max_exp_patches:
+        draws = np.random.choice(subset.size, max_exp_patches)
+    else: 
+        draws = np.random.choice(subset.size, max_exp_patches, replace = False)
+    ids = subset[draws]
+    return ids
+
+def R(class_freq, max_exp_patches):
+    ids = np.random.choice(class_freq.shape[0], max_exp_patches, replace = False)
+    return ids
 
 def patch_image(image, patch_size, stride, vars):
     """
@@ -55,71 +157,35 @@ def calc_class_freq(im_patches):
     
 
 
-def save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_exp_patches, folder_names = ['background', 'single_tc','single_ar', 'mixed', 'random']):
+def save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_exp_patches):
     patch_size = im_patches.shape[-1]
     stride = im_patches.shape[1]
 
-    phase_names = ['stage_1','stage_2','stage_3','stage_4','stage_5']
+    json_file_path = CL
 
-    paths = [(os.path.join(DATA_DIR,'cl/',str(patch_size)+'/',f'{set}/', phase_name+'/')) for phase_name in phase_names]
+    with open(json_file_path, 'r') as j:
+        curriculum = json.loads(j.read())
+    stages = list(curriculum.keys())
+    subsets = list(curriculum.values())
+
+    #phase_names = ['stage_1','stage_2','stage_3','stage_4','stage_5']
+
+    paths = [(os.path.join(DATA_DIR,'cl/',str(patch_size)+'/',f'{set}/', stage_name+'/')) for stage_name in stages]
     
     for path in paths:
         if not os.path.exists(path):
             os.makedirs(path)
             print(f"Created the folder: {path}")
-    
-    ##### rank patches from best to worst for each category in folder_names #####
-    idx = np.zeros((len(folder_names), max_exp_patches), dtype=int)
-    for i, name in enumerate(folder_names):
-        
-        if name == 'single_tc':
-            subset=np.squeeze(np.argwhere((class_freq[:,2]==0.0)& (class_freq[:,1]>0.0)))
-            if subset.size < 2:
-                break
-            elif subset.size < max_exp_patches:
-                draws = np.random.choice(subset.size, max_exp_patches)
-                idx[i,:] = subset[draws]
-            else: 
-                idx[i,:] = subset[np.argsort(class_freq[subset,i])[::-1][:max_exp_patches]]
-        
-        elif name == 'single_ar':
-            subset=np.squeeze(np.argwhere((class_freq[:,1]==0.0)& (class_freq[:,2]>0.0)))
-            if subset.size < 2:
-                break
-            if subset.size < max_exp_patches:
-                draws = np.random.choice(subset.size, max_exp_patches)
-                idx[i,:] = subset[draws]
-            else: 
-                idx[i,:] = subset[np.argsort(class_freq[subset,i])[::-1][:max_exp_patches]]
-        
-        elif name == 'background':
-            subset=np.squeeze(np.argwhere(class_freq[:,0]==1.0))
-            if subset.size < 2:
-                break
-            if subset.size < max_exp_patches:
-                draws = np.random.choice(subset.size, max_exp_patches)
-                idx[i,:] = subset[draws]
-            else: 
-                idx[i,:] = subset[np.argsort(class_freq[subset,i])[::-1][:max_exp_patches]]        
-        
-        elif name == 'mixed':
-            
-            combined = class_freq[:,1]*class_freq[:,2]
-            subset=np.squeeze(np.argwhere(combined > 0))
-            if subset.size < 2:
-                break
-            if subset.size < max_exp_patches:
-                draws = np.random.choice(subset.size, max_exp_patches)
-                idx[i,:] = subset[draws]
-            else: 
-                idx[i,:] = subset[np.argsort(combined[subset])[::-1][:max_exp_patches]]
 
-        else:
-            idx[i,:] = np.random.choice(len(class_freq), max_exp_patches, replace = False)
-            
+    idx = np.zeros((len(stages), max_exp_patches), dtype=int)
+    for i, (stage, set) in enumerate(curriculum.items()):
+        functions = [globals()[type]for type in set]
+        data = np.hstack(np.array([func(class_freq, max_exp_patches) for func in functions]))
+        draws = np.random.choice(data.size, max_exp_patches)
+        idx[i,:] = data[draws]
 
-            
-    
+
+   
     
     ##### patch the latitude and longitude #####
     H = 768
@@ -139,7 +205,7 @@ def save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_ex
     # print(lat_all.shape, lon_all.shape)
 
     ###### select best patches; assign correct lat, lon to each patch; create and save .nc file #####
-    for i, folder in enumerate(folder_names):
+    for i, (stage, set) in enumerate(curriculum.items()):
         for n in range(max_exp_patches):
             save_patch = im_patches[idx[i,n],:,:]
 
@@ -158,25 +224,22 @@ def save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_ex
             data_vars["LABELS"] = (['lat', 'lon'], save_patch[0,:,:].astype(np.int64))
 
             xr_patch = xr.Dataset(data_vars=data_vars, coords=coords)
-            for k in range(len(phase_names)-i):
-                prob = 1-0.1*2*k
-                include = np.random.choice(2, 1, p=[1-prob,prob])
-                if include == 1:
-                    xr_patch.to_netcdf(os.path.join(paths[i+k]+folder+'_'+file_name+"_p"+str(n)+".nc"))
+            
+            xr_patch.to_netcdf(os.path.join(paths[i]+str(set)+'_'+file_name+"_p"+str(n)+".nc"))
             xr_patch.close()
     
 
 def load_single_image(image_path):
     return xr.load_dataset(image_path)
 
-def process_single_image(set, file_name, image, patch_size, stride, vars, max_exp_patches,folder_names):
+def process_single_image(set, file_name, image, patch_size, stride, vars, max_exp_patches):
     
     im_patches = patch_image(image, patch_size, stride, vars)
     class_freq = calc_class_freq(im_patches)
-    save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_exp_patches,folder_names)
+    save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_exp_patches)
     return None
 
-def process_all_images(patch_size, stride, vars, max_exp_patches,folder_names):
+def process_all_images(patch_size, stride, vars, max_exp_patches):
 
     if patch_size % 32 != 0:
         patch_size += 32 - patch_size % 32
@@ -188,7 +251,7 @@ def process_all_images(patch_size, stride, vars, max_exp_patches,folder_names):
         file_names = [f[:-3] for f in listdir(data_dir) if isfile(join(data_dir, f))]
         print('Load all images')
         data = []
-        for p in tqdm(single_file_paths[:]):
+        for p in tqdm(single_file_paths[:1]):
             try:
                 data.append(xr.load_dataset(p))
             except:
@@ -196,13 +259,12 @@ def process_all_images(patch_size, stride, vars, max_exp_patches,folder_names):
 
         print('process images')
         for i, image in enumerate(tqdm(data)):
-            process_single_image(set, file_names[i], image, patch_size, stride, vars, max_exp_patches,folder_names)
+            process_single_image(set, file_names[i], image, patch_size, stride, vars, max_exp_patches)
 
 if __name__ == "__main__":
     #TODO: Iterate over all subfolders
     patch_size = 200
     stride = 20
     vars = ['Z1000', 'U850', 'V850']
-    folder_names = ['background', 'single_tc','single_ar', 'mixed']
     max_exp_patches = 5
-    process_all_images(patch_size, stride, vars, max_exp_patches, folder_names)
+    process_all_images(patch_size, stride, vars, max_exp_patches)

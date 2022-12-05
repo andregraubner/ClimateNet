@@ -24,12 +24,11 @@ batch_size: 16
 num_workers: 2
 
 [cl]
-extract: False
+extract: True
 max_nr_patches: 5
 var_list: TMQ,U850,V850,PRECT
-events: background,single_ar,single_tc,mixed,random
-patch_size: 200
-stride: 20
+patch_size: 100
+stride: 90
 
 [logging]
 log_nr: 35

@@ -71,14 +71,12 @@ conf = configparser.ConfigParser()
 conf.read(args.conf)
 
 var_list = conf["cl"]["var_list"].split(',')
-event_list = conf['cl']['events'].split(',')
 
 if conf['cl']['extract'] == 'True':
     from utils import cl_prep_2
     cl_prep_2.process_all_images(patch_size= int(conf['cl']['patch_size']), 
                                  stride = int(conf['cl']['stride']), vars = var_list, 
-                                 max_exp_patches = int(conf['cl']['max_nr_patches']),
-                                 folder_names = event_list)
+                                 max_exp_patches = int(conf['cl']['max_nr_patches']))
 
 patch_size = int(conf['cl']['patch_size'])
 
