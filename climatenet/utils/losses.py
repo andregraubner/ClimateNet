@@ -106,7 +106,9 @@ def weighted_cross_entropy_loss(logits, true, loss_weights):
         wce_loss: the weighted cross-entropy loss.
     """
 
-    return nn.CrossEntropyLoss(logits, true, weight=torch.tensor([0.355, 72.171, 5.875], dtype = float))
+    wce_loss = nn.CrossEntropyLoss(weight=torch.tensor([0.355, 72.171, 5.875], dtype = float))
+    return wce_loss(logits, true)
+
 
 def cross_entropy_loss(y_logit, y_true):
     '''
