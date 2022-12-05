@@ -125,7 +125,7 @@ class CGNet():
             print('Dice:     ', train_dices, ' | Mean: ', train_dices.mean())
 
             # Validation stats reporting
-            val_loss, val_aggregate_cm, val_ious, val_dices = self.validate(self, val_dataset)
+            val_loss, val_aggregate_cm, val_ious, val_dices = self.validate(val_dataset)
             print(f'\nValidation stats:')
             print(f'Loss: {val_loss.item():.5f} ({val_loss})')
             print(val_aggregate_cm/np.sum(train_aggregate_cm))
