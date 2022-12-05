@@ -41,7 +41,7 @@ def get_cm(pred, gt, n_classes=3):
             
     return cm
 
-def get_confusion_metrics(confusion_matrix)
+def get_confusion_metrics(confusion_matrix):
     """
     Takes a confusion matrix confusion_matrix and returns confusion metrics
     """
