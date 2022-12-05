@@ -127,7 +127,7 @@ class CGNet():
             print("Recall:      ", t_recall)
             print("Specificity: ", t_specificity)
             print("Sensitivity: ", t_sensitivity)
-            print(np.array_str(np.around(train_aggregate_cm/np.sum(train_aggregate_cm), decimals=3), precision=3))
+            print(np.array_str(np.around(100*train_aggregate_cm/np.sum(train_aggregate_cm), decimals=2), precision=2))
 
             # Validation stats reporting
             val_loss, val_aggregate_cm, val_ious, val_dices = self.validate(val_dataset)
@@ -141,7 +141,7 @@ class CGNet():
             print("Recall:      ", v_recall)
             print("Specificity: ", t_specificity)
             print("Sensitivity: ", t_sensitivity)
-            print(np.array_str(np.around(val_aggregate_cm/np.sum(val_aggregate_cm), decimals=3), precision=3))
+            print(np.array_str(np.around(100*val_aggregate_cm/np.sum(val_aggregate_cm), decimals=2), precision=2))
             
             self.network.train()
 
@@ -267,7 +267,7 @@ class CGNet():
         print("Recall:      ", test_recall)
         print("Specificity: ", test_specificity)
         print("Sensitivity: ", test_sensitivity)
-        print(np.array_str(np.around(aggregate_cm/np.sum(aggregate_cm), decimals=3), precision=3))
+        print(np.array_str(np.around(100*aggregate_cm/np.sum(aggregate_cm), decimals=2), precision=2))
   
 
     def save_model(self, save_path: str):
