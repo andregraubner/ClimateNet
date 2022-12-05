@@ -93,7 +93,7 @@ class CGNet():
 
                 features = features.to(device)
                 labels = labels.to(device)
-                print("Data loaded on: ", features.device)
+                print(" on:", features.device)
 
                 # Forward pass
                 outputs = torch.softmax(self.network(features), 1)
@@ -103,7 +103,6 @@ class CGNet():
                 aggregate_cm += get_cm(predictions, labels, 3)
 
                 # Backward pass
-                print(f"Using {self.config.loss} loss")
                 if self.config.loss == "jaccard":
                     loss = jaccard_loss(outputs, labels)
                 elif self.config.loss == "dice":
@@ -113,7 +112,7 @@ class CGNet():
                 elif self.config.loss == "weighted_cross_entropy":
                     loss = weighted_cross_entropy_loss(outputs, labels, self.config.weights)
                     
-                epoch_loader.set_description(f'Loss: {loss.item()}')
+                epoch_loader.set_description(f'Loss: {loss.item():.5f} ({self.config.loss})')
                 loss.backward()
                 self.optimizer.step()
                 self.optimizer.zero_grad() 
@@ -129,7 +128,7 @@ class CGNet():
 
             # Save model at each epoch if specified in config.json
             if self.config.save_epochs : 
-                self.save_model(self, model_path)
+                self.save_model(self, self.model_path)
                 print("Saving weights from epoch #", str(epoch), "\n")
 
     def predict(self, dataset: ClimateDataset, save_dir: str = None):
