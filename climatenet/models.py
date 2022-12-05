@@ -60,7 +60,7 @@ class CGNet():
         else:
             raise ValueError('''You need to specify either a config or a model path.''')
 
-        self.class_weights = torch.Tensor(self.config.class_weights) if hasattr(self, "config.class_weights") else []
+        self.loss_weights = torch.Tensor(self.config.loss_weights) if hasattr(self, "config.loss_weights") else torch.Tensor([])
 
         self.optimizer = Adam(self.network.parameters(), lr=self.config.lr)        
         
@@ -73,7 +73,7 @@ class CGNet():
         device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
        
         self.network.to(device)
-        self.class_weights.to(device)
+        self.loss_weights.to(device)
 #       
         collate = ClimateDatasetLabeled.collate
         loader = DataLoader(train_dataset, batch_size=self.config.train_batch_size, collate_fn=collate, num_workers=0, shuffle=True)
@@ -109,7 +109,7 @@ class CGNet():
                 elif self.config.loss == "cross_entropy_loss_pytorch":
                     train_loss = cross_entropy_loss_pytorch(outputs, labels)
                 elif self.config.loss == "weighted_cross_entropy":
-                    train_loss = weighted_cross_entropy_loss(outputs, labels, self.class_weights)
+                    train_loss = weighted_cross_entropy_loss(outputs, labels, self.loss_weights)
                     
                 epoch_loader.set_description(f'Loss: {train_loss.item():.5f} ({self.config.loss}) ')
                 train_loss.backward()
@@ -215,7 +215,7 @@ class CGNet():
             elif self.config.loss == "cross_entropy_loss_pytorch":
                 val_loss = cross_entropy_loss_pytorch(outputs, labels)
             elif self.config.loss == "weighted_cross_entropy":
-                val_loss = weighted_cross_entropy_loss(outputs, labels, self.class_weights)
+                val_loss = weighted_cross_entropy_loss(outputs, labels, self.loss_weights)
 
         # Return validation stats:
         return val_loss, aggregate_cm, get_iou_perClass(aggregate_cm), get_dice_perClass(aggregate_cm)
@@ -254,7 +254,7 @@ class CGNet():
             elif self.config.loss == "cross_entropy_loss_pytorch":
                 test_loss = cross_entropy_loss_pytorch(outputs, labels)
             elif self.config.loss == "weighted_cross_entropy":
-                test_loss = weighted_cross_entropy_loss(outputs, labels, self.class_weights)
+                test_loss = weighted_cross_entropy_loss(outputs, labels, self.loss_weights)
 
         # Evaluation stats reporting:
         test_precision, test_recall, test_specificity, test_sensitivity = get_confusion_metrics(aggregate_cm)

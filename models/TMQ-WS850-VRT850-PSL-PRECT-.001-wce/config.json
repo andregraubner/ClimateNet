@@ -33,7 +33,7 @@
       "Atmospheric River"
     ],
     "loss": "weighted_cross_entropy",
-    "weights": [0.355, 72.171, 5.875],
+    "loss_weights": [0.355, 72.171, 5.875],
     "save_epochs": true,
     "description": "CGNet model with weighted cross-entropy loss."
 }
