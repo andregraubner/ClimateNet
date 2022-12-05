@@ -80,6 +80,7 @@ class CGNet():
 
             print(f'Epoch #{epoch}:')
             epoch_loader = tqdm(loader)
+            epoch_loader.set_description(f"Starting training on device {device}: ")
             aggregate_cm = np.zeros((3,3))
 
             for features, labels in epoch_loader:
@@ -90,8 +91,7 @@ class CGNet():
 
                 features = features.to(device)
                 labels = labels.to(device)
-                print(f"On {features.device}: ")
-
+                
                 # Forward pass
                 outputs = torch.softmax(self.network(features), 1)
 
@@ -109,7 +109,7 @@ class CGNet():
                 elif self.config.loss == "weighted_cross_entropy":
                     loss = weighted_cross_entropy_loss(outputs, labels, self.config.weights)
                     
-                epoch_loader.set_description(' | Loss: {loss.item():.5f} ({self.config.loss})')
+                epoch_loader.set_description(f'Loss: {loss.item():.5f} ({self.config.loss}) ')
                 loss.backward()
                 self.optimizer.step()
                 self.optimizer.zero_grad() 
