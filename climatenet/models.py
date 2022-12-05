@@ -78,7 +78,7 @@ class CGNet():
         # Loop over epochs
         for epoch in range(1, self.config.epochs+1):
 
-            print(f'\n Epoch #{epoch} on device {device}:')
+            print(f'\nEpoch #{epoch} on device {device}:')
             epoch_loader = tqdm(loader)
             aggregate_cm = np.zeros((3,3))
 
