@@ -184,6 +184,7 @@ def save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_ex
             break
         else:
             draws = np.random.choice(len(data), max_exp_patches)
+            print(data)
             idx[i,:] = data[draws]
 
 
