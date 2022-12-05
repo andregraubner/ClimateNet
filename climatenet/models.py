@@ -80,7 +80,7 @@ class CGNet():
         for epoch in range(1, self.config.epochs+1):
 
             print(f'\n========== Training epoch #{epoch} ({device}) ==========')
-            epoch_loader = tqdm(loader)
+            epoch_loader = tqdm(loader, leave=True)
             train_aggregate_cm = np.zeros((3,3))
 
             for features, labels in epoch_loader:
@@ -123,7 +123,7 @@ class CGNet():
             train_dices = get_dice_perClass(train_aggregate_cm)
             print('Dice:     ', train_dices, ' | Mean: ', train_dices.mean())
             print(f'\nConfusion matrix:')
-            print(np.array_str(np.around(train_aggregate_cm/np.sum(train_aggregate_cm)), precision=3))
+            print(np.array_str(np.around(train_aggregate_cm/np.sum(train_aggregate_cm), decimals=3), precision=3))
 
 
             # Validation stats reporting
@@ -134,7 +134,7 @@ class CGNet():
             print('IoUs:     ', val_ious, ' | Mean: ', val_ious.mean())
             print('Dice:     ', val_dices, ' | Mean: ', val_dices.mean())
             print(f'\nConfusion matrix:')
-            print(np.array_str(np.around(val_aggregate_cm/np.sum(val_aggregate_cm)), precision=3))
+            print(np.array_str(np.around(val_aggregate_cm/np.sum(val_aggregate_cm), decimals=3), precision=3))
             
             self.network.train()
 
@@ -151,7 +151,7 @@ class CGNet():
         self.network.eval()
         collate = ClimateDataset.collate
         loader = DataLoader(dataset, batch_size=self.config.pred_batch_size, collate_fn=collate)
-        epoch_loader = tqdm(loader)
+        epoch_loader = tqdm(loader, leave=True)
         device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
 
         predictions = []
@@ -174,11 +174,14 @@ class CGNet():
 
     def validate(self, dataset: ClimateDatasetLabeled):
         '''Validate on a dataset and return statistics'''
+
+        print(f'\n---------- Validation ({device}) ----------')
+
         self.network.eval()
         collate = ClimateDatasetLabeled.collate
         loader = DataLoader(dataset, batch_size=self.config.pred_batch_size, collate_fn=collate, num_workers=0)
 
-        epoch_loader = tqdm(loader)
+        epoch_loader = tqdm(loader, leave=True)
         aggregate_cm = np.zeros((3,3))
 
         device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
@@ -214,7 +217,7 @@ class CGNet():
         collate = ClimateDatasetLabeled.collate
         loader = DataLoader(dataset, batch_size=self.config.pred_batch_size, collate_fn=collate, num_workers=0)
 
-        epoch_loader = tqdm(loader)
+        epoch_loader = tqdm(loader, leave=True)
         aggregate_cm = np.zeros((3,3))
 
         device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
@@ -250,7 +253,7 @@ class CGNet():
         dices = get_dice_perClass(aggregate_cm)
         print('Dice:     ', dices, ' | Mean: ', dices.mean())
         print('\nConfusion matrix:')
-        print(np.array_str(np.around(aggregate_cm/np.sum(aggregate_cm)), precision=3))
+        print(np.array_str(np.around(aggregate_cm/np.sum(aggregate_cm, decimals=3)), precision=3))
 
     def save_model(self, save_path: str):
         '''
