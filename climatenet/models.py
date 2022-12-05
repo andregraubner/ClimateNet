@@ -128,8 +128,8 @@ class CGNet():
 
             # Save model at each epoch if specified in config.json
             if self.config.save_epochs : 
-                self.save_model(self, self.model_path)
-                print("Saving weights from epoch #", str(epoch), "\n")
+                #self.save_model(self, self.config.model_path)
+                #print("Saving weights from epoch #", str(epoch), "\n")
 
     def predict(self, dataset: ClimateDataset, save_dir: str = None):
         '''Make predictions for the given dataset and return them as xr.DataArray'''
@@ -182,7 +182,6 @@ class CGNet():
         print('IoUs: ', ious, ', mean: ', ious.mean())
         dices = get_dice_perClass(aggregate_cm)
         print('Dice: ', dices, ', mean: ', dices.mean())
-
 
     def save_model(self, save_path: str):
         '''
