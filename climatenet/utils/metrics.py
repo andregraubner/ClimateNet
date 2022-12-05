@@ -41,8 +41,10 @@ def get_cm(pred, gt, n_classes=3):
             
     return cm
 
-def get_TP_NP_matrix(confusion_matrix)
-
+def get_confusion_metrics(confusion_matrix)
+    """
+    Takes a confusion matrix confusion_matrix and returns confusion metrics
+    """
     # Compute true positives for each class
     true_positives = np.diagonal(confusion_matrix)
 

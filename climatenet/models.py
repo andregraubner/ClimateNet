@@ -8,7 +8,7 @@ import torch.nn.functional as F
 from climatenet.modules import *
 from climatenet.utils.data import ClimateDataset, ClimateDatasetLabeled
 from climatenet.utils.losses import jaccard_loss, dice_coefficient, cross_entropy_loss_pytorch, weighted_cross_entropy_loss
-from climatenet.utils.metrics import get_cm, get_iou_perClass, get_dice_perClass, get_TP_NP_matrix
+from climatenet.utils.metrics import get_cm, get_iou_perClass, get_dice_perClass, get_confusion_metrics
 from torch.optim import Adam
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -117,24 +117,30 @@ class CGNet():
             # Training stats reporting
             train_ious = get_iou_perClass(train_aggregate_cm)
             train_dices = get_dice_perClass(train_aggregate_cm)
-            t_precision, t_recall, t_specificity, t_sensitivity = get_TP_NP_matrix(train_aggregate_cm)
+            t_precision, t_recall, t_specificity, t_sensitivity = get_confusion_metrics(train_aggregate_cm)
 
             print(f'\nTraining loss: {train_loss.item():.5f} ({self.config.loss}) ')
-            print('Classes:   [    BG         TCs        ARs   ]')
-            print('IoUs:     ', train_ious, ' | Mean: ', train_ious.mean())
-            print('Dice:     ', train_dices, ' | Mean: ', train_dices.mean())            
-            print("Precision:", t_precision)
-            print("Recall:", t_recall)
-            print("Specificity:", t_specificity)
-            print("Sensitivity:", t_sensitivity)
+            print('Classes:      [    BG         TCs        ARs   ]')
+            print('IoUs:        ', train_ious, ' | Mean: ', train_ious.mean())
+            print('Dice score:  ', train_dices, ' | Mean: ', train_dices.mean())            
+            print("Precision:   ", t_precision)
+            print("Recall:      ", t_recall)
+            print("Specificity: ", t_specificity)
+            print("Sensitivity: ", t_sensitivity)
             print(np.array_str(np.around(train_aggregate_cm/np.sum(train_aggregate_cm), decimals=3), precision=3))
 
             # Validation stats reporting
             val_loss, val_aggregate_cm, val_ious, val_dices = self.validate(val_dataset)
+            v_precision, v_recall, v_specificity, v_sensitivity = get_confusion_metrics(val_aggregate_cm)
+
             print(f'\nValidation loss: {val_loss.item():.5f} ({self.config.loss})')
-            print('Classes:   [    BG         TCs        ARs   ]')
-            print('IoUs:     ', val_ious, ' | Mean: ', val_ious.mean())
-            print('Dice:     ', val_dices, ' | Mean: ', val_dices.mean())
+            print('Classes:      [    BG         TCs        ARs   ]')
+            print('IoUs:        ', val_ious, ' | Mean: ', val_ious.mean())
+            print('Dice score:  ', val_dices, ' | Mean: ', val_dices.mean())
+            print("Precision:   ", v_precision)
+            print("Recall:      ", v_recall)
+            print("Specificity: ", t_specificity)
+            print("Sensitivity: ", t_sensitivity)
             print(np.array_str(np.around(val_aggregate_cm/np.sum(val_aggregate_cm), decimals=3), precision=3))
             
             self.network.train()
@@ -249,13 +255,20 @@ class CGNet():
                 test_loss = weighted_cross_entropy_loss(outputs, labels, self.config.weights)
 
         # Evaluation stats reporting:
-        print(f'\nTest loss: {test_loss.item():.5f} ({self.config.loss})')         
+        test_precision, test_recall, test_specificity, test_sensitivity = get_confusion_metrics(aggregate_cm)
         ious = get_iou_perClass(aggregate_cm)
-        print('Classes:   [   BG         TCs        ARs    ]')
-        print('IoUs:     ', ious, ' | Mean: ', ious.mean())
         dices = get_dice_perClass(aggregate_cm)
-        print('Dice:     ', dices, ' | Mean: ', dices.mean())
+    
+        print(f'\nTest loss: {test_loss.item():.5f} ({self.config.loss})')         
+        print('Classes:      [    BG         TCs        ARs   ]')
+        print('IoUs:        ', ious, ' | Mean: ', ious.mean())
+        print('Dice score:  ', dices, ' | Mean: ', dices.mean())
+        print("Precision:   ", test_precision)
+        print("Recall:      ", test_recall)
+        print("Specificity: ", test_specificity)
+        print("Sensitivity: ", test_sensitivity)
         print(np.array_str(np.around(aggregate_cm/np.sum(aggregate_cm), decimals=3), precision=3))
+  
 
     def save_model(self, save_path: str):
         '''
