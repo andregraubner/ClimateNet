@@ -73,6 +73,7 @@ class CGNet():
             device = torch.device("cpu")
         
         self.network.to(device)
+        self.config.weights = self.config.weights.to(device)
 
         collate = ClimateDatasetLabeled.collate
         loader = DataLoader(dataset, batch_size=self.config.train_batch_size, collate_fn=collate, num_workers=0, shuffle=True)
