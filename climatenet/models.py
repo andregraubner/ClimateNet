@@ -115,7 +115,7 @@ class CGNet():
                 self.optimizer.zero_grad() 
 
             # Epoch reporting
-            print('\nEpoch stats:')
+            print(f'\nTraining (epoch #{epoch}):')
             ious = get_iou_perClass(aggregate_cm)
             print('Classes:   [   BG         TCs        ARs    ]')
             print('IoUs:     ', ious, ' | Mean: ', ious.mean())
@@ -178,7 +178,7 @@ class CGNet():
             aggregate_cm += get_cm(predictions, labels, 3)
 
         # Evaluation stats: IoUs and Dice score:
-        print('Evaluation stats:')
+        print('Evaluation:')
         ious = get_iou_perClass(aggregate_cm)
         print('Classes:   [   BG         TCs        ARs    ]')
         print('IoUs:     ', ious, ' | Mean: ', ious.mean())
