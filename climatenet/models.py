@@ -109,7 +109,7 @@ class CGNet():
                 elif self.config.loss == "weighted_cross_entropy":
                     train_loss = weighted_cross_entropy_loss(outputs, labels, self.config.weights)
                     
-                epoch_loader.set_description(f'Loss: {loss.item():.5f} ({self.config.loss}) ')
+                epoch_loader.set_description(f'Loss: {train_loss.item():.5f} ({self.config.loss}) ')
                 train_loss.backward()
                 self.optimizer.step()
                 self.optimizer.zero_grad() 
