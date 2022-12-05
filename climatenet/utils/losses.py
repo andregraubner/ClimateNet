@@ -107,7 +107,7 @@ def weighted_cross_entropy_loss(logits, true):
     """
     device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
 
-    wce_loss = nn.CrossEntropyLoss(weight=torch.tensor([0.355, 72.171, 5.875], dtype = float, device=device))
+    wce_loss = nn.CrossEntropyLoss(weight=torch.tensor([0.355, 72.171, 5.875], device=device))
     return wce_loss(logits, true)
 
 
