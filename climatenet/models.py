@@ -1,4 +1,4 @@
-###########################################################################
+    ###########################################################################
 #CGNet: A Light-weight Context Guided Network for Semantic Segmentation
 #Paper-Link: https://arxiv.org/pdf/1811.08201.pdf
 ###########################################################################
@@ -67,11 +67,8 @@ class CGNet():
         self.network.train()
         
         # Push model and data on GPU if available
-        if torch.cuda.is_available():
-            device = torch.device("cuda:0")
-        else:
-            device = torch.device("cpu")
-        
+        device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
+       
         self.network.to(device)
         self.config.weights = self.config.weights.to(device)
 
@@ -137,11 +134,13 @@ class CGNet():
         collate = ClimateDataset.collate
         loader = DataLoader(dataset, batch_size=self.config.pred_batch_size, collate_fn=collate)
         epoch_loader = tqdm(loader)
+        device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
 
         predictions = []
         for batch in epoch_loader:
             features = torch.tensor(batch.values)
-        
+            features = features.to(device)
+
             with torch.no_grad():
                 outputs = torch.softmax(self.network(features), 1)
             preds = torch.max(outputs, 1)[1].cpu().numpy()
@@ -164,11 +163,16 @@ class CGNet():
         epoch_loader = tqdm(loader)
         aggregate_cm = np.zeros((3,3))
 
+        device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
+
         for features, labels in epoch_loader:
         
             features = torch.tensor(features.values)
             labels = torch.tensor(labels.values)
-                
+
+            features = features.to(device)
+            labels = labels.to(device)
+
             with torch.no_grad():
                 outputs = torch.softmax(self.network(features), 1)
             predictions = torch.max(outputs, 1)[1]
