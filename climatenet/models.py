@@ -170,7 +170,7 @@ class CGNet():
 
     def validate(self, dataset: ClimateDatasetLabeled):
         '''Validate on a dataset and return statistics'''
-        self.network.val()
+        self.network.eval()
         collate = ClimateDatasetLabeled.collate
         loader = DataLoader(dataset, batch_size=self.config.pred_batch_size, collate_fn=collate, num_workers=0)
 
