@@ -208,7 +208,7 @@ class CGNetModule(nn.Module):
         self.bn_prelu_3 = BNPReLU(256)
 
         if dropout_flag:
-            print("have droput layer")
+            print("have dropout layer")
             self.classifier = nn.Sequential(nn.Dropout2d(0.1, False),Conv(256, classes, 1, 1))
         else:
             self.classifier = nn.Sequential(Conv(256, classes, 1, 1))
