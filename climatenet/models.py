@@ -8,7 +8,7 @@ import torch.nn.functional as F
 from climatenet.modules import *
 from climatenet.utils.data import ClimateDataset, ClimateDatasetLabeled
 from climatenet.utils.losses import jaccard_loss, dice_coefficient, cross_entropy_loss_pytorch, weighted_cross_entropy_loss
-from climatenet.utils.metrics import get_cm, get_iou_perClass, get_dice_perClass
+from climatenet.utils.metrics import get_cm, get_iou_perClass, get_dice_perClass, get_TP_NP_matrix
 from torch.optim import Adam
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -115,14 +115,19 @@ class CGNet():
                 self.optimizer.zero_grad() 
 
             # Training stats reporting
-            print(f'\nTraining loss: {train_loss.item():.5f} ({self.config.loss}) ')
             train_ious = get_iou_perClass(train_aggregate_cm)
+            train_dices = get_dice_perClass(train_aggregate_cm)
+            t_precision, t_recall, t_specificity, t_sensitivity = get_TP_NP_matrix(train_aggregate_cm)
+
+            print(f'\nTraining loss: {train_loss.item():.5f} ({self.config.loss}) ')
             print('Classes:   [    BG         TCs        ARs   ]')
             print('IoUs:     ', train_ious, ' | Mean: ', train_ious.mean())
-            train_dices = get_dice_perClass(train_aggregate_cm)
-            print('Dice:     ', train_dices, ' | Mean: ', train_dices.mean())
+            print('Dice:     ', train_dices, ' | Mean: ', train_dices.mean())            
+            print("Precision:", t_precision)
+            print("Recall:", t_recall)
+            print("Specificity:", t_specificity)
+            print("Sensitivity:", t_sensitivity)
             print(np.array_str(np.around(train_aggregate_cm/np.sum(train_aggregate_cm), decimals=3), precision=3))
-
 
             # Validation stats reporting
             val_loss, val_aggregate_cm, val_ious, val_dices = self.validate(val_dataset)
