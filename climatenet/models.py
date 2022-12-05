@@ -122,7 +122,7 @@ class CGNet():
             print('\nEpoch stats:')
             print(aggregate_cm)
             ious = get_iou_perClass(aggregate_cm)
-            print('Metric:  [', self.config.labels[0], ', ' self.config.labels[1],', ', self.config.labels[2],']')
+            print('Metric:  [', self.config.labels[0], '  ', self.config.labels[1],'  ', self.config.labels[2],']')
             print('IoUs: ', ious, ' | mean: ', ious.mean())
             dices = get_dice_perClass(aggregate_cm)
             print('Dice: ', dices, ' | mean: ', dices.mean(),'\n')
