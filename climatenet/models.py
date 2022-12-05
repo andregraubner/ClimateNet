@@ -90,7 +90,7 @@ class CGNet():
 
                 features = features.to(device)
                 labels = labels.to(device)
-                print(" on:", features.device)
+                print(f"On {features.device}: ")
 
                 # Forward pass
                 outputs = torch.softmax(self.network(features), 1)
@@ -109,19 +109,18 @@ class CGNet():
                 elif self.config.loss == "weighted_cross_entropy":
                     loss = weighted_cross_entropy_loss(outputs, labels, self.config.weights)
                     
-                epoch_loader.set_description(f'Loss: {loss.item():.5f} ({self.config.loss})')
+                epoch_loader.set_description(' | Loss: {loss.item():.5f} ({self.config.loss})')
                 loss.backward()
                 self.optimizer.step()
                 self.optimizer.zero_grad() 
 
             # Epoch reporting
             print('\nEpoch stats:')
-            print(aggregate_cm)
             ious = get_iou_perClass(aggregate_cm)
-            print('Metric:  [', self.config.labels[0], '  ', self.config.labels[1],'  ', self.config.labels[2],']')
-            print('IoUs: ', ious, ' | mean: ', ious.mean())
+            print('Classes:  [   BG         TCs        ARs    ]')
+            print('IoUs:     ', ious, ' | Mean: ', ious.mean())
             dices = get_dice_perClass(aggregate_cm)
-            print('Dice: ', dices, ' | mean: ', dices.mean(),'\n')
+            print('Dice:   ', dices, ' | Mean: ', dices.mean())
 
             # Save model at each epoch if specified in config.json
             #if self.config.save_epochs : 
@@ -180,12 +179,11 @@ class CGNet():
 
         # Evaluation stats: IoUs and Dice score:
         print('Evaluation stats:')
-        print(aggregate_cm)
         ious = get_iou_perClass(aggregate_cm)
-        print('Metric ', self.labels[0], ' | ', self.labels[1],' | ', self.labels[2])
-        print('IoUs: ', ious, ', mean: ', ious.mean())
+        print('Classes:  [   BG         TCs        ARs    ]')
+        print('IoUs:     ', ious, ' | Mean: ', ious.mean())
         dices = get_dice_perClass(aggregate_cm)
-        print('Dice: ', dices, ', mean: ', dices.mean())
+        print('Dice:   ', dices, ' | Mean: ', dices.mean())
 
     def save_model(self, save_path: str):
         '''
