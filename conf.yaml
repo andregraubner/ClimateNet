@@ -31,4 +31,4 @@ patch_size: 100
 stride: 20
 
 [logging]
-log_nr: 45
+log_nr: 50
