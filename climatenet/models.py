@@ -78,9 +78,8 @@ class CGNet():
         # Loop over epochs
         for epoch in range(1, self.config.epochs+1):
 
-            print(f'Epoch #{epoch}:')
+            print(f'\n Epoch #{epoch} on device {device}:')
             epoch_loader = tqdm(loader)
-            epoch_loader.set_description(f"Starting training on device {device}: ")
             aggregate_cm = np.zeros((3,3))
 
             for features, labels in epoch_loader:
@@ -115,9 +114,9 @@ class CGNet():
                 self.optimizer.zero_grad() 
 
             # Epoch reporting
-            print(f'\nTraining (epoch #{epoch}):')
+            print(f'\nTraining stats:')
             ious = get_iou_perClass(aggregate_cm)
-            print('Classes:   [   BG         TCs        ARs    ]')
+            print('Classes:   [    BG         TCs        ARs   ]')
             print('IoUs:     ', ious, ' | Mean: ', ious.mean())
             dices = get_dice_perClass(aggregate_cm)
             print('Dice:     ', dices, ' | Mean: ', dices.mean())
@@ -178,7 +177,7 @@ class CGNet():
             aggregate_cm += get_cm(predictions, labels, 3)
 
         # Evaluation stats: IoUs and Dice score:
-        print('Evaluation:')
+        print('\nEvaluation stats:')
         ious = get_iou_perClass(aggregate_cm)
         print('Classes:   [   BG         TCs        ARs    ]')
         print('IoUs:     ', ious, ' | Mean: ', ious.mean())
