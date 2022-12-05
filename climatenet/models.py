@@ -79,7 +79,7 @@ class CGNet():
         # Loop over epochs
         for epoch in range(1, self.config.epochs+1):
 
-            print(f'\nEpoch #{epoch} on device {device}:')
+            print(f'\n========== Training epoch #{epoch} ({device}) ==========')
             epoch_loader = tqdm(loader)
             train_aggregate_cm = np.zeros((3,3))
 
@@ -115,9 +115,9 @@ class CGNet():
                 self.optimizer.zero_grad() 
 
             # Training stats reporting
-            print(f'\nTraining stats:')
-            print(train_aggregate_cm/np.sum(train_aggregate_cm))
-
+            print(f'\nTraining:')
+            print('%0.3f' % train_aggregate_cm/np.sum(train_aggregate_cm))
+            seprint(f'Train loss: {train_loss.item():.5f} ({self.config.loss}) ')
             train_ious = get_iou_perClass(train_aggregate_cm)
             print('Classes:   [    BG         TCs        ARs   ]')
             print('IoUs:     ', train_ious, ' | Mean: ', train_ious.mean())
@@ -126,9 +126,9 @@ class CGNet():
 
             # Validation stats reporting
             val_loss, val_aggregate_cm, val_ious, val_dices = self.validate(val_dataset)
-            print(f'\nValidation stats:')
-            print(f'Loss: {val_loss.item():.5f} ({val_loss})')
-            print(val_aggregate_cm/np.sum(train_aggregate_cm))
+            print(f'\nValidation:')
+            print(f'Val loss: {val_loss.item():.5f} ({self.config.loss})')
+            print('%0.3f' % val_aggregate_cm/np.sum(val_aggregate_cm))
             print('Classes:   [    BG         TCs        ARs   ]')
             print('IoUs:     ', val_ious, ' | Mean: ', val_ious.mean())
             print('Dice:     ', val_dices, ' | Mean: ', val_dices.mean())
@@ -193,16 +193,16 @@ class CGNet():
             aggregate_cm += get_cm(predictions, labels, 3)
 
             if self.config.loss == "jaccard":
-                loss = jaccard_loss(outputs, labels)
+                val_loss = jaccard_loss(outputs, labels)
             elif self.config.loss == "dice":
-                loss = dice_coefficient(outputs, labels)
+                val_loss = dice_coefficient(outputs, labels)
             elif self.config.loss == "cross_entropy_loss_pytorch":
-                loss = cross_entropy_loss_pytorch(outputs, labels)
+                val_loss = cross_entropy_loss_pytorch(outputs, labels)
             elif self.config.loss == "weighted_cross_entropy":
-                loss = weighted_cross_entropy_loss(outputs, labels, self.config.weights)
+                val_loss = weighted_cross_entropy_loss(outputs, labels, self.config.weights)
 
         # Return validation stats:
-        return loss, aggregate_cm, get_iou_perClass(aggregate_cm), get_dice_perClass(aggregate_cm)
+        return val_loss, aggregate_cm, get_iou_perClass(aggregate_cm), get_dice_perClass(aggregate_cm)
 
     def evaluate(self, dataset: ClimateDatasetLabeled):
         '''Evaluate on a dataset and return statistics'''
@@ -228,10 +228,20 @@ class CGNet():
             predictions = torch.max(outputs, 1)[1]
             aggregate_cm += get_cm(predictions, labels, 3)
 
+            if self.config.loss == "jaccard":
+                test_loss = jaccard_loss(outputs, labels)
+            elif self.config.loss == "dice":
+                test_loss = dice_coefficient(outputs, labels)
+            elif self.config.loss == "cross_entropy_loss_pytorch":
+                test_loss = cross_entropy_loss_pytorch(outputs, labels)
+            elif self.config.loss == "weighted_cross_entropy":
+                test_loss = weighted_cross_entropy_loss(outputs, labels, self.config.weights)
+
         # Evaluation stats reporting:
         print('\nEvaluation stats:')
-        print(f'{aggregate_cm/np.sum(aggregate_cm):.2f}')
-
+        print(f'Test loss: {test_loss.item():.5f} ({self.config.loss})')
+        print('%0.3f' % aggregate_cm/np.sum(aggregate_cm))
+         
         ious = get_iou_perClass(aggregate_cm)
         print('Classes:   [   BG         TCs        ARs    ]')
         print('IoUs:     ', ious, ' | Mean: ', ious.mean())
