@@ -94,7 +94,7 @@ def cross_entropy_loss_pytorch(y_logit, y_true):
     loss = nn.CrossEntropyLoss()
     return loss(y_logit,y_true)
 
-def weighted_cross_entropy_loss(logits, true, weights):
+def weighted_cross_entropy_loss(logits, true, loss_weights):
     """Computes the weighted cross entropy loss .
     Args:
         true: a tensor of shape [B, H, W] or [B, 1, H, W].
@@ -105,8 +105,8 @@ def weighted_cross_entropy_loss(logits, true, weights):
     Returns:
         wce_loss: the weighted cross-entropy loss.
     """
-    wce_loss = nn.CrossEntropyLoss(weight=weights)
-    return wce_loss(logits, true)
+
+    return nn.CrossEntropyLoss(logits, true, weights=torch.tensor([0.355, 72.171, 5.875], dtype = float))
 
 def cross_entropy_loss(y_logit, y_true):
     '''
