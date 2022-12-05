@@ -116,7 +116,7 @@ class CGNet():
 
             # Training stats reporting
             print(f'\nTraining stats:')
-            print(train_aggregate_cm/np.sum(train_aggregate_cm)
+            print(train_aggregate_cm/np.sum(train_aggregate_cm))
 
             train_ious = get_iou_perClass(train_aggregate_cm)
             print('Classes:   [    BG         TCs        ARs   ]')
