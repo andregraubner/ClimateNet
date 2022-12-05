@@ -71,7 +71,7 @@ class CGNet():
         device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
        
         self.network.to(device)
-        if hasattr(self, "config.weights"): self.config.weights =  torch.FloatTensor(self.config.weights, device=device)
+#       if hasattr(self, "config.weights"): self.config.weights = torch.FloatTensor(self.config.weights, device=device)
 
         collate = ClimateDatasetLabeled.collate
         loader = DataLoader(train_dataset, batch_size=self.config.train_batch_size, collate_fn=collate, num_workers=0, shuffle=True)
@@ -107,7 +107,7 @@ class CGNet():
                 elif self.config.loss == "cross_entropy_loss_pytorch":
                     train_loss = cross_entropy_loss_pytorch(outputs, labels)
                 elif self.config.loss == "weighted_cross_entropy":
-                    train_loss = weighted_cross_entropy_loss(outputs, labels, torch.FloatTensor(self.config.weights, device=device))
+                    train_loss = weighted_cross_entropy_loss(outputs, labels, torch.FloatTensor(self.config.weights))
                     
                 epoch_loader.set_description(f'Loss: {train_loss.item():.5f} ({self.config.loss}) ')
                 train_loss.backward()
