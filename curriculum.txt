@@ -9,4 +9,4 @@
  "stage_9": ["TC_o", "TC", "AR_o", "AR", "BG"], 
  "stage_10": ["M_o","TC_o", "TC", "AR_o", "AR", "BG"], 
  "stage_11": ["M_o","M","TC_o", "TC", "AR_o", "AR", "BG"], 
- "stage_12: ["R"]}
+ "stage_12": ["R"]}
