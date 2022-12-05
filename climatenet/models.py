@@ -60,8 +60,6 @@ class CGNet():
         else:
             raise ValueError('''You need to specify either a config or a model path.''')
 
-        self.loss_weights = torch.Tensor(self.config.loss_weights) if hasattr(self, "config.loss_weights") else torch.Tensor([])
-
         self.optimizer = Adam(self.network.parameters(), lr=self.config.lr)        
         
     def train(self, train_dataset: ClimateDatasetLabeled, val_dataset: ClimateDatasetLabeled):
@@ -74,6 +72,7 @@ class CGNet():
        
         self.network.to(device)
         self.loss_weights.to(device)
+        self.loss_weights = torch.Tensor(self.config.loss_weights, device=device) if hasattr(self, "config.loss_weights") else torch.Tensor([0, 0, 0], device=device)
 #       
         collate = ClimateDatasetLabeled.collate
         loader = DataLoader(train_dataset, batch_size=self.config.train_batch_size, collate_fn=collate, num_workers=0, shuffle=True)
