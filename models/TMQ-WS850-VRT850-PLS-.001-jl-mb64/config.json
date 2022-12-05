@@ -2,7 +2,7 @@
     "architecture": "cgnet",
     "seed": 42,
     "lr": 0.001,
-    "train_batch_size": 64,
+    "train_batch_size": 32,
     "pred_batch_size": 8,
     "epochs": 30,
     "fields": {
