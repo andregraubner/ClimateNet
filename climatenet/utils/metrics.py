@@ -40,3 +40,28 @@ def get_cm(pred, gt, n_classes=3):
                 cm[actual][predicted] += len(torch.nonzero(is_actual & is_pred))
             
     return cm
+
+def get_confusion_metrics(confusion_matrix):
+    """
+    Takes a confusion matrix confusion_matrix and returns confusion metrics
+    """
+    # Compute true positives for each class
+    true_positives = np.diagonal(confusion_matrix)
+
+    # Compute false positives for each class
+    false_positives = np.sum(confusion_matrix, axis=0) - true_positives
+
+    # Compute false negatives for each class
+    false_negatives = np.sum(confusion_matrix, axis=1) - true_positives
+
+    # Compute true negatives for each class
+    true_negatives = np.sum(confusion_matrix) - (true_positives + false_positives + false_negatives)
+
+    # Compute precision, recall, specificity and sensitivity for each class
+    precision = true_positives / (true_positives + false_positives)
+    recall = true_positives / (true_positives + false_negatives)
+    specificity = true_negatives / (true_negatives + false_positives)
+    sensitivity = true_positives / (true_positives + false_negatives)
+
+    # Print precision, recall, specificity and sensitivity for each class
+    return precision, recall, specificity, sensitivity

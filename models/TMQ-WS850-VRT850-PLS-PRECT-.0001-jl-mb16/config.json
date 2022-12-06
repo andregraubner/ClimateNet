@@ -1,10 +1,10 @@
 {
     "architecture": "cgnet",
     "seed": 42,
-    "lr": 0.001,
+    "lr": 0.0001,
     "train_batch_size": 16,
     "pred_batch_size": 8,
-    "epochs": 3,
+    "epochs": 15,
     "fields": {
         "TMQ": {
             "mean": 19.2185,

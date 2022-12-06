@@ -8,7 +8,7 @@ import torch.nn.functional as F
 from climatenet.modules import *
 from climatenet.utils.data import ClimateDataset, ClimateDatasetLabeled
 from climatenet.utils.losses import jaccard_loss, dice_coefficient, cross_entropy_loss_pytorch, weighted_cross_entropy_loss
-from climatenet.utils.metrics import get_cm, get_iou_perClass, get_dice_perClass
+from climatenet.utils.metrics import get_cm, get_iou_perClass, get_dice_perClass, get_confusion_metrics
 from torch.optim import Adam
 from torch.utils.data import DataLoader
 from tqdm import tqdm
@@ -71,8 +71,8 @@ class CGNet():
         device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
        
         self.network.to(device)
-        if hasattr(self, "config,weights"): self.config.weights = self.config.weights.to(device)
-
+#        self.loss_weights = torch.tensor(self.config.loss_weights, dtype=torch.float, device=device) if hasattr(self, "config.loss_weights") else torch.tensor([0, 0, 0], dtype=torch.float, device=device)
+#       
         collate = ClimateDatasetLabeled.collate
         loader = DataLoader(train_dataset, batch_size=self.config.train_batch_size, collate_fn=collate, num_workers=0, shuffle=True)
         
@@ -107,7 +107,7 @@ class CGNet():
                 elif self.config.loss == "cross_entropy_loss_pytorch":
                     train_loss = cross_entropy_loss_pytorch(outputs, labels)
                 elif self.config.loss == "weighted_cross_entropy":
-                    train_loss = weighted_cross_entropy_loss(outputs, labels, self.config.weights)
+                    train_loss = weighted_cross_entropy_loss(outputs, labels)
                     
                 epoch_loader.set_description(f'Loss: {train_loss.item():.5f} ({self.config.loss}) ')
                 train_loss.backward()
@@ -115,22 +115,33 @@ class CGNet():
                 self.optimizer.zero_grad() 
 
             # Training stats reporting
-            print(f'\nTraining loss: {train_loss.item():.5f} ({self.config.loss}) ')
             train_ious = get_iou_perClass(train_aggregate_cm)
-            print('Classes:   [    BG         TCs        ARs   ]')
-            print('IoUs:     ', train_ious, ' | Mean: ', train_ious.mean())
             train_dices = get_dice_perClass(train_aggregate_cm)
-            print('Dice:     ', train_dices, ' | Mean: ', train_dices.mean())
-            print(np.array_str(np.around(train_aggregate_cm/np.sum(train_aggregate_cm), decimals=3), precision=3))
+            t_precision, t_recall, t_specificity, t_sensitivity = get_confusion_metrics(train_aggregate_cm)
 
+            print(f'\nTraining loss: {train_loss.item():.5f} ({self.config.loss}) ')
+            print('Classes:      [    BG         TCs        ARs   ]')
+            print('IoUs:        ', train_ious, ' | Mean: ', train_ious.mean())
+            print('Dice score:  ', train_dices, ' | Mean: ', train_dices.mean())            
+            print("Precision:   ", t_precision)
+            print("Recall:      ", t_recall)
+            print("Specificity: ", t_specificity)
+            print("Sensitivity: ", t_sensitivity)
+            print(np.array_str(np.around(100*train_aggregate_cm/np.sum(train_aggregate_cm), decimals=2), precision=2))
 
             # Validation stats reporting
             val_loss, val_aggregate_cm, val_ious, val_dices = self.validate(val_dataset)
+            v_precision, v_recall, v_specificity, v_sensitivity = get_confusion_metrics(val_aggregate_cm)
+
             print(f'\nValidation loss: {val_loss.item():.5f} ({self.config.loss})')
-            print('Classes:   [    BG         TCs        ARs   ]')
-            print('IoUs:     ', val_ious, ' | Mean: ', val_ious.mean())
-            print('Dice:     ', val_dices, ' | Mean: ', val_dices.mean())
-            print(np.array_str(np.around(val_aggregate_cm/np.sum(val_aggregate_cm), decimals=3), precision=3))
+            print('Classes:      [    BG         TCs        ARs   ]')
+            print('IoUs:        ', val_ious, ' | Mean: ', val_ious.mean())
+            print('Dice score:  ', val_dices, ' | Mean: ', val_dices.mean())
+            print("Precision:   ", v_precision)
+            print("Recall:      ", v_recall)
+            print("Specificity: ", t_specificity)
+            print("Sensitivity: ", t_sensitivity)
+            print(np.array_str(np.around(100*val_aggregate_cm/np.sum(val_aggregate_cm), decimals=2), precision=2))
             
             self.network.train()
 
@@ -202,7 +213,7 @@ class CGNet():
             elif self.config.loss == "cross_entropy_loss_pytorch":
                 val_loss = cross_entropy_loss_pytorch(outputs, labels)
             elif self.config.loss == "weighted_cross_entropy":
-                val_loss = weighted_cross_entropy_loss(outputs, labels, self.config.weights)
+                val_loss = weighted_cross_entropy_loss(outputs, labels)
 
         # Return validation stats:
         return val_loss, aggregate_cm, get_iou_perClass(aggregate_cm), get_dice_perClass(aggregate_cm)
@@ -241,16 +252,23 @@ class CGNet():
             elif self.config.loss == "cross_entropy_loss_pytorch":
                 test_loss = cross_entropy_loss_pytorch(outputs, labels)
             elif self.config.loss == "weighted_cross_entropy":
-                test_loss = weighted_cross_entropy_loss(outputs, labels, self.config.weights)
+                test_loss = weighted_cross_entropy_loss(outputs, labels)
 
         # Evaluation stats reporting:
-        print(f'\nTest loss: {test_loss.item():.5f} ({self.config.loss})')         
+        test_precision, test_recall, test_specificity, test_sensitivity = get_confusion_metrics(aggregate_cm)
         ious = get_iou_perClass(aggregate_cm)
-        print('Classes:   [   BG         TCs        ARs    ]')
-        print('IoUs:     ', ious, ' | Mean: ', ious.mean())
         dices = get_dice_perClass(aggregate_cm)
-        print('Dice:     ', dices, ' | Mean: ', dices.mean())
-        print(np.array_str(np.around(aggregate_cm/np.sum(aggregate_cm), decimals=3), precision=3))
+    
+        print(f'\nTest loss: {test_loss.item():.5f} ({self.config.loss})')         
+        print('Classes:      [    BG         TCs        ARs   ]')
+        print('IoUs:        ', ious, ' | Mean: ', ious.mean())
+        print('Dice score:  ', dices, ' | Mean: ', dices.mean())
+        print("Precision:   ", test_precision)
+        print("Recall:      ", test_recall)
+        print("Specificity: ", test_specificity)
+        print("Sensitivity: ", test_sensitivity)
+        print(np.array_str(np.around(100*aggregate_cm/np.sum(aggregate_cm), decimals=2), precision=2))
+  
 
     def save_model(self, save_path: str):
         '''
