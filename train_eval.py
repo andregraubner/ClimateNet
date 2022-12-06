@@ -1,6 +1,7 @@
 from climatenet.utils.data import ClimateDatasetLabeled, ClimateDataset
 from climatenet.models import CGNet
 from climatenet.utils.utils import Config
+import pandas as pd
 import argparse
 from os import path
 
@@ -21,12 +22,15 @@ cgnet = CGNet(config)
 # Train model
 train = ClimateDatasetLabeled(path.join(data_path, 'train'), config)
 val = ClimateDatasetLabeled(path.join(data_path, 'val'), config)
-cgnet.train(train, val)
+train_history = cgnet.train(train, val)
 
 # Evaluate performance
 test = ClimateDatasetLabeled(path.join(data_path, 'test'), config)
-cgnet.evaluate(test)
+test_history = cgnet.evaluate(test)
 
 # Save model weights
 cgnet.save_model(model_path)
 
+# Save training history
+history = pd.concat([train_history, test_history])
+history.to_csv(model_path + 'history.csv')
