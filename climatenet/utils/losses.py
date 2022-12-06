@@ -92,7 +92,7 @@ def weighted_jaccard_loss(logits, true, eps=1e-7):
 
     device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
 
-    jacc_loss = torch.mean((intersection / (union + eps)), torch.tensor([0.355, 72.171, 5.875], device=device))
+    jacc_loss = (intersection / (union + eps)) @ torch.tensor([0.355, 72.171, 5.875], device=device)
     return (1 - jacc_loss)
 
 def dice_loss(logits, true, eps=1e-7):
