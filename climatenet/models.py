@@ -62,7 +62,7 @@ class CGNet():
 
         self.optimizer = Adam(self.network.parameters(), lr=self.config.lr)        
         
-    def train(self, train_dataset: ClimateDatasetLabeled, val_dataset: ClimateDatasetLabeled):
+    def train(self, train_dataset: ClimateDatasetLabeled, val_dataset: ClimateDatasetLabeled=None):
         '''Train the network on the train dataset for the given amount of epochs, and validate it
         at each epoch on the validation dataset.'''
         self.network.train()
@@ -123,14 +123,14 @@ class CGNet():
             print('Dice:     ', train_dices, ' | Mean: ', train_dices.mean())
             print(np.array_str(np.around(train_aggregate_cm/np.sum(train_aggregate_cm), decimals=3), precision=3))
 
-
             # Validation stats reporting
-            val_loss, val_aggregate_cm, val_ious, val_dices = self.validate(val_dataset)
-            print(f'\nValidation loss: {val_loss.item():.5f} ({self.config.loss})')
-            print('Classes:   [    BG         TCs        ARs   ]')
-            print('IoUs:     ', val_ious, ' | Mean: ', val_ious.mean())
-            print('Dice:     ', val_dices, ' | Mean: ', val_dices.mean())
-            print(np.array_str(np.around(val_aggregate_cm/np.sum(val_aggregate_cm), decimals=3), precision=3))
+            if val_dataset:
+                val_loss, val_aggregate_cm, val_ious, val_dices = self.validate(val_dataset)
+                print(f'\nValidation loss: {val_loss.item():.5f} ({self.config.loss})')
+                print('Classes:   [    BG         TCs        ARs   ]')
+                print('IoUs:     ', val_ious, ' | Mean: ', val_ious.mean())
+                print('Dice:     ', val_dices, ' | Mean: ', val_dices.mean())
+                print(np.array_str(np.around(val_aggregate_cm/np.sum(val_aggregate_cm), decimals=3), precision=3))
             
             self.network.train()
 
@@ -314,6 +314,7 @@ class CGNetModule(nn.Module):
         self.level1_0 = ConvBNPReLU(channels, 32, 3, 2)      # feature map size divided 2, 1/2
         self.level1_1 = ConvBNPReLU(32, 32, 3, 1)                          
         self.level1_2 = ConvBNPReLU(32, 32, 3, 1)      
+        self.level1_3 = ConvBNPReLU(32, 32, 3, 1)
 
         self.sample1 = InputInjection(1)  #down-sample for Input Injection, factor=2
         self.sample2 = InputInjection(2)  #down-sample for Input Injiection, factor=4
@@ -362,6 +363,7 @@ class CGNetModule(nn.Module):
         output0 = self.level1_0(input)
         output0 = self.level1_1(output0)
         output0 = self.level1_2(output0)
+        output0 = self.level1_3(output0)
         inp1 = self.sample1(input)
         inp2 = self.sample2(input)
         
@@ -391,7 +393,8 @@ class CGNetModule(nn.Module):
         classifier = self.classifier(output2_cat)
 
         # upsample segmentation map ---> the input image size
-        out = F.interpolate(classifier, input.size()[2:], mode='bilinear',align_corners = False)   #Upsample score map, factor=8
+        out = F.interpolate(classifier, input.size()[2:], mode='bilinear', align_corners = True)   #Upsample score map, factor=8
+        out = F.interpolate(classifier, input.size()[2:], mode='bilinear', align_corners = True)   #Upsample score map, factor=8
         return out
   
    
