@@ -70,7 +70,7 @@ class CGNet():
         self.network.train()
         
         # Initialize training history
-        history = pd.DataFrame(columns=['minibatch_loss', 'epoch_avg_loss', 'epoch_val_loss', 'evaluation_loss',\
+        history = pd.DataFrame(columns=['minibatch_loss', 'epoch_avg_loss', 'epoch_val_loss', 'learning_rate', 'evaluation_loss',\
                                         'training_confusion_matrix', 'validation_confusion_matrix', 'evaluation_confusion_matrix',\
                                         'train_ious', 'train_dices', 'train_precision', 'train_recall', 'train_specificity', 'train_sensitivity',\
                                         'val_ious', 'val_dices', 'val_precision', 'val_recall', 'val_specificity', 'val_sensitivity',\
@@ -123,7 +123,7 @@ class CGNet():
                 elif self.config.loss == "weighted_cross_entropy":
                     train_loss = weighted_cross_entropy_loss(outputs, labels)
                     
-                epoch_loader.set_description(f'Loss: {train_loss.item():.5f} ({self.config.loss}) ')
+                epoch_loader.set_description(f'Loss: {train_loss.item():.5f} ({self.config.loss}) | LR: {self.optimizer.param_groups[0]["lr"]}')
                 
                 epoch_loss += train_loss.item()
                 history = history.append({'minibatch_loss': train_loss.item()}, ignore_index=True)
@@ -139,7 +139,7 @@ class CGNet():
             train_dices = get_dice_perClass(train_aggregate_cm)
             t_precision, t_recall, t_specificity, t_sensitivity = get_confusion_metrics(train_aggregate_cm)
 
-            history = history.append({'epoch_avg_loss': epoch_loss, \
+            history = history.append({'epoch_avg_loss': epoch_loss, 'learning_rate': self.optimizer.param_groups[0]["lr"], \
                                     'training_confusion_matrix': np.array(training_confusion_matrix),\
                                     'train_ious': train_ious, 'train_dices': train_dices,\
                                     'train_precision': t_precision, 'train_recall': t_recall,\
@@ -162,7 +162,7 @@ class CGNet():
             validation_confusion_matrix = 100*val_aggregate_cm/np.sum(val_aggregate_cm)
             v_precision, v_recall, v_specificity, v_sensitivity = get_confusion_metrics(val_aggregate_cm)
 
-            history = history.append({'epoch_val_loss': val_loss,\
+            history = history.append({'epoch_val_loss': val_loss, 'learning_rate': self.optimizer.param_groups[0]["lr"],\
                                     'validation_confusion_matrix': np.array(validation_confusion_matrix),\
                                     'val_ious': val_ious, 'val_dices': val_dices,\
                                     'val_precision': v_precision, 'val_recall': v_recall,\
