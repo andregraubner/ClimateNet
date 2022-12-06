@@ -288,7 +288,7 @@ class CGNet():
             aggregate_cm += get_cm(predictions, labels, 3)
 
             test_loss = loss_function(outputs, labels, config_loss=self.config.loss)
-            epoch_loss += val_loss.item()
+            epoch_loss += test_loss.item()
 
             epoch_loss += test_loss.item()
 
