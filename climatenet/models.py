@@ -61,7 +61,8 @@ class CGNet():
         else:
             raise ValueError('''You need to specify either a config or a model path.''')
 
-        self.optimizer = Adam(self.network.parameters(), lr=self.config.lr)        
+        self.optimizer = Adam(self.network.parameters(), lr=self.config.lr)
+        self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, factor=0.1, patience=2, verbose=True)        
         
     def train(self, train_dataset: ClimateDatasetLabeled, val_dataset: ClimateDatasetLabeled):
         '''Train the network on the train dataset for the given amount of epochs, and validate it
@@ -75,15 +76,18 @@ class CGNet():
                                         'val_ious', 'val_dices', 'val_precision', 'val_recall', 'val_specificity', 'val_sensitivity',\
                                         'test_ious', 'test_dices', 'test_precision', 'test_recall', 'test_specificity', 'test_sensitivity'])
 
-        # Push model and data on GPU if available
+        # Push model to GPU if available
         device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
-       
         self.network.to(device)
-#        self.loss_weights = torch.tensor(self.config.loss_weights, dtype=torch.float, device=device) if hasattr(self, "config.loss_weights") else torch.tensor([0, 0, 0], dtype=torch.float, device=device)
+#       self.loss_weights = torch.tensor(self.config.loss_weights, dtype=torch.float, device=device) if hasattr(self, "config.loss_weights") else torch.tensor([0, 0, 0], dtype=torch.float, device=device)
 #       
         collate = ClimateDatasetLabeled.collate
         loader = DataLoader(train_dataset, batch_size=self.config.train_batch_size, collate_fn=collate, num_workers=0, shuffle=True)
-        
+
+        # Prepare scheduler
+        best_val_loss = float("inf")
+        no_improvement_counter = 0
+
         # Loop over epochs
         for epoch in range(1, self.config.epochs+1):
 
@@ -177,8 +181,18 @@ class CGNet():
             
             self.network.train()
 
-            # Decide if adapt learning rate
-            # TODO
+            # Update the learning rate if needed
+            self.scheduler.step(val_loss)
+
+            # Check for early termination
+            if val_loss < best_val_loss:
+                best_val_loss = val_loss
+                no_improvement_counter = 0
+            else:
+                no_improvement_counter += 1
+
+            if no_improvement_counter >= 4:
+                break
 
             # Save model at each epoch if specified in config.json
             #if self.config.save_epochs : 
