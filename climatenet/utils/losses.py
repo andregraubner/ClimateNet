@@ -5,6 +5,7 @@ import numpy as np
 import torch.nn.functional as F
 
 def loss_function(logits, true, config_loss='jaccard'):
+    loss = 0.0
     if config_loss == "jaccard":
         loss = jaccard_loss(logits, true)
     elif config_loss == "weighted_jaccard":

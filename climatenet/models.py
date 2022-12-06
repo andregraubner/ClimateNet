@@ -96,7 +96,7 @@ class CGNet():
             num_minibatches = len(loader)
             epoch_loss = 0.
             train_loss = 0.
-            
+
             for features, labels in epoch_loader:
         
                 # Move dataset to GPU if available
