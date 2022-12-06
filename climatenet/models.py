@@ -154,7 +154,7 @@ class CGNet():
             validation_confusion_matrix = 100*val_aggregate_cm/np.sum(val_aggregate_cm)
             v_precision, v_recall, v_specificity, v_sensitivity = get_confusion_metrics(val_aggregate_cm)
 
-            history = history.append({'epoch_val_loss': val_loss.item(), 'learning_rate': self.optimizer.param_groups[0]["lr"],\
+            history = history.append({'epoch_val_loss': val_loss, 'learning_rate': self.optimizer.param_groups[0]["lr"],\
                                     'validation_confusion_matrix': np.array(validation_confusion_matrix),\
                                     'val_ious': val_ious, 'val_dices': val_dices,\
                                     'val_precision': v_precision, 'val_recall': v_recall,\
@@ -299,7 +299,7 @@ class CGNet():
         test_ious = get_iou_perClass(aggregate_cm)
         test_dices = get_dice_perClass(aggregate_cm)
 
-        history = pd.DataFrame.from_dict({'evaluation_loss': [epoch_loss.item()],
+        history = pd.DataFrame.from_dict({'evaluation_loss': [epoch_loss],
                                   'evaluation_confusion_matrix': [np.array(test_confusion_matrix)],
                                   'test_ious': [test_ious],
                                   'test_dices': [test_dices],
