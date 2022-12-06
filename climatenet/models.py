@@ -7,7 +7,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from climatenet.modules import *
 from climatenet.utils.data import ClimateDataset, ClimateDatasetLabeled
-from climatenet.utils.losses import jaccard_loss, dice_coefficient, cross_entropy_loss_pytorch, weighted_cross_entropy_loss
+from climatenet.utils.losses import loss_function
 from climatenet.utils.metrics import get_cm, get_iou_perClass, get_dice_perClass, get_confusion_metrics
 from torch.optim import Adam
 from torch.utils.data import DataLoader
@@ -113,14 +113,7 @@ class CGNet():
                 train_aggregate_cm += get_cm(predictions, labels, 3)
 
                 # Backward pass
-                if self.config.loss == "jaccard":
-                    train_loss = jaccard_loss(outputs, labels)
-                elif self.config.loss == "dice":
-                    train_loss = dice_coefficient(outputs, labels)
-                elif self.config.loss == "cross_entropy_loss_pytorch":
-                    train_loss = cross_entropy_loss_pytorch(outputs, labels)
-                elif self.config.loss == "weighted_cross_entropy":
-                    train_loss = weighted_cross_entropy_loss(outputs, labels)
+                train_loss = loss_function(outputs, labels, config_loss=self.config.loss)
                     
                 epoch_loader.set_description(f'Loss: {train_loss.item():.5f} ({self.config.loss}) | LR: {self.optimizer.param_groups[0]["lr"]}')
                 
@@ -258,15 +251,7 @@ class CGNet():
             predictions = torch.max(outputs, 1)[1]
             aggregate_cm += get_cm(predictions, labels, 3)
 
-            if self.config.loss == "jaccard":
-                val_loss = jaccard_loss(outputs, labels)
-            elif self.config.loss == "dice":
-                val_loss = dice_coefficient(outputs, labels)
-            elif self.config.loss == "cross_entropy_loss_pytorch":
-                val_loss = cross_entropy_loss_pytorch(outputs, labels)
-            elif self.config.loss == "weighted_cross_entropy":
-                val_loss = weighted_cross_entropy_loss(outputs, labels)
-
+            val_loss = loss_function(outputs, labels, config_loss=self.config.loss)
             epoch_loss += val_loss.item()
 
         # Return validation stats:
@@ -302,14 +287,8 @@ class CGNet():
             predictions = torch.max(outputs, 1)[1]
             aggregate_cm += get_cm(predictions, labels, 3)
 
-            if self.config.loss == "jaccard":
-                test_loss = jaccard_loss(outputs, labels)
-            elif self.config.loss == "dice":
-                test_loss = dice_coefficient(outputs, labels)
-            elif self.config.loss == "cross_entropy_loss_pytorch":
-                test_loss = cross_entropy_loss_pytorch(outputs, labels)
-            elif self.config.loss == "weighted_cross_entropy":
-                test_loss = weighted_cross_entropy_loss(outputs, labels)
+            test_loss = loss_function(outputs, labels, config_loss=self.config.loss)
+            epoch_loss += val_loss.item()
 
             epoch_loss += test_loss.item()
 
