@@ -1,0 +1,29 @@
+{
+    "architecture": "cgnet",
+    "seed": 42,
+    "lr": 0.001,
+    "train_batch_size": 16,
+    "pred_batch_size": 8,
+    "epochs": 15,
+    "fields": {
+        "TMQ": {
+            "mean": 19.21859,
+            "std": 15.81723
+        },
+        "U850": {
+            "mean": 1.55302,
+            "std": 8.29764
+        },
+        "V850": {
+            "mean": 0.25413,
+            "std": 6.23163
+        }
+    },
+    "labels": [
+      "Background",
+      "Tropical Cyclone",
+      "Atmospheric River"
+    ],
+    "loss": "jaccard"
+    "description": "The basic CGNet model without PSL for ablation"
+}
