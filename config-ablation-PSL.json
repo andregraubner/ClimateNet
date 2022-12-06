@@ -28,7 +28,7 @@
         "Tropical Cyclone",
         "Atmospheric River"
     ],
-    "loss": "weighted_cross_entropy",
+    "loss": "jaccard",
     "weights": [0.355, 72.171, 5.875],
     "description": "CGNet model with weighted cross-entropy loss."
 }
