@@ -61,7 +61,8 @@ class CGNet():
         else:
             raise ValueError('''You need to specify either a config or a model path.''')
 
-        self.optimizer = Adam(self.network.parameters(), lr=self.config.lr)        
+        self.optimizer = Adam(self.network.parameters(), lr=self.config.lr)
+        self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, factor=0.1, patience=1, threshold=0.002, verbose=True)        
         
     def train(self, train_dataset: ClimateDatasetLabeled, val_dataset: ClimateDatasetLabeled):
         '''Train the network on the train dataset for the given amount of epochs, and validate it
@@ -69,21 +70,23 @@ class CGNet():
         self.network.train()
         
         # Initialize training history
-        history = pd.DataFrame(columns=['minibatch_loss', 'epoch_avg_loss', 'epoch_val_loss', 'evaluation_loss',\
+        history = pd.DataFrame(columns=['minibatch_loss', 'epoch_avg_loss', 'epoch_val_loss', 'learning_rate', 'evaluation_loss',\
                                         'training_confusion_matrix', 'validation_confusion_matrix', 'evaluation_confusion_matrix',\
                                         'train_ious', 'train_dices', 'train_precision', 'train_recall', 'train_specificity', 'train_sensitivity',\
                                         'val_ious', 'val_dices', 'val_precision', 'val_recall', 'val_specificity', 'val_sensitivity',\
                                         'test_ious', 'test_dices', 'test_precision', 'test_recall', 'test_specificity', 'test_sensitivity'])
 
-        # Push model and data on GPU if available
+        # Push model to GPU if available
         device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
-       
         self.network.to(device)
-#        self.loss_weights = torch.tensor(self.config.loss_weights, dtype=torch.float, device=device) if hasattr(self, "config.loss_weights") else torch.tensor([0, 0, 0], dtype=torch.float, device=device)
-#       
+
         collate = ClimateDatasetLabeled.collate
         loader = DataLoader(train_dataset, batch_size=self.config.train_batch_size, collate_fn=collate, num_workers=0, shuffle=True)
-        
+
+        # Prepare scheduler
+        best_val_loss = float("inf")
+        no_improvement_counter = 0
+
         # Loop over epochs
         for epoch in range(1, self.config.epochs+1):
 
@@ -119,7 +122,7 @@ class CGNet():
                 elif self.config.loss == "weighted_cross_entropy":
                     train_loss = weighted_cross_entropy_loss(outputs, labels)
                     
-                epoch_loader.set_description(f'Loss: {train_loss.item():.5f} ({self.config.loss}) ')
+                epoch_loader.set_description(f'Loss: {train_loss.item():.5f} ({self.config.loss}) | LR: {self.optimizer.param_groups[0]["lr"]}')
                 
                 epoch_loss += train_loss.item()
                 history = history.append({'minibatch_loss': train_loss.item()}, ignore_index=True)
@@ -135,7 +138,7 @@ class CGNet():
             train_dices = get_dice_perClass(train_aggregate_cm)
             t_precision, t_recall, t_specificity, t_sensitivity = get_confusion_metrics(train_aggregate_cm)
 
-            history = history.append({'epoch_avg_loss': epoch_loss, \
+            history = history.append({'epoch_avg_loss': epoch_loss, 'learning_rate': self.optimizer.param_groups[0]["lr"], \
                                     'training_confusion_matrix': np.array(training_confusion_matrix),\
                                     'train_ious': train_ious, 'train_dices': train_dices,\
                                     'train_precision': t_precision, 'train_recall': t_recall,\
@@ -158,7 +161,7 @@ class CGNet():
             validation_confusion_matrix = 100*val_aggregate_cm/np.sum(val_aggregate_cm)
             v_precision, v_recall, v_specificity, v_sensitivity = get_confusion_metrics(val_aggregate_cm)
 
-            history = history.append({'epoch_val_loss': val_loss,\
+            history = history.append({'epoch_val_loss': val_loss, 'learning_rate': self.optimizer.param_groups[0]["lr"],\
                                     'validation_confusion_matrix': np.array(validation_confusion_matrix),\
                                     'val_ious': val_ious, 'val_dices': val_dices,\
                                     'val_precision': v_precision, 'val_recall': v_recall,\
@@ -177,8 +180,19 @@ class CGNet():
             
             self.network.train()
 
-            # Decide if adapt learning rate
-            # TODO
+            # Update the learning rate if needed
+            self.scheduler.step(val_loss)
+
+            # Check for early termination
+            if val_loss < best_val_loss:
+                best_val_loss = val_loss
+                no_improvement_counter = 0
+            else:
+                best_val_loss *= 1 - 0.002
+                no_improvement_counter += 1
+
+            if no_improvement_counter >= 3:
+                break
 
             # Save model at each epoch if specified in config.json
             #if self.config.save_epochs : 
