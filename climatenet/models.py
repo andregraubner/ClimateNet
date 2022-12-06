@@ -95,7 +95,8 @@ class CGNet():
             train_aggregate_cm = np.zeros((3,3))
             num_minibatches = len(loader)
             epoch_loss = 0.
-
+            train_loss = 0.
+            
             for features, labels in epoch_loader:
         
                 # Move dataset to GPU if available
@@ -114,10 +115,9 @@ class CGNet():
 
                 # Backward pass
                 train_loss = loss_function(outputs, labels, config_loss=self.config.loss)
-                    
                 epoch_loader.set_description(f'Loss: {train_loss.item():.5f} ({self.config.loss}) | LR: {self.optimizer.param_groups[0]["lr"]}')
                 
-                epoch_loss += train_loss.item()
+                epoch_loss += train_loss
                 history = history.append({'minibatch_loss': train_loss.item()}, ignore_index=True)
 
                 train_loss.backward()
