@@ -173,7 +173,7 @@ class CGNet():
             print("Recall:      ", v_recall)
             print("Specificity: ", t_specificity)
             print("Sensitivity: ", t_sensitivity)
-            print(np.array_str(np.around(validation_confusion_matrix), decimals=3), precision=3)
+            print(np.array_str(np.around(validation_confusion_matrix, decimals=3), precision=3))
             
             self.network.train()
 
