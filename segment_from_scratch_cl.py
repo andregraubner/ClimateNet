@@ -341,7 +341,7 @@ if __name__ == "__main__":
             ),
         )
 
-        if i == 0:
+        if i == 10000:
             trainer = Trainer(
                 callbacks=[checkpoint_callback],
                 logger=[csv_logger, wandb_logger],
