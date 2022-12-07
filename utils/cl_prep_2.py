@@ -228,12 +228,15 @@ def save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_ex
             xr_patch = xr.Dataset(data_vars=data_vars, coords=coords)
             
             xr_patch.to_netcdf(os.path.join(paths[i]+str(set)+'_'+file_name+"_p"+str(n)+".nc"))
+            print(os.path.join(paths[i]+str(set)+'_'+file_name+"_p"+str(n)+".nc"))
             xr_patch.close()
 
 def save_best_patches_test(set, vars,file_name, image, im_patches, class_freq, max_exp_patches):
     patch_size = im_patches.shape[-1]
     stride = im_patches.shape[1]
 
+    
+        
 
 
     idx = np.arange(len(im_patches))
@@ -257,9 +260,11 @@ def save_best_patches_test(set, vars,file_name, image, im_patches, class_freq, m
     # print(lat_all.shape, lon_all.shape)
 
     ###### select best patches; assign correct lat, lon to each patch; create and save .nc file #####
-    path = os.path.join(DATA_DIR,'cl/',str(patch_size)+'/')
-
-    for n in range(max_exp_patches):
+    path_test = os.path.join(DATA_DIR,'cl/',str(patch_size)+'/',f'{set}/')
+    if not os.path.exists(path_test):
+            os.makedirs(path_test)
+            print(f"Created the folder: {path_test}")
+    for n in range(len(im_patches)):
         save_patch = im_patches[idx[n],:,:]
 
         lat_idx = np.ceil(idx[n]/W_out).astype(int)-1
@@ -277,8 +282,8 @@ def save_best_patches_test(set, vars,file_name, image, im_patches, class_freq, m
         data_vars["LABELS"] = (['lat', 'lon'], save_patch[0,:,:].astype(np.int64))
 
         xr_patch = xr.Dataset(data_vars=data_vars, coords=coords)
-        
-        xr_patch.to_netcdf(os.path.join(path+set+'/'+file_name+"_p"+str(n)+".nc"))
+        print(os.path.join(path_test+file_name+"_p"+str(n)+".nc"))
+        xr_patch.to_netcdf(os.path.join(path_test+file_name+"_p"+str(n)+".nc"))
         xr_patch.close()
 
 def load_single_image(image_path):
@@ -291,7 +296,7 @@ def process_single_image(set, file_name, image, patch_size, stride, vars, max_ex
     if set == 'test':
         save_best_patches_test(set, vars,file_name, image, im_patches, class_freq, max_exp_patches)
     else:
-        save_best_patches_test(set, vars,file_name, image, im_patches, class_freq, max_exp_patches)
+        save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_exp_patches)
 
     return None
 
