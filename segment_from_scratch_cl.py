@@ -99,7 +99,10 @@ class ImageDataset(Dataset):
         self.stage = stage
         assert self.setname in ["train", "test", "val"]
 
-        self.file_names = os.listdir(f'{self.data_dir}{self.setname}/stage_{self.stage}')
+        if self.setname == 'test':
+            self.file_names = os.listdir(f'{self.data_dir}{self.setname}/')
+        else:
+            self.file_names = os.listdir(f'{self.data_dir}{self.setname}/stage_{self.stage}')
 
         self.transform = transform
         self.target_transform = target_transform
@@ -301,7 +304,7 @@ if __name__ == "__main__":
     wandb.init(entity="ai4good", project="segment_from_scratch")
     
 
-    for i in range(21):
+    for i in range(1):
         print(f'Starting training round {i}')
         data_module = Data(stage = i+1)
 
