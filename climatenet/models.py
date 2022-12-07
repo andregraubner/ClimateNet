@@ -62,9 +62,10 @@ class CGNet():
             raise ValueError('''You need to specify either a config or a model path.''')
 
         self.optimizer = Adam(self.network.parameters(), lr=self.config.lr)
-        self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, factor=0.1, patience=1, threshold=0.002, verbose=True)        
+        if self.config.scheduler:
+            self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, factor=0.1, patience=1, threshold=0.002, verbose=True)
         
-    def train(self, train_dataset: ClimateDatasetLabeled, val_dataset: ClimateDatasetLabeled):
+    def train(self, train_dataset: ClimateDatasetLabeled, val_dataset: ClimateDatasetLabeled=None):
         '''Train the network on the train dataset for the given amount of epochs, and validate it
         at each epoch on the validation dataset.'''
         self.network.train()
@@ -148,33 +149,35 @@ class CGNet():
             print("Sensitivity: ", t_sensitivity)
             print(np.array_str(np.around(training_confusion_matrix, decimals=3), precision=3))
 
-            # Compute and track validation history
-            val_loss, val_aggregate_cm, val_ious, val_dices = self.validate(val_dataset)
+            if val_dataset:
+                # Compute and track validation history
+                val_loss, val_aggregate_cm, val_ious, val_dices = self.validate(val_dataset)
 
-            validation_confusion_matrix = 100*val_aggregate_cm/np.sum(val_aggregate_cm)
-            v_precision, v_recall, v_specificity, v_sensitivity = get_confusion_metrics(val_aggregate_cm)
+                validation_confusion_matrix = 100*val_aggregate_cm/np.sum(val_aggregate_cm)
+                v_precision, v_recall, v_specificity, v_sensitivity = get_confusion_metrics(val_aggregate_cm)
 
-            history = history.append({'epoch_val_loss': val_loss, 'learning_rate': self.optimizer.param_groups[0]["lr"],\
-                                    'validation_confusion_matrix': np.array(validation_confusion_matrix),\
-                                    'val_ious': val_ious, 'val_dices': val_dices,\
-                                    'val_precision': v_precision, 'val_recall': v_recall,\
-                                    'val_specificity': v_specificity, 'val_sensitivity': v_sensitivity}, ignore_index=True)   
+                history = history.append({'epoch_val_loss': val_loss, 'learning_rate': self.optimizer.param_groups[0]["lr"],\
+                                        'validation_confusion_matrix': np.array(validation_confusion_matrix),\
+                                        'val_ious': val_ious, 'val_dices': val_dices,\
+                                        'val_precision': v_precision, 'val_recall': v_recall,\
+                                        'val_specificity': v_specificity, 'val_sensitivity': v_sensitivity}, ignore_index=True)
 
-            # Validation stats reporting
-            print(f'\nValidation loss: {val_loss:.5f} ({self.config.loss})')
-            print('Classes:      [    BG         TCs        ARs   ]')
-            print('IoUs:        ', val_ious, ' | Mean: ', val_ious.mean())
-            print('Dice score:  ', val_dices, ' | Mean: ', val_dices.mean())
-            print("Precision:   ", v_precision)
-            print("Recall:      ", v_recall)
-            print("Specificity: ", t_specificity)
-            print("Sensitivity: ", t_sensitivity)
-            print(np.array_str(np.around(validation_confusion_matrix, decimals=3), precision=3))
+                # Validation stats reporting
+                print(f'\nValidation loss: {val_loss:.5f} ({self.config.loss})')
+                print('Classes:      [    BG         TCs        ARs   ]')
+                print('IoUs:        ', val_ious, ' | Mean: ', val_ious.mean())
+                print('Dice score:  ', val_dices, ' | Mean: ', val_dices.mean())
+                print("Precision:   ", v_precision)
+                print("Recall:      ", v_recall)
+                print("Specificity: ", t_specificity)
+                print("Sensitivity: ", t_sensitivity)
+                print(np.array_str(np.around(validation_confusion_matrix, decimals=3), precision=3))
             
             self.network.train()
 
             # Update the learning rate if needed
-            self.scheduler.step(val_loss)
+            if self.config.scheduler:
+                self.scheduler.step(val_loss)
 
             # Check for early termination
             if val_loss < best_val_loss:

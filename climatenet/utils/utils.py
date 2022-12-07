@@ -41,9 +41,10 @@ class Config():
         self.fields = self.config_dict['fields']
         self.labels = self.config_dict['labels']
         self.description = self.config_dict['description']
-        self.loss = self.config_dict['loss']
+        self.loss = self.config_dict.get('loss', 'jaccard')
         self.loss_weights = self.config_dict['loss_weights'] if 'loss_weights' in self.config_dict else [] # TODO: raise exception if None
         self.save_epochs = self.config_dict.get('save_epochs', False)
+        self.scheduler = self.config_dict.get('scheduler', False)
         # Make reproducible
         torch.manual_seed(self.seed)
         np.random.seed(self.seed)
