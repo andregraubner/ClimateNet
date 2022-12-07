@@ -301,7 +301,7 @@ if __name__ == "__main__":
     wandb.init(entity="ai4good", project="segment_from_scratch")
     
 
-    for i in range(17):
+    for i in range(21):
         print(f'Starting training round {i}')
         data_module = Data(stage = i+1)
 
@@ -370,5 +370,5 @@ if __name__ == "__main__":
             trainer.fit(task, datamodule=data_module, ckpt_path = f'{LOG_DIR}{log_spot}/checkpoints/{checkpoint}')
 
 
+    trainer.test(model=task, datamodule = data_module)
     wandb.finish()
-    #trainer.test(model=task, datamodule = Data())

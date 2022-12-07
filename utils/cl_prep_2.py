@@ -229,7 +229,57 @@ def save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_ex
             
             xr_patch.to_netcdf(os.path.join(paths[i]+str(set)+'_'+file_name+"_p"+str(n)+".nc"))
             xr_patch.close()
+
+def save_best_patches_test(set, vars,file_name, image, im_patches, class_freq, max_exp_patches):
+    patch_size = im_patches.shape[-1]
+    stride = im_patches.shape[1]
+
+
+
+    idx = np.arange(len(im_patches))
+   
     
+    ##### patch the latitude and longitude #####
+    H = 768
+    W = 1152
+    H_out = np.floor((H-patch_size+stride)/stride).astype(int)
+    W_out = np.floor((W-patch_size+stride)/stride).astype(int)
+
+
+    lat_im = np.linspace(-90, 90, 768)
+    lon_im = np.linspace(0, 359.7, 1152)
+
+    lat_all = np.empty((H_out, patch_size))
+    lon_all = np.empty((W_out, patch_size))
+
+    for i in range(H_out): lat_all[i,:] = lat_im[i*stride:patch_size+i*stride]
+    for i in range(W_out): lon_all[i,:] = lon_im[i*stride:patch_size+i*stride]
+    # print(lat_all.shape, lon_all.shape)
+
+    ###### select best patches; assign correct lat, lon to each patch; create and save .nc file #####
+    path = os.path.join(DATA_DIR,'cl/',str(patch_size)+'/')
+
+    for n in range(max_exp_patches):
+        save_patch = im_patches[idx[n],:,:]
+
+        lat_idx = np.ceil(idx[n]/W_out).astype(int)-1
+        lat = lat_all[lat_idx,:]
+        lon_idx = np.ceil(idx[n]%W_out).astype(int)-1 
+        lon = lon_all[lon_idx,:]
+
+        coords = {'lat': (['lat'], lat),
+            'lon': (['lon'], lon),
+            'time': (['time'], [np.array(image['time'])[0][5:-3]])}
+
+        data_vars={}
+        for j in range(len(vars)):
+            data_vars[vars[j]] = (['time', 'lat', 'lon'], np.expand_dims(save_patch[j+1,:,:].astype(np.float32), axis=0))
+        data_vars["LABELS"] = (['lat', 'lon'], save_patch[0,:,:].astype(np.int64))
+
+        xr_patch = xr.Dataset(data_vars=data_vars, coords=coords)
+        
+        xr_patch.to_netcdf(os.path.join(path+set+'/'+file_name+"_p"+str(n)+".nc"))
+        xr_patch.close()
 
 def load_single_image(image_path):
     return xr.load_dataset(image_path)
@@ -238,7 +288,11 @@ def process_single_image(set, file_name, image, patch_size, stride, vars, max_ex
     
     im_patches = patch_image(image, patch_size, stride, vars)
     class_freq = calc_class_freq(im_patches)
-    save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_exp_patches)
+    if set == 'test':
+        save_best_patches_test(set, vars,file_name, image, im_patches, class_freq, max_exp_patches)
+    else:
+        save_best_patches_test(set, vars,file_name, image, im_patches, class_freq, max_exp_patches)
+
     return None
 
 def process_all_images(patch_size, stride, vars, max_exp_patches):
@@ -246,14 +300,14 @@ def process_all_images(patch_size, stride, vars, max_exp_patches):
     if patch_size % 32 != 0:
         patch_size += 32 - patch_size % 32
 
-    for set in ['train', 'val']:
+    for set in ['train','val','test']:
 
         data_dir = f'{DATA_DIR}{set}/'
         single_file_paths = [data_dir+f for f in listdir(data_dir) if isfile(join(data_dir, f))]
         file_names = [f[:-3] for f in listdir(data_dir) if isfile(join(data_dir, f))]
         print('Load all images')
         data = []
-        for p in tqdm(single_file_paths[:]):
+        for p in tqdm(single_file_paths[:2]):
             try:
                 data.append(xr.load_dataset(p))
             except:
@@ -262,6 +316,7 @@ def process_all_images(patch_size, stride, vars, max_exp_patches):
         print('process images')
         for i, image in enumerate(tqdm(data)):
             process_single_image(set, file_names[i], image, patch_size, stride, vars, max_exp_patches)
+
 
 if __name__ == "__main__":
     #TODO: Iterate over all subfolders
