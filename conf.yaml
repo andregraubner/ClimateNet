@@ -27,8 +27,8 @@ num_workers: 2
 extract: True
 max_nr_patches: 5
 var_list: TMQ,U850,V850,PRECT
-patch_size: 100
-stride: 20
+patch_size: 200
+stride: 10
 
 [logging]
 log_nr: 75
