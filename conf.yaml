@@ -31,4 +31,4 @@ patch_size: 100
 stride: 20
 
 [logging]
-log_nr: cl_22_full_test
+log_nr: cl_100_full_test
