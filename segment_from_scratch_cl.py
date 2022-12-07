@@ -114,7 +114,11 @@ class ImageDataset(Dataset):
         img_name = self.file_names[idx]
 
         try:    
-            data = xr.load_dataset(f'{self.data_dir}{self.setname}/stage_{self.stage}/{img_name}')
+            if self.setname == 'test':
+                data = xr.load_dataset(f'{self.data_dir}{self.setname}/{img_name}')
+
+            else:
+                data = xr.load_dataset(f'{self.data_dir}{self.setname}/stage_{self.stage}/{img_name}')
             #local = np.full(data[self.var_list[0]].shape, float(img_name[-4]))
             
             image = np.concatenate([np.array(data[var]) for var in self.var_list]).astype(np.float32)
