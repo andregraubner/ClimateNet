@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import cartopy.crs as ccrs
 import haversine as hs
-import multiprocess as mp
+# import multiprocess as mp
 # from climatenet.event_type_of_mask import event_type_of_mask
 
 def analyze_events(event_masks_xarray, class_masks_xarray, results_dir):
@@ -95,7 +95,8 @@ def analyze_events(event_masks_xarray, class_masks_xarray, results_dir):
 
         return centroid_per_id
 
-    pool = mp.Pool(psutil.cpu_count(logical=False))
+    pool = Pool(psutil.cpu_count(logical=False))
+    # pool = mp.Pool(psutil.cpu_count(logical=False))
     centroid_per_id_per_time = pool.map(centroids, event_masks)
 
 
@@ -250,15 +251,10 @@ def analyze_events(event_masks_xarray, class_masks_xarray, results_dir):
 
         # initialize
         mymap = map_instance(title)
-        print('lon lat maps1..',frequency_map.shape[1] ,frequency_map.shape[0],flush=True)
         lon = np.linspace(0,360,frequency_map.shape[1])
         lat = np.linspace(-90,90,frequency_map.shape[0])
-        print('mymap frequency maps1..', flush=True)
-        print('lon lat maps2..',lon,lat,flush=True)
         maskV = np.ma.masked_array(frequency_map, mask=(frequency_map==0))
         levelsV = np.linspace(0.0, frequency_map.max(),11)
-        print('lon lat np.ma.masked_array(frequency_map, mask=(frequency_map==0))..',maskV,flush=True)
-        print('lon lat np.linspace(0.0, frequency_map.max()',levelsV,flush=True)
 
         # draw frequencies
         contourf = mymap.contourf(lon, lat,
@@ -277,25 +273,25 @@ def analyze_events(event_masks_xarray, class_masks_xarray, results_dir):
         mymap.get_figure().savefig(filepath, bbox_inches="tight", facecolor='w')
 
 
-    # print('generating frequency maps1..', flush=True)
-    # visualize_frequency_map(genesis_frequency_tc, "Genesis frequency map of TCs",
-    #                         "Frequency in events per month", results_dir + "genesis_frequency_tc")
-    # print('generating frequency maps2..', flush=True)
-    #
-    # visualize_frequency_map(genesis_frequency_ar, "Genesis frequency map of ARs",
-    #                         "Frequency in events per month", results_dir + "genesis_frequency_ar")
-    # print('generating frequency maps3..', flush=True)
-    # visualize_frequency_map(termination_frequency_tc, "Termination frequency map of TCs",
-    #                         "Frequency in events per month", results_dir + "termination_frequency_tc")
-    # print('generating frequency maps4..', flush=True)
-    # visualize_frequency_map(termination_frequency_ar, "Termination frequency map of ARs",
-    #                         "Frequency in events per month", results_dir + "termination_frequency_ar")
-    # print('generating frequency maps5..', flush=True)
-    #
-    # visualize_frequency_map(100 * ((class_masks == 1) * (event_masks != 0)).sum(axis=0) / event_masks.shape[0],
-    #                         "Global frequency map of TCs", "Frequency in % of time steps",
-    #                         results_dir + "global_frequency_tc");
-    # print('generating frequency maps26..', flush=True)
-    # visualize_frequency_map(100 * ((class_masks == 2) * (event_masks != 0)).sum(axis=0) / event_masks.shape[0],
-    #                         "Global frequency map of ARs", "Frequency in % of time steps",
-    #                         results_dir + "global_frequency_ar");
+    print('generating frequency maps1..', flush=True)
+    visualize_frequency_map(genesis_frequency_tc, "Genesis frequency map of TCs",
+                            "Frequency in events per month", results_dir + "genesis_frequency_tc")
+    print('generating frequency maps2..', flush=True)
+
+    visualize_frequency_map(genesis_frequency_ar, "Genesis frequency map of ARs",
+                            "Frequency in events per month", results_dir + "genesis_frequency_ar")
+    print('generating frequency maps3..', flush=True)
+    visualize_frequency_map(termination_frequency_tc, "Termination frequency map of TCs",
+                            "Frequency in events per month", results_dir + "termination_frequency_tc")
+    print('generating frequency maps4..', flush=True)
+    visualize_frequency_map(termination_frequency_ar, "Termination frequency map of ARs",
+                            "Frequency in events per month", results_dir + "termination_frequency_ar")
+    print('generating frequency maps5..', flush=True)
+
+    visualize_frequency_map(100 * ((class_masks == 1) * (event_masks != 0)).sum(axis=0) / event_masks.shape[0],
+                            "Global frequency map of TCs", "Frequency in % of time steps",
+                            results_dir + "global_frequency_tc");
+    print('generating frequency maps26..', flush=True)
+    visualize_frequency_map(100 * ((class_masks == 2) * (event_masks != 0)).sum(axis=0) / event_masks.shape[0],
+                            "Global frequency map of ARs", "Frequency in % of time steps",
+                            results_dir + "global_frequency_ar");
