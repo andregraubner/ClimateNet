@@ -120,7 +120,8 @@ def analyze_events(event_masks_xarray, class_masks_xarray, results_dir):
                     event_type[this_id] = 'ar'
         return event_type
 
-    pool = mp.Pool(psutil.cpu_count(logical=False))
+    pool = Pool(psutil.cpu_count(logical=False))
+    # pool = mp.Pool(psutil.cpu_count(logical=False))
     pool_result = pool.starmap(event_type_of_mask, zip(event_masks, class_masks))
     event_type = dict(i for dct in pool_result for i in dct.items())
 
