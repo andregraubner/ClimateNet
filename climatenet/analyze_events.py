@@ -273,25 +273,19 @@ def analyze_events(event_masks_xarray, class_masks_xarray, results_dir):
         mymap.get_figure().savefig(filepath, bbox_inches="tight", facecolor='w')
 
 
-    print('generating frequency maps1..', flush=True)
     visualize_frequency_map(genesis_frequency_tc, "Genesis frequency map of TCs",
                             "Frequency in events per month", results_dir + "genesis_frequency_tc")
-    print('generating frequency maps2..', flush=True)
 
     visualize_frequency_map(genesis_frequency_ar, "Genesis frequency map of ARs",
                             "Frequency in events per month", results_dir + "genesis_frequency_ar")
-    print('generating frequency maps3..', flush=True)
     visualize_frequency_map(termination_frequency_tc, "Termination frequency map of TCs",
                             "Frequency in events per month", results_dir + "termination_frequency_tc")
-    print('generating frequency maps4..', flush=True)
     visualize_frequency_map(termination_frequency_ar, "Termination frequency map of ARs",
                             "Frequency in events per month", results_dir + "termination_frequency_ar")
-    print('generating frequency maps5..', flush=True)
 
     visualize_frequency_map(100 * ((class_masks == 1) * (event_masks != 0)).sum(axis=0) / event_masks.shape[0],
                             "Global frequency map of TCs", "Frequency in % of time steps",
                             results_dir + "global_frequency_tc");
-    print('generating frequency maps26..', flush=True)
     visualize_frequency_map(100 * ((class_masks == 2) * (event_masks != 0)).sum(axis=0) / event_masks.shape[0],
                             "Global frequency map of ARs", "Frequency in % of time steps",
                             results_dir + "global_frequency_ar");
