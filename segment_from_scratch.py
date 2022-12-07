@@ -101,6 +101,8 @@ class ImageDataset(Dataset):
         assert self.setname in ["train", "test", "val"]
         
         self.file_names = os.listdir(f'{self.data_dir}{self.setname}/stage_{stage}')
+        if self.setname =='train':
+            self.file_names = os.listdir(f'{self.data_dir}{self.setname}/')
 
         self.transform = transform
         self.target_transform = target_transform
