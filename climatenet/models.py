@@ -62,6 +62,7 @@ class CGNet():
             raise ValueError('''You need to specify either a config or a model path.''')
 
         self.optimizer = Adam(self.network.parameters(), lr=self.config.lr)
+
         if self.config.scheduler:
             self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, factor=0.1, patience=2, threshold=0.002, verbose=True)
         
@@ -188,7 +189,7 @@ class CGNet():
                 no_improvement_counter += 1
 
             if no_improvement_counter >= 4:
-                break
+                if self.config.scheduler: break # Early termination only if we use a learning rate scheduler
 
             # Save model at each epoch if specified in config.json
             #if self.config.save_epochs : 
