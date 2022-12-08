@@ -11,11 +11,11 @@ def loss_function(logits, true, config_loss='jaccard'):
     elif config_loss == "weighted_jaccard":
         loss = weighted_jaccard_loss(logits, true)
     elif config_loss == "dice":
-        loss = dice_loss(outputs, labels)
+        loss = dice_loss(logits, true)
     elif config_loss == "cross_entropy":
-        loss = cross_entropy_loss(outputs, labels)
+        loss = cross_entropy_loss(logits, true)
     elif config_loss == "weighted_cross_entropy":
-        loss = weighted_cross_entropy_loss(outputs, labels)
+        loss = weighted_cross_entropy_loss(logits, true)
 
     return loss
 
