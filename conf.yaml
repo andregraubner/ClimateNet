@@ -10,7 +10,7 @@ max_time: 00:23:50:00
 
 [model]
 loss: focal 
-segmentation_model: deeplabv3+
+segmentation_model: unet
 backbone: resnet152
 learning_rate: 1e-3
 pretrained: True
@@ -32,4 +32,4 @@ stride: 20
 nr_stages: 38
 
 [logging]
-log_nr: cl4_unet
+log_nr: cl4_unet_2
