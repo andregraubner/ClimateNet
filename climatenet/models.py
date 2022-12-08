@@ -63,7 +63,7 @@ class CGNet():
 
         self.optimizer = Adam(self.network.parameters(), lr=self.config.lr)
         if self.config.scheduler:
-            self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, factor=0.1, patience=1, threshold=0.002, verbose=True)
+            self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, factor=0.1, patience=2, threshold=0.002, verbose=True)
         
     def train(self, train_dataset: ClimateDatasetLabeled, val_dataset: ClimateDatasetLabeled=None):
         '''Train the network on the train dataset for the given amount of epochs, and validate it
@@ -187,7 +187,7 @@ class CGNet():
                 best_val_loss *= 1 - 0.002
                 no_improvement_counter += 1
 
-            if no_improvement_counter >= 3:
+            if no_improvement_counter >= 4:
                 break
 
             # Save model at each epoch if specified in config.json
