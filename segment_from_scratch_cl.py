@@ -307,8 +307,9 @@ if __name__ == "__main__":
 
     wandb.init(entity="ai4good", project="segment_from_scratch")
     
+    nr_stages = int(conf["cl"]["nr_stages"])
 
-    for i in range(1):
+    for i in range(nr_stages):
         print(f'Starting training round {i}')
         data_module = Data(stage = i+1)
 
@@ -348,7 +349,7 @@ if __name__ == "__main__":
             ),
         )
 
-        if i == 10000:
+        if i == 1:
             trainer = Trainer(
                 callbacks=[checkpoint_callback],
                 logger=[csv_logger, wandb_logger],
@@ -369,7 +370,7 @@ if __name__ == "__main__":
                 callbacks=[checkpoint_callback],
                 logger=[csv_logger, wandb_logger],
                 accelerator="gpu",
-                max_epochs=int(conf["trainer"]["max_epochs"]),#*(i+1),
+                max_epochs=int(conf["trainer"]["max_epochs"])*(i+1),
                 max_time=conf["trainer"]["max_time"],
                 auto_lr_find=conf["trainer"]["auto_lr_find"] == "True",
                 auto_scale_batch_size=conf["trainer"]["auto_scale_batch_size"] == "True",

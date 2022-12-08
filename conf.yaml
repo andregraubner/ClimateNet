@@ -2,7 +2,7 @@
 [trainer]
 gpus: 1
 min_epochs: 1
-max_epochs: 107
+max_epochs: 7
 auto_lr_find: True
 auto_scale_batch_size: False
 precision: 16
@@ -29,6 +29,7 @@ max_nr_patches: 5
 var_list: TMQ,U850,V850,PRECT
 patch_size: 100
 stride: 20
+nr_stages: 22
 
 [logging]
-log_nr: cl_100_full_test
+log_nr: cl_test
