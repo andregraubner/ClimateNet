@@ -349,7 +349,7 @@ if __name__ == "__main__":
             ),
         )
 
-        if i == 1:
+        if i == 0:
             trainer = Trainer(
                 callbacks=[checkpoint_callback],
                 logger=[csv_logger, wandb_logger],

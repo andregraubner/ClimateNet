@@ -24,7 +24,7 @@ batch_size: 16
 num_workers: 2
 
 [cl]
-extract: True
+extract: False
 max_nr_patches: 5
 var_list: TMQ,U850,V850,PRECT
 patch_size: 100
@@ -32,4 +32,4 @@ stride: 20
 nr_stages: 38
 
 [logging]
-log_nr: cl4_deepl
+log_nr: cl4_unet
