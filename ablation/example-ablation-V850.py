@@ -8,11 +8,11 @@ from climatenet.utils.utils import Config
 
 from os import path
 
-config = Config('config-ablation-V850.json')
+config = Config(".json")
 cgnet = CGNet(config)
 
-train_path = 'Data/engineered'
-inference_path = 'Data'
+train_path = ""
+inference_path = ""
 
 
 train = ClimateDatasetLabeled(path.join(train_path, 'train'), config)

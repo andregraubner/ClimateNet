@@ -11,24 +11,23 @@ from os import path
 config = Config('models/TMQ-WS850-VRT850-PSL-.001-wce/config.json')
 cgnet = CGNet(config)
 
-train_path = 'Data/engineered'
+train_path = 'Data'
 inference_path = 'Data'
-
 
 train = ClimateDatasetLabeled(path.join(train_path, 'train'), config)
 test = ClimateDatasetLabeled(path.join(train_path, 'test'), config)
-#inference = ClimateDataset(inference_path, config)
+inference = ClimateDataset(inference_path, config)
 
 cgnet.train(train)
 cgnet.evaluate(test)
 
-model_path = "PSL-TMQ-VRT850-WS850-.001-jaccard"
+model_path = ""
 cgnet.save_model(path.join('models', model_path))
 # use a saved model with
 # cgnet.load_model('trained_cgnet')
 
-#class_masks = cgnet.predict(inference) # masks with 1==TC, 2==AR
-#event_masks = track_events(class_masks) # masks with event IDs
+class_masks = cgnet.predict(inference) # masks with 1==TC, 2==AR
+event_masks = track_events(class_masks) # masks with event IDs
 
-#analyze_events(event_masks, class_masks, 'results/')
-#visualize_events(event_masks, inference, 'pngs/')
+analyze_events(event_masks, class_masks, 'results/')
+visualize_events(event_masks, inference, 'pngs/')
