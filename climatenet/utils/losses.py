@@ -166,5 +166,5 @@ def focal_tversky_loss(logits, true, alpha=0.7, beta=0.3, gamma=4, eps=1e-7):
 
     FT_loss = (TP / (TP + alpha*FN + beta*FP + eps)) # Tensor of size [ 3 x 1152 ]
     FT_loss = FT_loss.mean(1) # Tensor of size [ 3 ]
-    FT_loss = (FT_loss).sum() # Tensor of size [ 1 ]
+    FT_loss = (FT_loss).mean() # Tensor of size [ 1 ]
     return (1 - FT_loss)**gamma
