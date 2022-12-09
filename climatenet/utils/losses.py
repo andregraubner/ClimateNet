@@ -16,6 +16,8 @@ def loss_function(logits, true, config_loss='jaccard'):
         loss = cross_entropy_loss(logits, true)
     elif config_loss == "weighted_cross_entropy":
         loss = weighted_cross_entropy_loss(logits, true)
+    elif config_loss == "focal_tversky":
+        loss = focal_tversky_loss(logits, true)
 
     return loss
 
@@ -74,32 +76,6 @@ def jaccard_loss(logits, true, eps=1e-7):
     jacc_loss = (intersection / (union + eps)).mean()
     return (1 - jacc_loss)
 
-def weighted_jaccard_loss(logits, true, eps=1e-7):
-    """Computes the Jaccard loss, a.k.a the IoU loss.
-    Note that PyTorch optimizers minimize a loss. In this
-    case, we would like to maximize the jaccard loss so we
-    return the negated jaccard loss.
-    Args:
-        true: a tensor of shape [B, H, W] or [B, 1, H, W].
-        logits: a tensor of shape [B, C, H, W]. Corresponds to
-            the raw output or logits of the model.
-        eps: added to the denominator for numerical stability.
-    Returns:
-        jacc_loss: the Jaccard loss.
-    """
-    probas, true_1_hot, dims = inputs(logits, true)
-    intersection = get_intersection(probas, true_1_hot, dims)
-    cardinality = get_cardinality(probas, true_1_hot, dims)
-    union = get_union(cardinality, intersection)
-
-    device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
-    weights = torch.tensor([0.355, 72.171, 5.875], device=device) # Tensor of size [ 3 ]
-
-    jacc_loss = (intersection / (union + eps)) # Tensor of size [ 3 x 1152 ]
-    jacc_loss = jacc_loss.mean(1) # Tensor of size [ 3 ]
-    jacc_loss = (jacc_loss * weights).mean() # Tensor of size [ 1 ]
-    return (1 - jacc_loss)
-
 def dice_loss(logits, true, eps=1e-7):
     """Computes the Dice Coefficient, a.k.a the Dice loss.
     Note that PyTorch optimizers minimize a loss. In this
@@ -147,3 +123,48 @@ def weighted_cross_entropy_loss(logits, true):
 
     wce_loss = nn.CrossEntropyLoss(weight=torch.tensor([0.355, 72.171, 5.875], device=device))
     return wce_loss(logits, true)
+
+def weighted_jaccard_loss(logits, true, eps=1e-7):
+    """Computes the weighted Jaccard loss using 'weighted IoUs'.
+
+    Args:
+        true: a tensor of shape [B, H, W] or [B, 1, H, W].
+        logits: a tensor of shape [B, C, H, W]. Corresponds to
+            the raw output or logits of the model.
+        eps: added to the denominator for numerical stability.
+    Returns:
+        jacc_loss: the weighted Jaccard loss.
+    """
+    probas, true_1_hot, dims = inputs(logits, true)
+    intersection = get_intersection(probas, true_1_hot, dims)
+    cardinality = get_cardinality(probas, true_1_hot, dims)
+    union = get_union(cardinality, intersection)
+
+    device = torch.device("cuda:0") if torch.cuda.is_available() else torch.device("cpu")
+    weights = torch.tensor([0.355, 72.171, 5.875], device=device) # Tensor of size [ 3 ]
+
+    jacc_loss = (intersection / (union + eps)) # Tensor of size [ 3 x 1152 ]
+    jacc_loss = jacc_loss.mean(1) # Tensor of size [ 3 ]
+    jacc_loss = (jacc_loss * weights).mean() # Tensor of size [ 1 ]
+    return (1 - jacc_loss)
+
+def focal_tversky_loss(logits, true, alpha=0.7, beta=0.3, gamma=4, eps=1e-7):
+    """Computes the focal Tversky loss.
+
+    Args:
+        true: a tensor of shape [B, H, W] or [B, 1, H, W].
+        logits: a tensor of shape [B, C, H, W]. Corresponds to
+            the raw output or logits of the model.
+        eps: added to the denominator for numerical stability.
+    Returns:
+        jacc_loss: the weighted Jaccard loss.
+    """
+    probas, true_1_hot, dims = inputs(logits, true)
+    TP = get_intersection(probas, true_1_hot, dims)
+    FP = torch.sum(probas, dims) - TP
+    FN = torch.sum(true_1_hot, dims) - TP
+
+    FT_loss = (TP / (TP + alpha*FN + beta*FP + eps)) # Tensor of size [ 3 x 1152 ]
+    FT_loss = FT_loss.mean(1) # Tensor of size [ 3 ]
+    FT_loss = (FT_loss).sum() # Tensor of size [ 1 ]
+    return (1 - FT_loss)**gamma
