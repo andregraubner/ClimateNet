@@ -55,7 +55,7 @@ Each example is a netCDF file containing an array (1152, 768) for one time step,
 | LABELS  | 0: Background, 1: Tropical Cyclone, 2: Atmospheric river  | -      |  
 
 
-The data set is split in a \textbf{training set} of 398 (map, labels) pairs spanning years 1996 to 2010 in the CAM5.1 climate simulation, and a \textbf{test set} of 61 (map, labels) pairs spanning 2011 to 2013.
+The data set is split in a training set of 398 (map, labels) pairs spanning years 1996 to 2010 in the CAM5.1 climate simulation, and a test set of 61 (map, labels) pairs spanning 2011 to 2013.
 
 You can find the data at [https://portal.nersc.gov/project/ClimateNet/](https://portal.nersc.gov/project/ClimateNet/) and we provide a notebook to download the data automatically in the data/ folder.
 
