@@ -157,7 +157,7 @@ def focal_tversky_loss(logits, true, alpha=0.7, beta=0.3, gamma=4, eps=1e-7):
             the raw output or logits of the model.
         eps: added to the denominator for numerical stability.
     Returns:
-        jacc_loss: the weighted Jaccard loss.
+        FT_loss: the focas Tversky loss.
     """
     probas, true_1_hot, dims = inputs(logits, true)
     TP = get_intersection(probas, true_1_hot, dims)
