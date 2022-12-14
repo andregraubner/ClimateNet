@@ -291,4 +291,4 @@ dependencies:
     - widgetsnbextension==4.0.3
     - yacs==0.1.8
     - yarl==1.8.1
-prefix: /cluster/home/earens/miniconda3/envs/tcd
+
