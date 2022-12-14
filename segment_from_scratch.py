@@ -91,18 +91,17 @@ DATA_DIR_CL = f'{DATA_DIR}cl/{patch_size}/'
 
 # collect data and create dataset
 class ImageDataset(Dataset):
-    def __init__(self, setname, path, stage, transform=None, target_transform=None):
+    def __init__(self, setname, path, transform=None, target_transform=None):
 
         # Define the  mask file and the json file for retrieving images
         self.data_dir = path
         self.var_list = var_list
         self.setname = setname
-        self.stage = stage +1
         assert self.setname in ["train", "test", "val"]
         
-        self.file_names = os.listdir(f'{self.data_dir}{self.setname}/stage_{stage}')
+        self.file_names = os.listdir(f'{self.data_dir}{self.setname}')
         if self.setname =='train':
-            self.file_names = os.listdir(f'{self.data_dir}{self.setname}/')
+            self.file_names = os.listdir(f'{self.data_dir}{self.setname}')
 
         self.transform = transform
         self.target_transform = target_transform
@@ -114,7 +113,7 @@ class ImageDataset(Dataset):
         img_name = self.file_names[idx]
 
         #try:    
-        data = xr.load_dataset(f'{self.data_dir}{self.setname}/stage_{self.stage}/{img_name}')
+        data = xr.load_dataset(f'{self.data_dir}{self.setname}/{img_name}')
         #local = np.full(data[self.var_list[0]].shape, float(img_name[-4]))
         
         image = np.concatenate([np.array(data[var]) for var in self.var_list]).astype(np.float32)
@@ -148,17 +147,11 @@ class Scheduler(pl.Callback):
         self._prepare_epoch(trainer, model, trainer.current_epoch + 1)
 
 class Data(LightningDataModule):
-    def __init__(self):
-        super().__init__()
-        self.stage = 1
-      
-    def set_phase(self, epoch):
-        self.stage = epoch//phase_length
 
     def train_dataloader(self):
 
         setname = "train"
-        train_data = ImageDataset(setname, DATA_DIR_CL, self.stage)
+        train_data = ImageDataset(setname, DATA_DIR)
         
         train_dataloader = DataLoader(
             train_data,
@@ -173,7 +166,7 @@ class Data(LightningDataModule):
     def val_dataloader(self):    
 
         setname = "val"
-        val_data = ImageDataset(setname,DATA_DIR_CL, self.stage)
+        val_data = ImageDataset(setname,DATA_DIR_CL)
         val_dataloader = DataLoader(
             val_data,
             batch_size=int(conf["datamodule"]["batch_size"]),
@@ -187,7 +180,7 @@ class Data(LightningDataModule):
     def test_dataloader(self):
 
         setname = "test"
-        test_data = ImageDataset(setname, DATA_DIR_CL, self.stage)
+        test_data = ImageDataset(setname, DATA_DIR_CL)
         
         test_dataloader = DataLoader(
             test_data,
@@ -353,6 +346,5 @@ if __name__ == "__main__":
 
 
     trainer.fit(task, datamodule=data_module)
-
+    trainer.test(model=task, datamodule = data_module)
     wandb.finish()
-    #trainer.test(model=task, datamodule = Data())
