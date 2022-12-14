@@ -103,7 +103,12 @@ def M_o(class_freq, max_exp_patches):
 
 def M(class_freq, max_exp_patches):
     combined = class_freq[:,1]*class_freq[:,2]
-    subset=np.squeeze(np.argwhere(combined > 0))
+    try:
+        subset=np.hstack(np.argwhere(combined > 0))
+    except:
+        subset = np.array([])
+        print(len(subset))
+        print(subset.size)
     if subset.size < 1:
         return []
     elif subset.size < max_exp_patches:
