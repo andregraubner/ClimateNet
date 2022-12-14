@@ -72,7 +72,6 @@ conf = configparser.ConfigParser()
 conf.read(args.conf)
 
 var_list = conf["cl"]["var_list"].split(',')
-event_list = conf['cl']['events'].split(',')
 
 if conf['cl']['extract'] == 'True':
     from utils import cl_prep_2
@@ -86,7 +85,7 @@ patch_size = int(conf['cl']['patch_size'])
 if patch_size % 32 != 0:
         patch_size += 32 - patch_size % 32
 
-DATA_DIR_CL = f'{DATA_DIR}cl/{patch_size}/'
+DATA_DIR = f'{DATA_DIR}'
 
 
 # collect data and create dataset
@@ -112,17 +111,17 @@ class ImageDataset(Dataset):
     def __getitem__(self, idx):
         img_name = self.file_names[idx]
 
-        #try:    
-        data = xr.load_dataset(f'{self.data_dir}{self.setname}/{img_name}')
-        #local = np.full(data[self.var_list[0]].shape, float(img_name[-4]))
-        
-        image = np.concatenate([np.array(data[var]) for var in self.var_list]).astype(np.float32)
-        #image = np.concatenate([image, local]).astype(np.float32)
-        mask = np.array(data['LABELS']).astype(np.uint8)
-        
-        #except:
-        #    print(f'skipped image {img_name}')
-        #    return None
+        try:    
+            data = xr.load_dataset(f'{self.data_dir}{self.setname}/{img_name}')
+            #local = np.full(data[self.var_list[0]].shape, float(img_name[-4]))
+            
+            image = np.concatenate([np.array(data[var]) for var in self.var_list]).astype(np.float32)
+            #image = np.concatenate([image, local]).astype(np.float32)
+            mask = np.array(data['LABELS']).astype(np.uint8)
+            
+        except:
+            print(f'skipped image {img_name}')
+            return None
 
         
 
@@ -166,7 +165,7 @@ class Data(LightningDataModule):
     def val_dataloader(self):    
 
         setname = "val"
-        val_data = ImageDataset(setname,DATA_DIR_CL)
+        val_data = ImageDataset(setname,DATA_DIR)
         val_dataloader = DataLoader(
             val_data,
             batch_size=int(conf["datamodule"]["batch_size"]),
@@ -180,7 +179,7 @@ class Data(LightningDataModule):
     def test_dataloader(self):
 
         setname = "test"
-        test_data = ImageDataset(setname, DATA_DIR_CL)
+        test_data = ImageDataset(setname, DATA_DIR)
         
         test_dataloader = DataLoader(
             test_data,

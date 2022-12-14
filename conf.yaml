@@ -20,7 +20,7 @@ num_classes: 3
 
 
 [datamodule]
-batch_size: 16
+batch_size: 2
 num_workers: 2
 
 [cl]
