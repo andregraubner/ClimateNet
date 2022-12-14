@@ -86,7 +86,10 @@ def BG(class_freq, max_exp_patches):
 
 def M_o(class_freq, max_exp_patches):
     combined = class_freq[:,1]*class_freq[:,2]
-    subset=np.hstack(np.argwhere(combined > 0))
+    try:
+        subset=np.hstack(np.argwhere(combined > 0))
+    except:
+        subset = np.array([])
     if subset.size < 1:
         return []
     if subset.size < max_exp_patches:
