@@ -27,10 +27,12 @@ M_o:    optimal mixed (thresholded)
 M:      random mixed
 
 R:      random patches
+
+A:      all patches
 '''
 def AR_o(class_freq, max_exp_patches):
     subset=np.squeeze(np.argwhere((class_freq[:,1]==0.0)& (class_freq[:,2]>0.0)))
-    if subset.size < 1:
+    if subset.size < 2:
             return []
     elif subset.size < max_exp_patches:
             draws = np.random.choice(subset.size, max_exp_patches)
@@ -41,7 +43,7 @@ def AR_o(class_freq, max_exp_patches):
 
 def AR(class_freq, max_exp_patches):
     subset=np.squeeze(np.argwhere((class_freq[:,1]==0.0)& (class_freq[:,2]>0.0)))
-    if subset.size < 1:
+    if subset.size < 2:
             return []
     elif subset.size < max_exp_patches:
             draws = np.random.choice(subset.size, max_exp_patches)
@@ -52,7 +54,7 @@ def AR(class_freq, max_exp_patches):
 
 def TC_o(class_freq, max_exp_patches):
     subset=np.squeeze(np.argwhere((class_freq[:,2]==0.0)& (class_freq[:,1]>0.0)))
-    if subset.size < 1:
+    if subset.size < 2:
             return []
     elif subset.size < max_exp_patches:
             draws = np.random.choice(subset.size, max_exp_patches)
@@ -63,7 +65,7 @@ def TC_o(class_freq, max_exp_patches):
 
 def TC(class_freq, max_exp_patches):
     subset=np.squeeze(np.argwhere((class_freq[:,2]==0.0)& (class_freq[:,1]>0.0)))
-    if subset.size < 1:
+    if subset.size < 2:
             return []
     elif subset.size < max_exp_patches:
             draws = np.random.choice(subset.size, max_exp_patches)
@@ -75,7 +77,7 @@ def TC(class_freq, max_exp_patches):
 
 def BG(class_freq, max_exp_patches):
     subset=np.squeeze(np.argwhere(class_freq[:,0]==1.0))
-    if subset.size < 1:
+    if subset.size < 2:
             return []
     elif subset.size < max_exp_patches:
             draws = np.random.choice(subset.size, max_exp_patches)
@@ -92,7 +94,7 @@ def M_o(class_freq, max_exp_patches):
         subset = np.array([])
         print(len(subset))
         print(subset.size)
-    if subset.size < 1:
+    if subset.size < 2:
         return []
     if subset.size < max_exp_patches:
         draws = np.random.choice(subset.size, max_exp_patches)
@@ -109,7 +111,7 @@ def M(class_freq, max_exp_patches):
         subset = np.array([])
         print(len(subset))
         print(subset.size)
-    if subset.size < 1:
+    if subset.size < 2:
         return []
     elif subset.size < max_exp_patches:
         draws = np.random.choice(subset.size, max_exp_patches)
@@ -119,6 +121,10 @@ def M(class_freq, max_exp_patches):
     return ids
 
 def R(class_freq, max_exp_patches):
+    ids = np.random.choice(class_freq.shape[0], max_exp_patches, replace = False)
+    return ids
+
+def A(class_freq, max_exp_patches):
     ids = np.random.choice(class_freq.shape[0], max_exp_patches, replace = False)
     return ids
 
@@ -240,7 +246,7 @@ def save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_ex
             xr_patch.to_netcdf(os.path.join(paths[i]+str(set)+'_'+file_name+"_p"+str(n)+".nc"))
             xr_patch.close()
 
-def save_best_patches_test(set, vars,file_name, image, im_patches, class_freq, max_exp_patches):
+def save_best_patches_test(set, vars,file_name, image, im_patches, class_freq, max_exp_patches, mode):
     patch_size = im_patches.shape[-1]
     stride = im_patches.shape[1]
 
@@ -268,11 +274,15 @@ def save_best_patches_test(set, vars,file_name, image, im_patches, class_freq, m
     for i in range(W_out): lon_all[i,:] = lon_im[i*stride:patch_size+i*stride]
     # print(lat_all.shape, lon_all.shape)
 
+
     ###### select best patches; assign correct lat, lon to each patch; create and save .nc file #####
-    path_test = os.path.join(DATA_DIR,'cl/',str(patch_size)+'/',f'{set}/')
-    if not os.path.exists(path_test):
-            os.makedirs(path_test)
-            print(f"Created the folder: {path_test}")
+    if mode == 'True':
+        path_exp = os.path.join(DATA_DIR,str(patch_size)+'/',f'{set}/')
+    else:
+        path_exp = os.path.join(DATA_DIR,'cl/',str(patch_size)+'/',f'{set}/')
+    if not os.path.exists(path_exp):
+            os.makedirs(path_exp)
+            print(f"Created the folder: {path_exp}")
     for n in range(len(im_patches)):
         save_patch = im_patches[idx[n],:,:]
 
@@ -291,27 +301,30 @@ def save_best_patches_test(set, vars,file_name, image, im_patches, class_freq, m
         data_vars["LABELS"] = (['lat', 'lon'], save_patch[0,:,:].astype(np.int64))
 
         xr_patch = xr.Dataset(data_vars=data_vars, coords=coords)
-        xr_patch.to_netcdf(os.path.join(path_test+file_name+"_p"+str(n)+".nc"))
+        xr_patch.to_netcdf(os.path.join(path_exp+file_name+"_p"+str(n)+".nc"))
         xr_patch.close()
 
 def load_single_image(image_path):
     return xr.load_dataset(image_path)
 
-def process_single_image(set, file_name, image, patch_size, stride, vars, max_exp_patches):
+def process_single_image(set, file_name, image, patch_size, stride, vars, max_exp_patches, mode):
     
     im_patches = patch_image(image, patch_size, stride, vars)
     class_freq = calc_class_freq(im_patches)
-    if set == 'test':
-        save_best_patches_test(set, vars,file_name, image, im_patches, class_freq, max_exp_patches)
+
+    if mode == 'True':
+
+        save_best_patches_test(set, vars,file_name, image, im_patches, class_freq, max_exp_patches, mode)
+
     else:
-        save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_exp_patches)
+        if set == 'test':
+            save_best_patches_test(set, vars,file_name, image, im_patches, class_freq, max_exp_patches, mode)
+        else:
+            save_best_patches(set, vars,file_name, image, im_patches, class_freq, max_exp_patches)
 
     return None
 
-def process_all_images(patch_size, stride, vars, max_exp_patches):
-
-    if patch_size % 32 != 0:
-        patch_size += 32 - patch_size % 32
+def process_all_images(patch_size, stride, vars, max_exp_patches, mode):
 
     for set in ['train','val','test']:
 
@@ -328,7 +341,7 @@ def process_all_images(patch_size, stride, vars, max_exp_patches):
 
         print('process images')
         for i, image in enumerate(tqdm(data)):
-            process_single_image(set, file_names[i], image, patch_size, stride, vars, max_exp_patches)
+            process_single_image(set, file_names[i], image, patch_size, stride, vars, max_exp_patches, mode)
 
 
 if __name__ == "__main__":

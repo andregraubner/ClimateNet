@@ -1,8 +1,8 @@
 #!/bin/sh
 #SBATCH --gpus=1
-#SBATCH --gres=gpumem:32GB
-#SBATCH --mem-per-cpu=32GB
-#SBATCH --time=48:00:00
+#SBATCH --gres=gpumem:24GB
+#SBATCH --mem-per-cpu=24GB
+#SBATCH --time=24:00:00
 
 source ~/.bashrc 
 source activate

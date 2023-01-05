@@ -25,6 +25,7 @@ from torch.utils.data import DataLoader, Dataset
 from torchgeo.trainers import SemanticSegmentationTask
 import pytorch_lightning as pl
 import wandb
+from segmentation_mask_overlay import overlay_masks
 from torchmetrics import (
     Accuracy,
     ClasswiseWrapper,
@@ -38,25 +39,21 @@ from torchmetrics import (
 from torchvision.utils import draw_segmentation_masks
 
 import xarray as xr
+Image.MAX_IMAGE_PIXELS = 10000000000000
 
-
-
+#set path to directories from os variable
 DATA_DIR = config("DATA_DIR_A4G")
-
-
-
-
-
 LOG_DIR = config("LOG_DIR_A4G")
 REPO_DIR = config("REPO_DIR_A4G")
 
+#bg image for plots
 bg_im = np.array(Image.open(f'{REPO_DIR}climatenet/bluemarble/BM.jpeg').resize((1152,768)))
-#bg_im = np.transpose(bg_im, (2, 0, 1))
-#print(bg_im.shape)
 class_labels = {0: "BG", 1: "TC",  2: "AR"} 
 
-phase_length = 1
-nr_phases = 5
+mode = 'base'
+
+
+#read in config file
 parser = argparse.ArgumentParser()
 parser.add_argument(
     "--conf",
@@ -71,21 +68,40 @@ args = parser.parse_args()
 conf = configparser.ConfigParser()
 conf.read(args.conf)
 
+#convert chosen channels to list
 var_list = conf["cl"]["var_list"].split(',')
-
-if conf['cl']['extract'] == 'True':
-    from utils import cl_prep_2
-    cl_prep_2.process_all_images(patch_size= int(conf['cl']['patch_size']), 
-                                 stride = int(conf['cl']['stride']), vars = var_list, 
-                                 max_exp_patches = int(conf['cl']['max_nr_patches']),
-                                 folder_names = event_list)
+epoch_lengths = conf["trainer"]["max_epochs"].split(',')
+epoch_lengths = np.cumsum(np.array([int(i) for i in epoch_lengths]))
 
 patch_size = int(conf['cl']['patch_size'])
-
 if patch_size % 32 != 0:
-        patch_size += 32 - patch_size % 32
+        patch_size += 32 - patch_size % 32 # unet requires divisible by 32
 
-DATA_DIR = f'{DATA_DIR}'
+
+# vanilla training
+if conf['cl']['mode'] == 'base':
+    DATA_DIR = f'{DATA_DIR}'
+
+# training on patches
+elif conf['cl']['mode'] == 'patch':
+    DATA_DIR = f'{DATA_DIR}{patch_size}/'
+
+    if conf['cl']['extract'] == 'True':
+        from utils import cl_prep_2
+        cl_prep_2.process_all_images(patch_size= patch_size, 
+                                    stride = int(conf['cl']['stride']), vars = var_list, 
+                                    max_exp_patches = int(conf['cl']['max_nr_patches']), mode = 'True')
+
+
+
+# cl
+elif conf['cl']['mode'] == 'cl':
+    mode = 'cl'
+    from utils import cl_prep_2
+    cl_prep_2.process_all_images(patch_size= patch_size, 
+                                 stride = int(conf['cl']['stride']), vars = var_list, 
+                                 max_exp_patches = int(conf['cl']['max_nr_patches']), mode = 'False')
+
 
 
 # collect data and create dataset
@@ -251,8 +267,50 @@ class Model_Task(SemanticSegmentationTask):
         y_hat_int_numpy = y_hat_int.cpu().numpy()
 
         if batch_idx < 10:
-      
             
+
+            
+            def gen_mask_plot(mask):
+
+                r_val = [205,46,100]
+                g_val = [92,139,149]
+                b_val = [92,87,237]
+
+                r = np.zeros(mask.shape)
+                g = np.zeros(mask.shape)
+                b = np.zeros(mask.shape)
+
+                
+
+                for i, r_i, g_i, b_i in zip([2,1,0], r_val, g_val, b_val):
+
+                    r += np.where(mask == i, r_i, 0).astype(np.uint8)
+                    g += np.where(mask == i, g_i, 0).astype(np.uint8)
+                    b += np.where(mask == i, b_i, 0).astype(np.uint8)
+
+                  
+
+                return np.array([r.astype(np.uint8),g.astype(np.uint8),b.astype(np.uint8)])
+            
+            gt_mask = y_numpy.astype(np.uint8)[0]
+
+            gt_masks = gen_mask_plot(gt_mask)#np.array( [np.where(gt_mask == i, 255, 0).astype(np.uint8) for i in [2,1,0]])
+            gt_masks = np.transpose(gt_masks,(1,2,0))
+
+
+            pred_mask = y_hat_int_numpy.astype(np.uint8)[0]
+
+            pred_masks = gen_mask_plot(pred_mask)#np.array([np.where(pred_mask == i, 255, 0).astype(np.uint8) for i in [2,1,0]])
+            pred_masks = np.transpose(pred_masks,(1,2,0))
+
+            overlay =  0.4 * gt_masks + 0.6 * pred_masks
+
+            wandb.log({"True Ground": wandb.Image(gt_masks),
+                       "Prediction": wandb.Image(pred_masks),
+                       "Overlay": wandb.Image(overlay)}) 
+
+
+            '''
             image = wandb.Image(bg_im.astype(np.uint8), masks={
             "predictions" : {
                 "mask_data" : y_hat_int_numpy.astype(np.uint8)[0],
@@ -264,6 +322,74 @@ class Model_Task(SemanticSegmentationTask):
             }
             })
             wandb.log({"img_with_masks" : image})
+            '''
+    def test_step(self, batch, batch_idx):
+        x, y = batch['image'], batch['mask']
+        x = x.type(torch.float32)
+        y_hat = self.forward(x)
+        y_hat_int = y_hat.argmax(dim=1)
+        
+
+        loss = self.loss(y_hat, y) 
+        self.log("test_loss", loss, on_step=False, on_epoch=True)
+        self.test_metrics(y_hat_int, y)
+
+        y_numpy = y.cpu().numpy()
+        y_hat_int_numpy = y_hat_int.cpu().numpy()
+
+        if batch_idx < 10:
+      
+            def gen_mask_plot(mask):
+
+                r_val = [205,46,100]
+                g_val = [92,139,149]
+                b_val = [92,87,237]
+
+                r = np.zeros(mask.shape)
+                g = np.zeros(mask.shape)
+                b = np.zeros(mask.shape)
+
+                
+
+                for i, r_i, g_i, b_i in zip([2,1,0], r_val, g_val, b_val):
+
+                    r += np.where(mask == i, r_i, 0).astype(np.uint8)
+                    g += np.where(mask == i, g_i, 0).astype(np.uint8)
+                    b += np.where(mask == i, b_i, 0).astype(np.uint8)
+
+                  
+
+                return np.array([r.astype(np.uint8),g.astype(np.uint8),b.astype(np.uint8)])
+            
+            gt_mask = y_numpy.astype(np.uint8)[0]
+
+            gt_masks = gen_mask_plot(gt_mask)#np.array( [np.where(gt_mask == i, 255, 0).astype(np.uint8) for i in [2,1,0]])
+            gt_masks = np.transpose(gt_masks,(1,2,0))
+
+
+            pred_mask = y_hat_int_numpy.astype(np.uint8)[0]
+
+            pred_masks = gen_mask_plot(pred_mask)#np.array([np.where(pred_mask == i, 255, 0).astype(np.uint8) for i in [2,1,0]])
+            pred_masks = np.transpose(pred_masks,(1,2,0))
+
+            overlay =  0.4 * gt_masks + 0.6 * pred_masks
+
+            wandb.log({"True Ground Test": wandb.Image(gt_masks),
+                       "Prediction Test": wandb.Image(pred_masks),
+                       "Overlay Test": wandb.Image(overlay)}) 
+            '''
+            image = wandb.Image(bg_im.astype(np.uint8), masks={
+            "predictions" : {
+                "mask_data" : y_hat_int_numpy.astype(np.uint8)[0],
+                "class_labels" : class_labels
+            },
+            "ground_truth" : {
+                "mask_data" :y_numpy.astype(np.uint8)[0],
+                "class_labels" : class_labels
+            }
+            })
+            wandb.log({"img_with_masks_test" : image})
+            '''
             
             
 
@@ -293,15 +419,31 @@ class Model_Task(SemanticSegmentationTask):
         self.log_dict(new_metrics)
         self.val_metrics.reset()
 
+    def test_epoch_end(self, outputs):
+            """Logs epoch level validation metrics.
+
+            Args:
+                outputs: list of items returned by validation_step
+            """
+            computed = self.test_metrics.compute()
+            new_metrics = {
+                k: computed[k] for k in set(list(computed))}
+            
+            self.log_dict(new_metrics)
+            self.test_metrics.reset()
 if __name__ == "__main__":
     
 
 
 
     wandb.init(entity="ai4good", project="segment_from_scratch")
-    data_module = Data()
+    log_spot = conf["logging"]["log_nr"]
+    log_dir = f'{LOG_DIR}{log_spot}/'
 
-    log_dir = LOG_DIR + time.strftime("%Y%m%d-%H%M%S")
+    if not os.path.exists(log_dir):
+        print(f'Create {log_dir}')
+
+        os.makedirs(log_dir)
 
     # checkpoints and loggers
     checkpoint_callback = ModelCheckpoint(
@@ -310,15 +452,17 @@ if __name__ == "__main__":
             save_top_k=1,
             save_last=True,
     )
-    early_stopping_callback = EarlyStopping(
-            monitor="val_loss", min_delta=0.00, patience=10
-    )
-    csv_logger = CSVLogger(save_dir=log_dir, name="logs")
 
+    
+    csv_logger = CSVLogger(save_dir=log_dir, name="logs")
     wandb_logger = WandbLogger(entity="ai4good", log_model=True, project="segment_from_scratch")
 
-    # set up task
-    task = Model_Task(
+    if mode == 'base':
+        early_stopping_callback = EarlyStopping(monitor="val_loss", min_delta=0.00, patience=10)
+        data_module = Data()
+        
+        # set up task
+        task = Model_Task(
         segmentation_model=conf["model"]["segmentation_model"],
         encoder_name=conf["model"]["backbone"],
         encoder_weights="imagenet" if conf["model"]["pretrained"] == "True" else "None",
@@ -328,22 +472,81 @@ if __name__ == "__main__":
         ignore_index=None,
         learning_rate=float(conf["model"]["learning_rate"]),
         learning_rate_schedule_patience=int(
-            conf["model"]["learning_rate_schedule_patience"]
-        ),
-    )
+            conf["model"]["learning_rate_schedule_patience"]),
+        )
 
-    trainer = Trainer(
+
+        trainer = Trainer(
         callbacks=[checkpoint_callback, early_stopping_callback],
         logger=[csv_logger, wandb_logger],
         accelerator="gpu",
-        max_epochs=nr_phases*phase_length,
+        max_epochs=int(epoch_lengths[0]),
         max_time=conf["trainer"]["max_time"],
         auto_lr_find=conf["trainer"]["auto_lr_find"] == "True",
         auto_scale_batch_size=conf["trainer"]["auto_scale_batch_size"] == "True",
-        reload_dataloaders_every_n_epochs=phase_length,
-    )
+        )
 
 
-    trainer.fit(task, datamodule=data_module)
-    trainer.test(model=task, datamodule = data_module)
-    wandb.finish()
+        trainer.fit(task, datamodule=data_module)
+        trainer.test(model=task, datamodule = data_module)
+        wandb.finish()
+    
+    else:
+
+        nr_stages = int(conf["cl"]["nr_stages"])
+
+        for i in range(nr_stages):
+            print(f'Starting training round {i}')
+            data_module = Data(stage = i+1)
+            stage_nr = i+1
+
+    
+            # set up task
+            task = Model_Task(
+            segmentation_model=conf["model"]["segmentation_model"],
+            encoder_name=conf["model"]["backbone"],
+            encoder_weights="imagenet" if conf["model"]["pretrained"] == "True" else "None",
+            in_channels=len(var_list),
+            num_classes=int(conf["model"]["num_classes"]),
+            loss=conf["model"]["loss"],
+            ignore_index=None,
+            learning_rate=float(conf["model"]["learning_rate"]),
+            learning_rate_schedule_patience=int(
+                conf["model"]["learning_rate_schedule_patience"]),
+            )
+
+            if i == 0:
+                trainer = Trainer(
+                callbacks=[checkpoint_callback],
+                logger=[csv_logger, wandb_logger],
+                accelerator="gpu",
+                max_epochs=int(epoch_lengths[i]),
+                max_time=conf["trainer"]["max_time"],
+                auto_lr_find=conf["trainer"]["auto_lr_find"] == "True",
+                auto_scale_batch_size=conf["trainer"]["auto_scale_batch_size"] == "True",
+                )
+            
+                trainer.fit(task, datamodule=data_module)
+
+
+            else:
+
+                checkpoints = os.listdir(f'{LOG_DIR}{log_spot}/checkpoints')
+                checkpoint = checkpoints[-1]
+                trainer = Trainer(
+                callbacks=[checkpoint_callback],
+                logger=[csv_logger, wandb_logger],
+                accelerator="gpu",
+                max_epochs=int(epoch_lengths[i]),
+                max_time=conf["trainer"]["max_time"],
+                auto_lr_find=conf["trainer"]["auto_lr_find"] == "True",
+                auto_scale_batch_size=conf["trainer"]["auto_scale_batch_size"] == "True",
+                )
+                trainer.fit(task, datamodule=data_module, ckpt_path = f'{LOG_DIR}{log_spot}/checkpoints/{checkpoint}')
+
+
+        trainer.test(model=task, datamodule = data_module)
+        wandb.finish()
+
+
+    
