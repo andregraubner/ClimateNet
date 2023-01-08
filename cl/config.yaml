@@ -1,0 +1,46 @@
+
+[path]
+data_path: /cluster/scratch/earens/ai4good_data/
+repo_path: /cluster/home/earens/ai4good/ClimateNet_AI4Good/
+log_path: /cluster/scratch/earens/a4g-logs/
+
+[wandb]
+entity: ai4good
+project: segment_from_scratch
+
+[trainer]
+gpus: 1
+min_epochs: 1
+max_epochs: 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,6
+auto_lr_find: True
+auto_scale_batch_size: False
+precision: 16
+max_time: 00:23:50:00
+
+[model]
+loss: focal 
+segmentation_model: unet
+backbone: resnet18
+learning_rate: 1e-3
+pretrained: True
+learning_rate_schedule_patience: 10
+encoder_weights: imagenet  
+num_classes: 3
+
+
+[datamodule]
+batch_size: 16
+num_workers: 2
+
+[cl]
+mode: cl
+patch_size: 128
+stride: 90
+extract: True
+max_nr_patches: 5
+var_list: TMQ,U850,V850,PRECT
+nr_stages: 20
+
+
+[logging]
+log_nr: cl_complex_smooth_2
